@@ -1,224 +1,233 @@
-"""End-to-end UI test for the UPPSC BEO grading workspace.
-Usage: python3 ui_e2e.py <base_url> <screenshot_dir>
-Exercises every stage and control, and checks visible text for AI-facing terms."""
-import re, sys, os, json
+"""Browser test for the UPPSC BEO examiner workspace (five-section layout).
+
+Usage: python3 ui_e2e.py <base_url> <screenshot_dir> [scan_png]
+Exercises every section and control in a real browser and checks that no
+AI-facing or internal terms appear on the page.
+"""
+import os
+import re
+import sys
+import pathlib
 from playwright.sync_api import sync_playwright
 
 BASE = sys.argv[1].rstrip("/")
 SHOTS = sys.argv[2] if len(sys.argv) > 2 else "/tmp/shots"
+SCAN = sys.argv[3] if len(sys.argv) > 3 else "/home/user/apps/web/public/scans/gs17_cand01_p1_deskewed.png"
 os.makedirs(SHOTS, exist_ok=True)
 results = []
 
 
 def check(name, cond, detail=""):
     results.append((name, bool(cond), str(detail)))
-    d = str(detail)[:160].replace("\n", " | ")
-    print(("PASS " if cond else "FAIL ") + name + ("" if cond or not detail else f"  [{d}]"))
+    print(("PASS " if cond else "FAIL ") + name + ("" if cond or not detail else f"  [{str(detail)[:160]}]"))
 
 
 FORBIDDEN = re.compile(
     r"\b(AI|VLM|LLM|Gemini|Qwen\S*|Bodhan|IndicOCR|Surya|PaddleOCR|PP-OCR\S*|Tesseract|Restormer|"
     r"Real-ESRGAN|Deterministic|Pinned|Teacher|Pseudonym\S*|SSRF|Immutable|Sparkles|Zero-Context|NFC|"
-    r"SHA-256|CMap|OCR/HTR|Magic-byte|Quarantine|quarantine|RIARY|CMap|CMAP)\b",
+    r"SHA-256|CMap|OCR/HTR|Magic-byte|Quarantine|quarantine|Validator|Rubric-bounded)\b",
     re.I,
 )
+
+# a deliberately invalid upload: text bytes named as a PNG
+pathlib.Path("/tmp/fake_upload.png").write_text("this is not an image")
 
 with sync_playwright() as p:
     browser = p.chromium.launch()
     page = browser.new_page(viewport={"width": 1440, "height": 900}, accept_downloads=True)
-    console_errors, page_errors = [], []
-    page.on("console", lambda m: console_errors.append(m.text) if m.type == "error" else None)
+    page_errors, console_errors, bad_responses = [], [], []
     page.on("pageerror", lambda e: page_errors.append(str(e)))
-    failed_responses = []
-    page.on("response", lambda r: failed_responses.append(r.url) if r.status >= 400 else None)
+    page.on("console", lambda m: console_errors.append(m.text) if m.type == "error" else None)
+    page.on("response", lambda r: bad_responses.append(f"{r.status} {r.url}") if r.status >= 400 else None)
+
     page.goto(BASE + "/", wait_until="networkidle")
     page.wait_for_selector("text=UPPSC BEO Mains", timeout=30000)
-    page.wait_for_timeout(800)
+    page.wait_for_timeout(600)
 
-    def text():
+    def body():
         return page.inner_text("body")
 
-    def T():
-        return page.inner_text("body").lower()
-
-    def leak_scan(label):
-        # "teacher" is legitimate exam wording inside some questions; exclude it from the scan
-        body_txt = re.sub(r"(?i)\bteacher\b", "", text())
-        hits = sorted(set(m.group(0) for m in FORBIDDEN.finditer(body_txt)))
-        check(f"no AI/internal terms visible [{label}]", not hits, f"found {hits}")
-
-    def nav(label_re):
-        page.get_by_role("button", name=re.compile(label_re)).first.click()
+    def tab(name):
+        page.get_by_role("button", name=name, exact=True).first.click()
         page.wait_for_timeout(500)
 
-    # ---------------- global ----------------
-    leak_scan("header")
-    check("sample-data notice shown", "sample data for demonstration" in T())
-    for lbl in ["Question Papers", "Upload Answer", "Read & Check", "Grade & Review",
-                "Candidate Report", "Quality & Security"]:
-        check(f"nav button exists: {lbl}", page.get_by_role("button", name=re.compile(lbl)).count() > 0)
+    def leak_scan(label):
+        hits = sorted(set(m.group(0) for m in FORBIDDEN.finditer(body())))
+        check(f"no AI/internal terms [{label}]", not hits, f"found {hits}")
 
-    # ---------------- STAGE 1 ----------------
-    nav("Question Papers")
-    page.screenshot(path=f"{SHOTS}/01_stage1_gs.png")
-    rows = page.locator("div.lg\\:col-span-5 button")
-    check("GS paper: 40 question rows", rows.count() == 40, f"count={rows.count()}")
-    for sec in ["Sec A", "Sec B", "Sec C"]:
-        page.get_by_role("button", name=sec, exact=True).click()
-        page.wait_for_timeout(200)
-        check(f"section filter {sec} lists rows", rows.count() > 0, f"count={rows.count()}")
-    page.get_by_role("button", name="All (40)", exact=True).click()
+    # ---------- shell ----------
+    for name in ["Papers", "Answer sheets", "Handwriting", "Marks", "Report"]:
+        check(f"nav has '{name}'", page.get_by_role("button", name=name, exact=True).count() == 1)
+    check("exactly five sections (no security tab)", page.get_by_role("button", name=re.compile("Security|Quality")).count() == 0)
+    check("sample-data note shown", "demonstration data" in body().lower())
+    leak_scan("shell")
+
+    # ---------- 1. Papers ----------
+    check("two paper cards", page.locator("button[aria-pressed]", has_text=re.compile("marks$")).count() == 2)
+    check("GS paper shows Approved", "Approved" in body())
+    rows = page.locator("li > button")
+    check("GS: 40 question rows", rows.count() == 40, f"count={rows.count()}")
+    page.get_by_role("button", name=re.compile(r"Section A")).click()
+    page.wait_for_timeout(300)
+    check("Section A filter: 10 rows", rows.count() == 10, f"count={rows.count()}")
+    page.get_by_role("button", name=re.compile(r"^All")).click()
+    page.get_by_role("searchbox", name="Search questions").fill("Vedic")
+    page.wait_for_timeout(300)
+    check("search 'Vedic' finds rows", 1 <= rows.count() <= 40, f"count={rows.count()}")
+    page.get_by_role("searchbox", name="Search questions").fill("zzzz-no-match")
+    page.wait_for_timeout(300)
+    check("search with no match shows empty state", "No matching questions." in body())
+    page.get_by_role("searchbox", name="Search questions").fill("")
+    page.wait_for_timeout(300)
+    rows.nth(4).click()
+    page.wait_for_timeout(300)
+    check("question detail shows criteria table", "Marking criteria" in body())
+    check("question detail shows expected points", page.get_by_text(re.compile(r"Expected points")).count() == 1)
+    page.screenshot(path=f"{SHOTS}/01_papers_gs.png", full_page=True)
+    leak_scan("papers GS")
+
+    page.locator("details summary", has_text="Import notes").click()
     page.wait_for_timeout(200)
-    check("All (40) restores 40 rows", rows.count() == 40, f"count={rows.count()}")
-    search = page.get_by_placeholder("Search Hindi/English question or topic...")
-    search.fill("Vedic")
-    page.wait_for_timeout(300)
-    check("search 'Vedic' finds matches", rows.count() >= 1, f"count={rows.count()}")
-    search.fill("zzzz-no-match")
-    page.wait_for_timeout(300)
-    check("search with no match shows empty state", "no matching questions found." in T())
-    search.fill("")
-    page.wait_for_timeout(300)
-    rows.nth(10).click()
-    page.wait_for_timeout(300)
-    body = T()
-    check("question detail: marks breakdown heading", "marks breakdown & allowed steps" in body)
-    check("question detail: answer outline heading", "answer outline (for examiner reference)" in body)
-    check("question detail: reference sources heading", "reference sources (approved sites only)" in body)
-    check("GS Q11 detail shows outline points", "iron" in body.lower().lower() or "trade" in body.lower().lower())
-    leak_scan("stage1 GS detail")
-    page.get_by_role("button", name=re.compile("Mock 16")).first.click()
-    page.wait_for_timeout(500)
-    check("Hindi paper: 13 item rows", rows.count() == 13, f"count={rows.count()}")
-    rows.nth(0).click()
-    page.wait_for_timeout(300)
-    check("Hindi item detail shows marks breakdown", "marks breakdown & allowed steps" in T())
-    page.screenshot(path=f"{SHOTS}/02_stage1_hindi.png")
-    page.get_by_text("Apply a fixed mark deduction for factual errors").click()
-    page.wait_for_timeout(200)
-    check("penalty toggle reveals deduction input", page.locator("input[type=number][step='0.5']").count() >= 1)
-    page.get_by_text("Apply a fixed mark deduction for factual errors").click()
-    page.wait_for_timeout(200)
-    page.get_by_placeholder("Reason for approval (required)").fill("Checked against the 13-item pattern (test run).")
-    page.get_by_role("button", name=re.compile("Approve & publish Hindi Mock 16")).click()
+    notes = page.locator("details", has_text="Import notes").locator("li")
+    check("import notes list 14 issues", notes.count() == 14, f"count={notes.count()}")
+
+    page.get_by_role("button", name=re.compile("Hindi Mock 16")).click()
+    page.wait_for_timeout(800)
+    check("Hindi: 13 item rows", rows.count() == 13, f"count={rows.count()}")
+    if page.get_by_role("button", name="Approve and publish").count() == 1:
+        check("Hindi draft shows approval box", "Approve the marking scheme" in body())
+        page.get_by_role("checkbox", name=re.compile("fixed deduction")).check()
+        check("deduction checkbox reveals amount input",
+              page.get_by_label("Deduction per factual error").count() == 1)
+        page.get_by_role("checkbox", name=re.compile("fixed deduction")).uncheck()
+        page.get_by_role("button", name="Approve and publish").click()
+        page.wait_for_timeout(1200)
+        check("publishing approves the Hindi scheme", "Approved" in body() and page.get_by_role("button", name="Approve and publish").count() == 0)
+    else:
+        check("Hindi scheme already approved (state persists)", "Approved" in body())
+    page.screenshot(path=f"{SHOTS}/02_papers_hindi.png", full_page=True)
+    leak_scan("papers Hindi")
+
+    # ---------- 2. Answer sheets ----------
+    page.get_by_role("button", name=re.compile("Mock 17|General Studies|GS")).first.click()
+    page.wait_for_timeout(800)
+    tab("Answer sheets")
+    check("upload target select present", page.get_by_label("This sheet answers").count() == 1)
+    page.locator("input[type=file]").set_input_files("/tmp/fake_upload.png")
+    page.wait_for_timeout(1200)
+    check("invalid file is refused with a message", "not accepted" in body().lower())
+    page.locator("input[type=file]").set_input_files(SCAN)
     page.wait_for_timeout(1500)
-    check("publishing Hindi scheme shows Approved status", "approved" in T())
-    page.get_by_role("button", name=re.compile("GS Mock 17")).first.click()
-    page.wait_for_timeout(400)
-    leak_scan("stage1 end")
-
-    # ---------------- STAGE 2 ----------------
-    nav("Upload Answer")
-    check("upload stage renders", "upload an answer sheet" in T())
-    page.screenshot(path=f"{SHOTS}/03_stage2.png")
-    bad = "/tmp/uiclean_not_an_image.png"
-    open(bad, "w").write("this is plain text, not an image")
-    page.set_input_files("input[type=file]", bad)
-    page.wait_for_timeout(1500)
-    check("invalid file is rejected with a message", "not accepted" in T(),
-          text()[-200:])
-    good = "/home/user/apps/web/public/scans/hi16_cand02_p1_original.png"
-    page.set_input_files("input[type=file]", good)
-    page.wait_for_timeout(2000)
-    check("valid PNG upload accepted", "file accepted" in T() or "page views are ready" in T())
-    check("file-check result shows MIME", "mime" in T())
-    page.get_by_role("button", name=re.compile(r"^Page 1 ")).first.click()
+    check("valid PNG accepted", "Passed" in body() and "PNG" in body())
+    check("file fingerprint shown", "Fingerprint" in body() or "Size" in body())
+    page_buttons = page.get_by_role("button", name=re.compile(r"^Page \d+$"))
+    check("page buttons listed", page_buttons.count() >= 2, f"count={page_buttons.count()}")
+    variant_btns = ["Original scan", "Straightened", "Brightness balanced", "High-contrast ink", "Sharpened preview"]
+    for v in variant_btns:
+        check(f"variant button '{v}'", page.get_by_role("button", name=v, exact=True).count() == 1)
+    page.get_by_role("button", name=re.compile(r"^Page 1$")).click()
     page.wait_for_timeout(300)
-    srcs = []
-    for lbl in ["Straightened", "Brightness balanced", "High-contrast ink", "Sharpened preview", "Original scan"]:
-        page.get_by_role("button", name=re.compile(lbl)).first.click()
-        page.wait_for_timeout(250)
-        img = page.locator("img[alt^='Scan page']").first
-        srcs.append(img.get_attribute("src") or "")
-        check(f"page view '{lbl}' renders an image", img.count() == 1 and srcs[-1] != "")
-    check("page views switch image source", len(set(srcs)) >= 3, f"distinct={len(set(srcs))}")
-    check("candidate pages listed (seeded + uploaded)", page.get_by_role("button", name=re.compile(r"^Page \d")).count() >= 3)
-    leak_scan("stage2")
+    img = page.locator("img[alt^='Page']").first
+    src_a = img.get_attribute("src")
+    page.get_by_role("button", name="Brightness balanced", exact=True).click()
+    page.wait_for_timeout(300)
+    src_b = page.locator("img[alt^='Page']").first.get_attribute("src")
+    check("page view switches image source", src_a != src_b)
+    page.get_by_role("button", name="High-contrast ink", exact=True).click()
+    page.wait_for_timeout(200)
+    check("enhanced views carry a caution note", "cannot add strokes" in body())
+    page.get_by_role("button", name="Original scan", exact=True).click()
+    answer_rows = page.locator("tbody tr")
+    check("answers table lists sheet answers", answer_rows.count() >= 1, f"count={answer_rows.count()}")
+    page.screenshot(path=f"{SHOTS}/03_sheets.png", full_page=True)
+    leak_scan("sheets")
 
-    # ---------------- STAGE 3 ----------------
-    nav("Read & Check")
-    check("stage 3 renders transcript editor", page.locator("#transcript-editor").count() == 1)
-    page.screenshot(path=f"{SHOTS}/04_stage3.png")
+    # ---------- 3. Handwriting ----------
+    page.get_by_role("button", name="Open").first.click()
+    page.wait_for_timeout(600)
+    check("Open lands on Handwriting", page.get_by_role("button", name="Handwriting", exact=True).get_attribute("aria-current") == "page")
+    editor = page.locator("#transcript-editor")
+    check("transcript editor present", editor.count() == 1)
     use_btns = page.get_by_role("button", name="Use this reading")
-    check("readings have 'Use this reading' buttons", use_btns.count() >= 1, f"count={use_btns.count()}")
-    if use_btns.count() >= 2:
-        use_btns.nth(1).click()
-        page.wait_for_timeout(200)
-        check("'Use this reading' loads text into editor",
-              page.locator("#transcript-editor").input_value().strip() != "")
-    ta = page.locator("#transcript-editor")
-    ta.fill(ta.input_value() + " परीक्षण।")
-    drafts_before = page.get_by_text("Draft", exact=True).count()
-    page.get_by_role("button", name="Save draft").click()
-    page.wait_for_timeout(900)
-    check("save draft adds a version to history", page.get_by_text("Draft", exact=True).count() > drafts_before)
-    page.get_by_role("button", name="Confirm transcript").click()
-    page.wait_for_timeout(900)
-    check("confirm transcript adds a confirmed version", page.get_by_text("Confirmed", exact=True).count() >= 1)
-    page.get_by_role("button", name="Go to grading").click()
-    page.wait_for_timeout(700)
-    check("'Go to grading' navigates to grading stage", "recalculate marks" in T())
-    leak_scan("stage3")
-
-    # ---------------- STAGE 4 ----------------
-    page.screenshot(path=f"{SHOTS}/05_stage4.png")
-    body = T()
-    check("grading: criterion breakdown shown", "marks by criterion & evidence" in body)
-    check("grading: question total shown", "question total:" in body)
-    check("grading: feedback sections shown", "how to improve" in body)
-    page.get_by_role("button", name="Recalculate marks").click()
-    page.wait_for_timeout(1200)
-    check("recalculate marks completes", "recalculate marks" in T())
-    check("review decision dropdown offers 3 choices",
-          page.get_by_role("option", name="Accept suggested marks").count() == 1
-          and page.get_by_role("option", name="Change marks (reason required)").count() == 1)
-    page.locator("input[type=number][step='0.5'][min='0']").last.fill("3.5")
-    page.locator("textarea").last.fill("Test review: partial coverage of the directive.")
-    page.get_by_role("button", name="Save review").click()
-    page.wait_for_timeout(1200)
-    check("saved review appears in review history", "review history:" in T())
-    leak_scan("stage4")
-
-    # ---------------- STAGE 5 ----------------
-    nav("Candidate Report")
-    body = T()
-    check("report shows candidate ID", "candidate id:" in body)
-    check("report shows human-readable paper status", "approved" in body or "draft" in body)
-    check("report has per-question rows", "mock 17-01" in body)
-    page.screenshot(path=f"{SHOTS}/06_stage5.png")
-    with page.expect_download() as dl:
-        page.get_by_role("button", name=re.compile("Export report")).click()
-    check("export downloads JSON report", dl.value.suggested_filename.endswith(".json"), dl.value.suggested_filename)
-    leak_scan("stage5")
-
-    # ---------------- STAGE 6 ----------------
-    nav("Quality & Security")
-    body = T()
-    check("reader comparison table renders", "reader comparison" in body)
-    check("reader rows present", "reader a" in body and "reader b" in body)
-    check("planning-target disclaimer shown", "planning targets" in body)
-    page.screenshot(path=f"{SHOTS}/07_stage6.png")
-    page.get_by_role("button", name="Try a blocked address").click()
+    check("readings listed with 'Use this reading'", use_btns.count() >= 1, f"count={use_btns.count()}")
+    use_btns.first.click()
+    check("'Use this reading' fills the transcript", len(editor.input_value()) > 20)
+    rev_before = re.search(r"Revision history \((\d+)\)", body())
+    rev_before = int(rev_before.group(1)) if rev_before else 0
+    editor.fill(editor.input_value() + " ।")
+    page.get_by_role("button", name="Save draft revision").click()
+    page.wait_for_timeout(1000)
+    rev_after = re.search(r"Revision history \((\d+)\)", body())
+    rev_after = int(rev_after.group(1)) if rev_after else 0
+    check("saving a draft adds a revision", rev_after == rev_before + 1, f"{rev_before}->{rev_after}")
+    page.get_by_role("button", name="Confirm for grading").click()
+    page.wait_for_timeout(1000)
+    page.locator("summary", has_text="Revision history").click()
     page.wait_for_timeout(200)
-    page.get_by_role("button", name="Run safety check").click()
-    page.wait_for_timeout(900)
-    check("blocked metadata address is refused", "link allowed: false" in T())
-    check("hidden instruction is flagged", "hidden instruction found: true" in T())
-    check("activity log lists events", "activity log" in T())
-    leak_scan("stage6")
+    check("confirming adds a confirmed revision", "Confirmed" in body())
+    zoom_txt = page.get_by_role("button", name="Zoom in").click()
+    page.wait_for_timeout(200)
+    check("zoom in changes zoom level", "125%" in body())
+    page.get_by_role("button", name="Zoom out").click()
+    page.get_by_role("button", name="Rotate").click()
+    page.wait_for_timeout(200)
+    check("rotate applies a transform", page.locator("div[style*='rotate(90deg)']").count() == 1)
+    page.screenshot(path=f"{SHOTS}/04_handwriting.png", full_page=True)
+    leak_scan("handwriting")
 
-    # ---------------- errors ----------------
+    # ---------- 4. Marks ----------
+    tab("Marks")
+    if page.get_by_role("button", name="Calculate marks").count() == 1:
+        page.get_by_role("button", name="Calculate marks").click()
+    else:
+        page.get_by_role("button", name="Recalculate marks").click()
+    page.wait_for_timeout(1200)
+    check("marks calculated", "Suggested marks" in body())
+    check("criteria table lists marks", page.get_by_role("cell", name=re.compile("Content|Relevance|Analysis|Language|Structure")).count() >= 1)
+    crit_input = page.get_by_label(re.compile("New marks for")).first
+    crit_input.fill("1")
+    page.get_by_role("button", name="Set").first.click()
+    page.wait_for_timeout(900)
+    check("criterion mark can be adjusted", "Criterion mark updated" in body())
+    decision = page.get_by_label("Decision")
+    decision.select_option("overridden")
+    save_btn = page.get_by_role("button", name="Save decision")
+    check("override is blocked without a reason", save_btn.is_disabled())
+    page.locator("#reason").fill("Checked against the scan; content mark corrected.")
+    check("override enabled once reason is given", save_btn.is_enabled())
+    save_btn.click()
+    page.wait_for_timeout(1000)
+    check("decision saved to history", "Changed" in body())
+    decision.select_option("approved")
+    page.screenshot(path=f"{SHOTS}/05_marks.png", full_page=True)
+    leak_scan("marks")
+
+    # ---------- 5. Report ----------
+    tab("Report")
+    check("report lists per-question rows", page.locator("tbody tr").count() >= 1)
+    check("report total row shown", "Total (" in body())
+    export_btn = page.get_by_role("button", name="Export report (JSON)")
+    check("export locked until authorised", export_btn.is_disabled())
+    page.get_by_role("checkbox", name=re.compile("authorise")).check()
+    check("export unlocked after authorisation", export_btn.is_enabled())
+    with page.expect_download() as dl:
+        export_btn.click()
+    check("export downloads JSON report", dl.value.suggested_filename.endswith("-report.json"), dl.value.suggested_filename)
+    page.locator("details summary", has_text="Activity log").click()
+    page.wait_for_timeout(200)
+    check("activity log lists events", page.locator("details li").count() >= 1)
+    page.screenshot(path=f"{SHOTS}/06_report.png", full_page=True)
+    leak_scan("report")
+
+    # ---------- global ----------
     check("no uncaught page errors", not page_errors, "; ".join(page_errors)[:300])
-    # Failed-load console lines are checked precisely via responses below.
-    real = [c for c in console_errors if "favicon" not in c.lower() and "Failed to load resource" not in c]
-    check("no console errors", not real, "; ".join(real)[:300])
-    static_assets_bad = [u for u in failed_responses if "/api/v1/" not in u]
-    check("every page asset / image loads (no non-API 4xx/5xx)", not static_assets_bad, "; ".join(static_assets_bad)[:300])
-    api_probe_errors = [u for u in failed_responses if "/api/v1/" in u]
-    print(f"   (expected API responses with 4xx reasons or static fallbacks: {len(api_probe_errors)})")
+    real_console = [c for c in console_errors if "Failed to load resource" not in c]
+    check("no console errors", not real_console, "; ".join(real_console)[:300])
+    unexpected = [r for r in bad_responses if "/uploads" not in r]
+    check("no unexpected HTTP errors", not unexpected, "; ".join(unexpected)[:300])
+
     browser.close()
 
 passed = sum(1 for _, ok, _ in results if ok)
-print(f"\n== {passed}/{len(results)} checks passed ==")
-with open(os.path.join(SHOTS, "results.json"), "w") as f:
-    json.dump([{"name": n, "ok": ok, "detail": d} for n, ok, d in results], f, ensure_ascii=False, indent=2)
+print(f"\n{passed}/{len(results)} checks passed")
+sys.exit(0 if passed == len(results) else 1)

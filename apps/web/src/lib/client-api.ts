@@ -530,6 +530,10 @@ async function handleStaticFallback(url: string, init?: RequestInit): Promise<Re
 }
 
 export async function apiFetch(url: string, init?: RequestInit): Promise<Response> {
+  // The public static site has no API server: answer directly from the built-in data.
+  if (process.env.NEXT_PUBLIC_STATIC_SITE === "true") {
+    return handleStaticFallback(url, init);
+  }
   try {
     const res = await fetch(url, init);
     // A JSON reply means a real API answered (including 4xx with a reason) — return it as-is.

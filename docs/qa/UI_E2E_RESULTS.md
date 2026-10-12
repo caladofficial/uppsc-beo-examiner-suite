@@ -1,154 +1,31 @@
-# UI End-to-End Test Results
+# UI browser test results
 
-Generated: 2026-10-12 (test driver: `tests/e2e/ui_e2e.py`, headless Chromium via Playwright)
+Test: `/home/user/tests/e2e/ui_e2e.py <base_url> <screenshot_dir>`
+Browser: Chromium via Playwright, 1440 px desktop viewport.
 
-| Target | Checks passed |
-|---|---|
-| Server build (Next.js on Vercel-style server, port 3000) | 66 / 66 |
-| Static build (GitHub Pages base path, served locally) | 66 / 66 |
+## Latest run (five-section examiner workspace)
 
-The suite walks all six workflow stages, clicks every filter, search box, page-view tab, reader choice,
-transcript action, grading control, review form, export, and safety check, then scans the visible text
-for AI-facing or internal terms and checks for uncaught errors and failed asset loads.
+| Build | Base URL | Result |
+|---|---|---|
+| Next.js server build | `http://127.0.0.1:3000` | 63 / 63 |
+| Static GitHub Pages build | `http://127.0.0.1:3100/uppsc-beo-examiner-suite` | 63 / 63 |
 
-## Server build — checks
+### What the 63 checks cover
 
-| | Check |
-|---|---|
-| ✅ | no AI/internal terms visible [header] |
-| ✅ | sample-data notice shown |
-| ✅ | nav button exists: Question Papers |
-| ✅ | nav button exists: Upload Answer |
-| ✅ | nav button exists: Read & Check |
-| ✅ | nav button exists: Grade & Review |
-| ✅ | nav button exists: Candidate Report |
-| ✅ | nav button exists: Quality & Security |
-| ✅ | GS paper: 40 question rows |
-| ✅ | section filter Sec A lists rows |
-| ✅ | section filter Sec B lists rows |
-| ✅ | section filter Sec C lists rows |
-| ✅ | All (40) restores 40 rows |
-| ✅ | search 'Vedic' finds matches |
-| ✅ | search with no match shows empty state |
-| ✅ | question detail: marks breakdown heading |
-| ✅ | question detail: answer outline heading |
-| ✅ | question detail: reference sources heading |
-| ✅ | GS Q11 detail shows outline points |
-| ✅ | no AI/internal terms visible [stage1 GS detail] |
-| ✅ | Hindi paper: 13 item rows |
-| ✅ | Hindi item detail shows marks breakdown |
-| ✅ | penalty toggle reveals deduction input |
-| ✅ | publishing Hindi scheme shows Approved status |
-| ✅ | no AI/internal terms visible [stage1 end] |
-| ✅ | upload stage renders |
-| ✅ | invalid file is rejected with a message |
-| ✅ | valid PNG upload accepted |
-| ✅ | file-check result shows MIME |
-| ✅ | page view 'Straightened' renders an image |
-| ✅ | page view 'Brightness balanced' renders an image |
-| ✅ | page view 'High-contrast ink' renders an image |
-| ✅ | page view 'Sharpened preview' renders an image |
-| ✅ | page view 'Original scan' renders an image |
-| ✅ | page views switch image source |
-| ✅ | candidate pages listed (seeded + uploaded) |
-| ✅ | no AI/internal terms visible [stage2] |
-| ✅ | stage 3 renders transcript editor |
-| ✅ | readings have 'Use this reading' buttons |
-| ✅ | 'Use this reading' loads text into editor |
-| ✅ | save draft adds a version to history |
-| ✅ | confirm transcript adds a confirmed version |
-| ✅ | 'Go to grading' navigates to grading stage |
-| ✅ | no AI/internal terms visible [stage3] |
-| ✅ | grading: criterion breakdown shown |
-| ✅ | grading: question total shown |
-| ✅ | grading: feedback sections shown |
-| ✅ | recalculate marks completes |
-| ✅ | review decision dropdown offers 3 choices |
-| ✅ | saved review appears in review history |
-| ✅ | no AI/internal terms visible [stage4] |
-| ✅ | report shows candidate ID |
-| ✅ | report shows human-readable paper status |
-| ✅ | report has per-question rows |
-| ✅ | export downloads JSON report |
-| ✅ | no AI/internal terms visible [stage5] |
-| ✅ | reader comparison table renders |
-| ✅ | reader rows present |
-| ✅ | planning-target disclaimer shown |
-| ✅ | blocked metadata address is refused |
-| ✅ | hidden instruction is flagged |
-| ✅ | activity log lists events |
-| ✅ | no AI/internal terms visible [stage6] |
-| ✅ | no uncaught page errors |
-| ✅ | no console errors |
-| ✅ | every page asset / image loads (no non-API 4xx/5xx) |
+- **Shell:** exactly five sections (Papers, Answer sheets, Handwriting, Marks, Report); the sample-data note is present.
+- **Papers:** two paper cards with approval status; GS Mock 17 shows 40 rows; the Section A filter shows 10 rows; search, empty state, and question detail (criteria, expected points) work; the 14 import notes expand; Hindi Mock 16 shows 13 items; the approval box, deduction toggle, and publish action work.
+- **Answer sheets:** an invalid file is refused with a plain message; a valid PNG is accepted and checked; page buttons and the five page views work; enhanced views show the caution note; the answers table lists each answer.
+- **Handwriting:** "Open" moves to this section; readings can be used; a draft revision adds a history entry; a confirmed revision shows "Confirmed"; zoom and rotate work.
+- **Marks:** marks can be calculated and recalculated; a criterion mark can be adjusted; an override is blocked without a reason and saved with one; the decision history updates.
+- **Report:** per-question rows and totals; export is locked until the examiner authorises the report; the JSON export downloads; the activity log lists events.
+- **Global:** no uncaught page errors; no console errors; no unexpected HTTP errors; no AI or internal terms on any section.
 
-## Static (GitHub Pages) build — checks
+## Earlier run (six-section workspace, before the redesign)
 
-| | Check |
-|---|---|
-| ✅ | no AI/internal terms visible [header] |
-| ✅ | sample-data notice shown |
-| ✅ | nav button exists: Question Papers |
-| ✅ | nav button exists: Upload Answer |
-| ✅ | nav button exists: Read & Check |
-| ✅ | nav button exists: Grade & Review |
-| ✅ | nav button exists: Candidate Report |
-| ✅ | nav button exists: Quality & Security |
-| ✅ | GS paper: 40 question rows |
-| ✅ | section filter Sec A lists rows |
-| ✅ | section filter Sec B lists rows |
-| ✅ | section filter Sec C lists rows |
-| ✅ | All (40) restores 40 rows |
-| ✅ | search 'Vedic' finds matches |
-| ✅ | search with no match shows empty state |
-| ✅ | question detail: marks breakdown heading |
-| ✅ | question detail: answer outline heading |
-| ✅ | question detail: reference sources heading |
-| ✅ | GS Q11 detail shows outline points |
-| ✅ | no AI/internal terms visible [stage1 GS detail] |
-| ✅ | Hindi paper: 13 item rows |
-| ✅ | Hindi item detail shows marks breakdown |
-| ✅ | penalty toggle reveals deduction input |
-| ✅ | publishing Hindi scheme shows Approved status |
-| ✅ | no AI/internal terms visible [stage1 end] |
-| ✅ | upload stage renders |
-| ✅ | invalid file is rejected with a message |
-| ✅ | valid PNG upload accepted |
-| ✅ | file-check result shows MIME |
-| ✅ | page view 'Straightened' renders an image |
-| ✅ | page view 'Brightness balanced' renders an image |
-| ✅ | page view 'High-contrast ink' renders an image |
-| ✅ | page view 'Sharpened preview' renders an image |
-| ✅ | page view 'Original scan' renders an image |
-| ✅ | page views switch image source |
-| ✅ | candidate pages listed (seeded + uploaded) |
-| ✅ | no AI/internal terms visible [stage2] |
-| ✅ | stage 3 renders transcript editor |
-| ✅ | readings have 'Use this reading' buttons |
-| ✅ | 'Use this reading' loads text into editor |
-| ✅ | save draft adds a version to history |
-| ✅ | confirm transcript adds a confirmed version |
-| ✅ | 'Go to grading' navigates to grading stage |
-| ✅ | no AI/internal terms visible [stage3] |
-| ✅ | grading: criterion breakdown shown |
-| ✅ | grading: question total shown |
-| ✅ | grading: feedback sections shown |
-| ✅ | recalculate marks completes |
-| ✅ | review decision dropdown offers 3 choices |
-| ✅ | saved review appears in review history |
-| ✅ | no AI/internal terms visible [stage4] |
-| ✅ | report shows candidate ID |
-| ✅ | report shows human-readable paper status |
-| ✅ | report has per-question rows |
-| ✅ | export downloads JSON report |
-| ✅ | no AI/internal terms visible [stage5] |
-| ✅ | reader comparison table renders |
-| ✅ | reader rows present |
-| ✅ | planning-target disclaimer shown |
-| ✅ | blocked metadata address is refused |
-| ✅ | hidden instruction is flagged |
-| ✅ | activity log lists events |
-| ✅ | no AI/internal terms visible [stage6] |
-| ✅ | no uncaught page errors |
-| ✅ | no console errors |
-| ✅ | every page asset / image loads (no non-API 4xx/5xx) |
+Server build 66 / 66, static build 66 / 66. Superseded by the run above.
+
+## Known limits
+
+- Accuracy figures for the readers are planning targets, not measured results.
+- Uploaded pages show only the original scan; enhanced views are not generated for uploads yet.
+- The Hindi Mock 16 approval is held in server memory for the running demo, so it resets when the server restarts.

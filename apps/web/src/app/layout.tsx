@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "UPPSC BEO Mains — Answer-Sheet Scanner & Rubric Evaluation Suite",
+  title: "UPPSC BEO Mains — Answer-sheet grading",
   description:
-    "Production-minded examiner workstation for UPPSC Block Education Officer (BEO) Mains handwritten Hindi & English answer-sheet scanning, zero-context OCR/HTR transcription, and deterministic rubric-bounded grading.",
+    "Answer-sheet grading workspace for UPPSC BEO Mains examiners: papers, scans, handwriting review and marks.",
 };
 
 export default function RootLayout({
