@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import { apiFetch, resolveAssetUrl } from "@/lib/client-api";
 import {
   FileSpreadsheet,
@@ -15,7 +15,6 @@ import {
   RotateCw,
   ZoomIn,
   ZoomOut,
-  Sparkles,
   FileCheck2,
   History,
   Lock,
@@ -57,7 +56,7 @@ export default function UPPSCBEOExaminerApp() {
   const [enablePenalty, setEnablePenalty] = useState<boolean>(false);
   const [penaltyAmount, setPenaltyAmount] = useState<number>(1.0);
   const [approvalNote, setApprovalNote] = useState<string>(
-    "Verified canonical PDF wording, VLM Devanagari cross-check, and rubric dimension caps."
+    "Question wording checked against the PDF; marks capped per criterion."
   );
   const [publishing, setPublishing] = useState<boolean>(false);
 
@@ -79,12 +78,12 @@ export default function UPPSCBEOExaminerApp() {
   const [lastQuarantineResult, setLastQuarantineResult] = useState<any>(null);
   const [uploadTargetQuestionId, setUploadTargetQuestionId] = useState<string>("Mock 17-02");
 
-  // Grading & Teacher Override state
+  // Grading & Examiner Override state
   const [runningGrade, setRunningGrade] = useState<boolean>(false);
   const [reviewAction, setReviewAction] = useState<string>("approved");
   const [overrideScore, setOverrideScore] = useState<number>(8.5);
   const [overrideReason, setOverrideReason] = useState<string>(
-    "Verified against pinned rubric criteria and confirmed scan crop."
+    "Verified against the marking criteria and the confirmed scan crop."
   );
   const [submittingReview, setSubmittingReview] = useState<boolean>(false);
 
@@ -97,9 +96,11 @@ export default function UPPSCBEOExaminerApp() {
   );
   const [securityTestResult, setSecurityTestResult] = useState<any>(null);
 
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const showToast = (message: string, type: "success" | "warn" | "error" = "success") => {
     setToast({ message, type });
-    setTimeout(() => setToast(null), 5000);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 5000);
   };
 
   const fetchAllData = async (sessId = selectedSessionId) => {
@@ -203,7 +204,7 @@ export default function UPPSCBEOExaminerApp() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          teacher_name: "Dr. R. K. Sharma (Senior Examiner)",
+          teacher_name: "Senior Examiner (sample reviewer)",
           enable_numeric_penalty: enablePenalty,
           material_error_deduction: enablePenalty ? penaltyAmount : 0.0,
           word_limit_deduction: 0.0,
@@ -213,7 +214,7 @@ export default function UPPSCBEOExaminerApp() {
       if (!res.ok) throw new Error("Failed to publish paper version");
       await fetchAllData(selectedSessionId);
       showToast(
-        `Published immutable rubric version for ${currentPaper.mock_label} (${currentPaper.subject})!`,
+        `Published marking scheme for ${currentPaper.mock_label} (${currentPaper.subject})!`,
         "success"
       );
     } catch (e: any) {
@@ -235,14 +236,14 @@ export default function UPPSCBEOExaminerApp() {
           question_id: linkedQuestionId,
           confirm_for_grading: confirmForGrading,
           mark_all_spans_resolved: true,
-          author: "Dr. R. K. Sharma (Examiner Transcript Verification)",
+          author: "Examiner (sample reviewer)",
         }),
       });
       if (!res.ok) throw new Error("Failed saving transcript revision");
       const data = await res.json();
       await fetchAllData(selectedSessionId);
       showToast(
-        `Saved immutable revision ${data.new_revision.version_id} (${
+        `Saved revision ${data.new_revision.version_id} (${
           confirmForGrading ? "Confirmed for Grading" : "Provisional Draft"
         })`,
         "success"
@@ -276,7 +277,7 @@ export default function UPPSCBEOExaminerApp() {
     }
   };
 
-  const handleSubmitTeacherReview = async () => {
+  const handleSubmitExaminerReview = async () => {
     const grId = currentAnswer?.latest_grade_run?.grade_run_id;
     if (!grId) return;
     setSubmittingReview(true);
@@ -285,7 +286,7 @@ export default function UPPSCBEOExaminerApp() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          reviewer: "Dr. R. K. Sharma (Senior Examiner)",
+          reviewer: "Senior Examiner (sample reviewer)",
           action: reviewAction,
           reviewed_final_score: Number(overrideScore),
           override_reason: overrideReason,
@@ -296,7 +297,7 @@ export default function UPPSCBEOExaminerApp() {
         throw new Error(err.detail || "Review submission failed");
       }
       await fetchAllData(selectedSessionId);
-      showToast(`Recorded teacher ${reviewAction} decision in immutable audit trail.`, "success");
+      showToast(`Examiner review saved (${reviewAction}).`, "success");
     } catch (e: any) {
       showToast(e.message, "error");
     } finally {
@@ -318,17 +319,17 @@ export default function UPPSCBEOExaminerApp() {
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.detail || "Quarantine rejected file");
+        throw new Error(data.detail || "File was rejected");
       }
       setLastQuarantineResult(data.quarantine);
       await fetchAllData(selectedSessionId);
       setSelectedAnswerId(data.answer.answer_id);
       showToast(
-        `Quarantine passed (${data.quarantine.detected_mime}, SHA-256 verified). Generated 5 reversible derivatives!`,
+        `File accepted (${data.quarantine.detected_mime}). Page views are ready.`,
         "success"
       );
     } catch (err: any) {
-      showToast(err.message || "Upload failed quarantine", "error");
+      showToast(err.message || "Upload failed", "error");
     } finally {
       setUploadingFile(false);
     }
@@ -348,7 +349,7 @@ export default function UPPSCBEOExaminerApp() {
       setSecurityTestResult(data);
       const audRes = await apiFetch("/api/v1/audit/events");
       setAuditBundle(await audRes.json());
-      showToast("Executed SSRF & Prompt-Injection guardrail verification.", "success");
+      showToast("Safety check complete.", "success");
     } catch (e: any) {
       showToast(e.message, "error");
     }
@@ -359,10 +360,10 @@ export default function UPPSCBEOExaminerApp() {
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#FAF6F3] text-[#484A47] p-8">
         <div className="w-12 h-12 rounded-full border-4 border-[#E0AC9D] border-t-[#484A47] animate-spin mb-4" />
         <h1 className="text-xl font-semibold tracking-tight">
-          Loading UPPSC BEO Mains Scanner & Rubric Evaluation Suite…
+          Loading UPPSC BEO Mains answer-sheet grading…
         </h1>
         <p className="text-sm text-[#5C6D70] mt-1">
-          Initializing VLM-verified exam registry, OCR/HTR adapters, and deterministic score validator
+          Preparing question papers, marking schemes and handwriting readers
         </p>
       </div>
     );
@@ -380,11 +381,8 @@ export default function UPPSCBEOExaminerApp() {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-base sm:text-lg font-bold tracking-tight text-[#FAF6F3]">
-                  UPPSC BEO Mains — Answer-Sheet Scanner & Rubric Grader
+                  UPPSC BEO Mains — Answer Sheet Grading
                 </h1>
-                <span className="hidden md:inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-[#5C6D70] text-[#FAF6F3]">
-                  Zero-Context OCR • Deterministic Scoring
-                </span>
               </div>
               <p className="text-xs text-[#E0AC9D]">
                 खंड शिक्षा अधिकारी मुख्य परीक्षा • GS Mock 17 (40 Qs, 200M) & सामान्य हिंदी मॉक 16 (13 Items, 200M)
@@ -396,7 +394,7 @@ export default function UPPSCBEOExaminerApp() {
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-1.5 bg-[#5C6D70]/40 px-2.5 py-1 rounded-md border border-[#A37774]/40">
               <span className="text-[11px] text-[#E0AC9D] uppercase tracking-wider font-medium">
-                Active Cohort Session:
+                Candidate:
               </span>
               <select
                 aria-label="Select Candidate Session"
@@ -413,25 +411,12 @@ export default function UPPSCBEOExaminerApp() {
                 className="bg-[#484A47] text-[#FAF6F3] text-xs font-semibold px-2 py-1 rounded border border-[#E0AC9D]/50 focus:outline-none focus:border-[#E88873]"
               >
                 <option value="sess-gs17-cand8841">
-                  CAND-UP-8841 • GS Mock 17 (Bilingual hi+en)
+                  CAND-UP-8841 • GS Mock 17 (Hindi & English)
                 </option>
                 <option value="sess-hi16-cand9204">
                   CAND-UP-9204 • सामान्य हिंदी एवं निबंध Mock 16
                 </option>
               </select>
-            </div>
-
-            {/* @RIARYDESIGN 5-Color Swatch Pill */}
-            <div
-              className="hidden xl:flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#FAF6F3]/10 border border-[#FAF6F3]/20"
-              title="Palette: #484A47 Outer Space, #5C6D70 Payne's Gray, #A37774 Old Rose, #E88873 Salmon, #E0AC9D Melon"
-            >
-              <span className="w-3 h-3 rounded-full bg-[#484A47] border border-white/40" />
-              <span className="w-3 h-3 rounded-full bg-[#5C6D70]" />
-              <span className="w-3 h-3 rounded-full bg-[#A37774]" />
-              <span className="w-3 h-3 rounded-full bg-[#E88873]" />
-              <span className="w-3 h-3 rounded-full bg-[#E0AC9D]" />
-              <span className="text-[10px] text-[#E0AC9D] ml-1 font-mono">RIARY PALETTE</span>
             </div>
           </div>
         </div>
@@ -446,43 +431,43 @@ export default function UPPSCBEOExaminerApp() {
               {
                 id: "import_rubric",
                 step: "1",
-                label: "Exam & Rubric Registry",
-                sub: "40 GS + 13 Hindi Items",
+                label: "Question Papers & Marking",
+                sub: "40 GS questions · 13 Hindi items",
                 icon: FileSpreadsheet,
               },
               {
                 id: "upload_quarantine",
                 step: "2",
-                label: "Upload & Image Pipeline",
-                sub: "Quarantine & 5 Variants",
+                label: "Upload Answer Sheets",
+                sub: "File check & page views",
                 icon: UploadCloud,
               },
               {
                 id: "scan_review",
                 step: "3",
-                label: "Scan & OCR/HTR Review",
-                sub: "Spans & Revisions",
+                label: "Read & Check Handwriting",
+                sub: "Side-by-side review",
                 icon: ScanLine,
               },
               {
                 id: "question_grading",
                 step: "4",
-                label: "Rubric Grading & Override",
-                sub: "Deterministic Marks",
+                label: "Grade & Review Marks",
+                sub: "Rule-checked marks",
                 icon: Scale,
               },
               {
                 id: "candidate_report",
                 step: "5",
-                label: "Scorecard & Dossier",
-                sub: "AI vs Teacher Final",
+                label: "Candidate Report",
+                sub: "Suggested vs final marks",
                 icon: Award,
               },
               {
                 id: "eval_security",
                 step: "6",
-                label: "Eval Lab, RLS & Security",
-                sub: "Benchmarks & Audit",
+                label: "Quality & Security",
+                sub: "Checks, history & exports",
                 icon: ShieldAlert,
               },
             ].map((tab) => {
@@ -526,10 +511,15 @@ export default function UPPSCBEOExaminerApp() {
       {/* Toast Notification */}
       {toast && (
         <div className="fixed bottom-5 right-5 z-50 max-w-md bg-[#484A47] text-[#FAF6F3] border-l-4 border-[#E88873] px-4 py-3 rounded-lg shadow-xl flex items-center gap-3">
-          <Sparkles className="w-5 h-5 text-[#E88873] shrink-0" />
+          <CheckCircle2 className="w-5 h-5 text-[#E88873] shrink-0" />
           <div className="text-xs font-medium">{toast.message}</div>
         </div>
       )}
+
+      {/* Sample-data notice */}
+      <div className="bg-[#E0AC9D]/40 border-b border-[#A37774]/40 text-[#484A47] text-xs text-center py-1.5 px-4">
+        Sample data for demonstration: candidate IDs, reviewer names, scores and handwriting readings are illustrative.
+      </div>
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 py-6">
@@ -542,19 +532,19 @@ export default function UPPSCBEOExaminerApp() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="bg-[#F3ECE7] border border-[#A37774]/40 rounded-xl p-4">
                 <div className="text-xs uppercase tracking-wider text-[#5C6D70] font-semibold">
-                  Supplied Source Artifacts
+                  Source files
                 </div>
                 <div className="text-2xl font-bold text-[#484A47] mt-1">
                   2 Workbooks + 2 PDFs
                 </div>
                 <div className="text-xs text-[#5C6D70] mt-1">
-                  SHA-256 verified • Canonical PDF question text + Workbook scoring anchors
+                  Each file gets a unique fingerprint. Question wording comes from the PDFs; marking points come from the workbooks.
                 </div>
               </div>
 
               <div className="bg-[#F3ECE7] border border-[#A37774]/40 rounded-xl p-4">
                 <div className="text-xs uppercase tracking-wider text-[#5C6D70] font-semibold">
-                  GS Mock 17 (Bilingual)
+                  GS Mock 17 (bilingual)
                 </div>
                 <div className="text-2xl font-bold text-[#484A47] mt-1">
                   40 Qs • 200 Marks
@@ -571,27 +561,27 @@ export default function UPPSCBEOExaminerApp() {
                   </span>
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#E88873] text-[#484A47]">
                     {importPreview.papers[1]?.status === "published_v1"
-                      ? "PUBLISHED V1"
-                      : "MISSING IN WB • DRAFT"}
+                      ? "APPROVED"
+                      : "DRAFT — NEEDS APPROVAL"}
                   </span>
                 </div>
                 <div className="text-2xl font-bold text-[#484A47] mt-1">
-                  7 Qs (13 Items) • 200M
+                  13 items · 200 marks
                 </div>
                 <div className="text-xs text-[#5C6D70] mt-1">
-                  General Hindi 100M + 2 Essays (2×50M, ~700 words each)
+                  General Hindi (100 marks) + 2 essays (2 × 50 marks, about 700 words each)
                 </div>
               </div>
 
               <div className="bg-[#F3ECE7] border border-[#A37774]/40 rounded-xl p-4">
                 <div className="text-xs uppercase tracking-wider text-[#5C6D70] font-semibold">
-                  Import Audit Warnings
+                  Issues found on import
                 </div>
                 <div className="text-2xl font-bold text-[#E88873] mt-1">
-                  {importPreview.import_warnings.length} Flagged Issues
+                  {importPreview.import_warnings.length} items to review
                 </div>
                 <div className="text-xs text-[#5C6D70] mt-1">
-                  2 contaminated GS rows • Mock 17 collision • Devanagari PDF CMap garbling
+                  GS heading text in 2 rows · Mock 17 name clash · Hindi PDF text scrambled
                 </div>
               </div>
             </div>
@@ -600,22 +590,22 @@ export default function UPPSCBEOExaminerApp() {
             <div className="bg-[#F3ECE7] border border-[#A37774]/40 rounded-xl p-5">
               <h2 className="text-sm font-bold uppercase tracking-wider text-[#484A47] flex items-center gap-2 mb-3">
                 <Database className="w-4 h-4 text-[#5C6D70]" />
-                Imported Source Artifacts & Cryptographic Provenance
+                Source files & fingerprints
               </h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
                     <tr className="border-b border-[#A37774]/40 text-[#5C6D70]">
                       <th className="py-2 pr-4">File Name</th>
-                      <th className="py-2 pr-4">Artifact Role</th>
-                      <th className="py-2 pr-4">Scope / Mocks</th>
-                      <th className="py-2 pr-4">SHA-256 Digest</th>
+                      <th className="py-2 pr-4">Type</th>
+                      <th className="py-2 pr-4">Contains</th>
+                      <th className="py-2 pr-4">Fingerprint</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#A37774]/20">
                     {importPreview.source_files.map((sf: any) => (
                       <tr key={sf.file_name} className="hover:bg-[#E0AC9D]/15">
-                        <td className="py-2.5 pr-4 font-semibold text-[#484A47]">{sf.file_name}</td>
+                        <td className="py-2.5 pr-4 font-semibold text-[#484A47]">{sf.display_name || sf.file_name}</td>
                         <td className="py-2.5 pr-4">
                           <span className="px-2 py-0.5 rounded bg-[#5C6D70]/15 text-[#5C6D70] font-mono text-[11px]">
                             {sf.artifact_kind}
@@ -624,7 +614,7 @@ export default function UPPSCBEOExaminerApp() {
                         <td className="py-2.5 pr-4 text-[#484A47]">
                           {sf.mocks_included
                             ? `Mocks: ${sf.mocks_included.join(", ")} (${sf.total_rows} rows)`
-                            : `${sf.page_count} Pages → ${sf.matched_paper_id}`}
+                            : `${sf.page_count} pages`}
                         </td>
                         <td className="py-2.5 pr-4 font-mono text-[11px] text-[#5C6D70]">
                           {sf.sha256.slice(0, 24)}…
@@ -643,10 +633,10 @@ export default function UPPSCBEOExaminerApp() {
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="text-sm font-bold uppercase tracking-wider text-[#484A47] flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4 text-[#E88873]" />
-                    Importer Anomaly & Contamination Audit ({importPreview.import_warnings.length})
+                    Issues found on import ({importPreview.import_warnings.length})
                   </h2>
                   <span className="text-[11px] px-2 py-0.5 rounded bg-[#484A47] text-[#E0AC9D]">
-                    PDF = Question Truth • Workbook = Rubric Truth
+                    Wording: PDF · Marks: workbook
                   </span>
                 </div>
                 <div className="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
@@ -661,13 +651,13 @@ export default function UPPSCBEOExaminerApp() {
                     >
                       <div className="flex items-center justify-between gap-2 font-semibold text-[#484A47]">
                         <span>
-                          [{w.severity.toUpperCase()}] {w.affected_scope}
+                          {w.affected_scope}
                         </span>
-                        <span className="font-mono text-[10px] text-[#5C6D70]">{w.warning_id}</span>
+                        
                       </div>
                       <p className="text-[#484A47]/90 mt-1">{w.description}</p>
                       <div className="mt-1.5 pt-1.5 border-t border-[#A37774]/25 text-[11px] text-[#5C6D70]">
-                        <strong className="text-[#484A47]">Importer Resolution:</strong> {w.resolution}
+                        <strong className="text-[#484A47]">What was done:</strong> {w.resolution}
                       </div>
                     </div>
                   ))}
@@ -680,21 +670,21 @@ export default function UPPSCBEOExaminerApp() {
                   <div className="flex items-center justify-between mb-3">
                     <h2 className="text-sm font-bold uppercase tracking-wider text-[#484A47] flex items-center gap-2">
                       <Eye className="w-4 h-4 text-[#5C6D70]" />
-                      Hindi PDF CMap Garbling vs. VLM Page Image Cross-Check
+                      Hindi PDF text checked against page images
                     </h2>
                     <span className="text-[11px] px-2 py-0.5 rounded bg-[#5C6D70] text-[#FAF6F3]">
-                      200-DPI Visual Render Verified
+                      Checked against page images
                     </span>
                   </div>
                   <p className="text-xs text-[#5C6D70] mb-3">
-                    Direct text extraction from <code className="font-mono">UPPSC BEO MAINS हिंदी मॉक 16.pdf</code> and{" "}
-                    <code className="font-mono">Mock 17.pdf</code> corrupts Devanagari matras and conjuncts even though the rendered page is crystal-clear. Our importer cross-checks rendered page images via VLM and exposes mismatches:
+                    Text copied directly from <code className="font-mono">UPPSC BEO MAINS हिंदी मॉक 16.pdf</code> and{" "}
+                    <code className="font-mono">Mock 17.pdf</code> scrambles Devanagari matras and conjuncts even though the printed page is clear. Every Hindi question was therefore checked against the rendered page image:
                   </p>
 
                   <div className="space-y-3 text-xs">
                     <div className="p-3 rounded-lg bg-[#FAF6F3] border border-[#A37774]/50">
                       <div className="text-[11px] font-bold text-[#A37774] uppercase">
-                        ❌ Raw PDF Font-Layer Extract (Garbled Devanagari CMap — Untrusted):
+                        ✗ Text copied from the PDF (scrambled — not used):
                       </div>
                       <p className="mt-1 font-mono text-[#484A47] bg-[#E88873]/15 p-2 rounded">
                         “मिुष्य का जीवि अिेक सोंबोंर्नों से निनमयत हनता है। परिवाि, नमत्र, पडनसी औि सहकमी उसके सामानजक जीवि के महत्वपूणय आर्ाि हैं।”
@@ -703,7 +693,7 @@ export default function UPPSCBEOExaminerApp() {
 
                     <div className="p-3 rounded-lg bg-[#FAF6F3] border border-[#5C6D70]">
                       <div className="text-[11px] font-bold text-[#5C6D70] uppercase">
-                        ✓ VLM-Verified Canonical Text from Rendered Page 1 Image:
+                        ✓ Correct text, read from the page image:
                       </div>
                       <p className="mt-1 text-sm font-medium text-[#484A47] bg-[#5C6D70]/10 p-2 rounded">
                         “मनुष्य का जीवन अनेक संबंधों से निर्मित होता है। परिवार, मित्र, पड़ोसी और सहकर्मी उसके सामाजिक जीवन के महत्वपूर्ण आधार हैं।”
@@ -712,23 +702,23 @@ export default function UPPSCBEOExaminerApp() {
 
                     <div className="p-3 rounded-lg bg-[#FAF6F3] border border-[#E88873]">
                       <div className="text-[11px] font-bold text-[#484A47] uppercase">
-                        ⚠️ GS Mock 17 Workbook Row 171 & Row 181 Heading Contamination Diff:
+                        ⚠️ GS workbook cleanup — section headings removed from Q10 and Q20:
                       </div>
                       <p className="mt-1 text-[11px] text-[#5C6D70]">
                         <span className="line-through text-[#A37774]">
                           …regional economic activities in Uttar Pradesh. SECTION B — 10 × 6 = 60 अं क लगभग 50 शब् / About 50 words
                         </span>{" "}
-                        → Cleaned to exact PDF Question 10 wording.
+                        → Restored to the exact question wording from the PDF.
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Teacher Publish & Penalty Configuration Box */}
+                {/* Examiner Publish & Penalty Configuration Box */}
                 <div className="mt-4 pt-4 border-t border-[#A37774]/40 bg-[#FAF6F3] p-3.5 rounded-lg">
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                     <span className="text-xs font-bold text-[#484A47]">
-                      Teacher Rubric Governance & Publishing ({currentPaper?.mock_label})
+                      Approve marking scheme ({currentPaper?.mock_label})
                     </span>
                     <span
                       className={`px-2 py-0.5 rounded text-[10px] font-bold ${
@@ -737,7 +727,7 @@ export default function UPPSCBEOExaminerApp() {
                           : "bg-[#E88873] text-[#484A47]"
                       }`}
                     >
-                      Status: {currentPaper?.status} ({currentPaper?.rubric_version})
+                      {currentPaper?.status === "published_v1" ? "Approved" : "Draft — awaiting approval"}
                     </span>
                   </div>
                   <div className="flex flex-wrap items-center gap-4 text-xs mb-2.5">
@@ -748,11 +738,11 @@ export default function UPPSCBEOExaminerApp() {
                         onChange={(e) => setEnablePenalty(e.target.checked)}
                         className="accent-[#E88873]"
                       />
-                      <span>Configure explicit numeric penalty for material factual errors</span>
+                      <span>Apply a fixed mark deduction for factual errors (off by default)</span>
                     </label>
                     {enablePenalty && (
                       <div className="flex items-center gap-1.5">
-                        <span>Deduction:</span>
+                        <span>Deduction per error:</span>
                         <input
                           type="number"
                           step="0.5"
@@ -771,7 +761,7 @@ export default function UPPSCBEOExaminerApp() {
                       type="text"
                       value={approvalNote}
                       onChange={(e) => setApprovalNote(e.target.value)}
-                      placeholder="Teacher approval reason..."
+                      placeholder="Reason for approval (required)"
                       className="flex-1 min-w-[220px] px-2.5 py-1.5 rounded border border-[#A37774]/60 bg-white text-xs"
                     />
                     <button
@@ -783,8 +773,8 @@ export default function UPPSCBEOExaminerApp() {
                       {publishing
                         ? "Publishing…"
                         : currentPaper?.status === "published_v1"
-                        ? "Publish Updated Rubric Revision"
-                        : "Approve & Publish Hindi Mock 16 Rubric"}
+                        ? "Publish new version"
+                        : "Approve & publish Hindi Mock 16 scheme"}
                     </button>
                   </div>
                 </div>
@@ -823,7 +813,7 @@ export default function UPPSCBEOExaminerApp() {
                   >
                     <span>सामान्य हिंदी एवं निबंध Mock 16 (13 Items • 200 Marks)</span>
                     <span className="px-1.5 py-0.5 rounded text-[10px] bg-[#E88873] text-[#484A47]">
-                      {importPreview.papers[1]?.status === "published_v1" ? "Published" : "Draft Rubric"}
+                      {importPreview.papers[1]?.status === "published_v1" ? "Approved" : "Draft scheme"}
                     </span>
                   </button>
                 </div>
@@ -897,12 +887,12 @@ export default function UPPSCBEOExaminerApp() {
                             <span>Sec {q.section}</span>
                             {hasContam && (
                               <span className="px-1.5 py-0.5 rounded bg-[#E88873] text-[#484A47] text-[10px]">
-                                Cleaned Row
+                                Cleaned
                               </span>
                             )}
                           </span>
                           <span className={isSel ? "text-[#E0AC9D]" : "text-[#5C6D70]"}>
-                            {q.max_marks}M • {q.word_limit ? `${q.word_limit}w` : "Rule-based"}
+                            {q.max_marks} marks · {q.word_limit ? `${q.word_limit} words` : "No word limit"}
                           </span>
                         </div>
                         <div className="mt-1.5 text-xs font-medium line-clamp-2">{hiText}</div>
@@ -943,7 +933,7 @@ export default function UPPSCBEOExaminerApp() {
                             </div>
                             <div className="flex items-center gap-2">
                               <span className="px-3 py-1 rounded-full bg-[#484A47] text-[#FAF6F3] text-xs font-bold">
-                                Max Marks: {q.max_marks}
+                                {q.max_marks} marks
                               </span>
                               <span className="px-3 py-1 rounded-full bg-[#E0AC9D]/50 text-[#484A47] text-xs font-semibold">
                                 {q.word_limit_label}
@@ -954,7 +944,7 @@ export default function UPPSCBEOExaminerApp() {
                           {/* Canonical Question Wording */}
                           <div className="p-3.5 rounded-lg bg-[#F3ECE7] border border-[#A37774]/40 space-y-1.5">
                             <div className="text-[11px] font-bold uppercase text-[#5C6D70]">
-                              Canonical Question Text (VLM-Verified from PDF):
+                              Question (checked against the PDF)
                             </div>
                             <p className="text-sm font-semibold text-[#484A47] whitespace-pre-line">
                               {q.canonical_question?.hi || q.prompt_hi}
@@ -970,7 +960,7 @@ export default function UPPSCBEOExaminerApp() {
                           {q.passage_context && (
                             <div className="p-3 rounded-lg bg-[#E0AC9D]/20 border border-[#A37774]/40 text-xs">
                               <div className="font-bold text-[#484A47] mb-1">
-                                गद्यांश संदर्भ (Canonical Passage Context — ~245 Words):
+                                गद्यांश (Passage for Q1 a–d)
                               </div>
                               <p className="text-[#484A47]/90 whitespace-pre-line leading-relaxed">
                                 {q.passage_context}
@@ -981,7 +971,7 @@ export default function UPPSCBEOExaminerApp() {
                           {/* Rubric Dimensions Table */}
                           <div>
                             <h4 className="text-xs font-bold uppercase tracking-wider text-[#5C6D70] mb-2">
-                              Pinned Rubric Dimensions & Permitted Increments
+                              Marks breakdown & allowed steps
                             </h4>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                               {criteria.map((c: any) => (
@@ -992,7 +982,7 @@ export default function UPPSCBEOExaminerApp() {
                                   <div>
                                     <div className="text-xs font-bold text-[#484A47]">{c.name}</div>
                                     <div className="text-[10px] font-mono text-[#5C6D70]">
-                                      ID: {c.criterion_id} • Step: {c.increment}m
+                                      Allowed step: {c.increment} marks
                                     </div>
                                   </div>
                                   <span className="px-2.5 py-1 rounded bg-[#5C6D70] text-[#FAF6F3] text-xs font-bold">
@@ -1003,10 +993,10 @@ export default function UPPSCBEOExaminerApp() {
                             </div>
                           </div>
 
-                          {/* Teacher-Reviewable Model Answer Outline */}
+                          {/* Examiner-Reviewable Model Answer Outline */}
                           <div>
                             <h4 className="text-xs font-bold uppercase tracking-wider text-[#5C6D70] mb-2">
-                              Teacher-Reviewable Answer Outline & Accepted Alternatives
+                              Answer outline (for examiner reference)
                             </h4>
                             <ul className="space-y-1.5 text-xs text-[#484A47]">
                               {expectedPts.map((pt: string, i: number) => (
@@ -1022,7 +1012,7 @@ export default function UPPSCBEOExaminerApp() {
                           {refs.length > 0 && (
                             <div className="pt-2 border-t border-[#A37774]/30">
                               <h4 className="text-xs font-bold uppercase tracking-wider text-[#5C6D70] mb-1.5">
-                                Pinned Reference Snapshots (SSRF-Allowlisted Authoritative Sources)
+                                Reference sources (approved sites only)
                               </h4>
                               {refs.map((r: any) => (
                                 <div
@@ -1065,20 +1055,20 @@ export default function UPPSCBEOExaminerApp() {
                 <div className="flex items-center justify-between">
                   <h2 className="text-sm font-bold uppercase tracking-wider text-[#484A47] flex items-center gap-2">
                     <UploadCloud className="w-4 h-4 text-[#E88873]" />
-                    Quarantine Scan Upload & Signature Gate
+                    Upload an answer sheet
                   </h2>
                   <span className="px-2 py-0.5 rounded bg-[#5C6D70] text-[#FAF6F3] text-[10px] font-mono">
-                    Max 25MB • 32 Pages
+                    Up to 25 MB · 32 pages
                   </span>
                 </div>
 
                 <p className="text-xs text-[#5C6D70]">
-                  Every uploaded PDF, PNG, or JPEG is validated by magic-byte file signature, pixel decompression limits, and SHA-256 hashing before entering private storage and generating reversible derivatives.
+                  Each file is checked for its real type (PDF, PNG or JPG) and size before it is stored. A unique fingerprint is saved so the file can always be traced.
                 </p>
 
                 <div className="space-y-2">
                   <label className="block text-xs font-semibold text-[#484A47]">
-                    Link Uploaded Scan to Question ID:
+                    This sheet answers question:
                   </label>
                   <select
                     value={uploadTargetQuestionId}
@@ -1097,11 +1087,11 @@ export default function UPPSCBEOExaminerApp() {
                   <UploadCloud className="w-8 h-8 text-[#E88873] mb-2" />
                   <span className="text-xs font-bold text-[#484A47]">
                     {uploadingFile
-                      ? "Validating Signature & Generating 5 Derivatives…"
+                      ? "Checking file and preparing page views…"
                       : "Click to Upload Answer-Sheet Scan (PDF / PNG / JPG)"}
                   </span>
                   <span className="text-[11px] text-[#5C6D70] mt-1">
-                    Magic-byte check (%PDF-, \x89PNG, \xFF\xD8\xFF) • Zero rubric context leakage
+                    Accepted: PDF, PNG, JPG · up to 25 MB
                   </span>
                   <input
                     type="file"
@@ -1115,13 +1105,13 @@ export default function UPPSCBEOExaminerApp() {
                 {/* Quarantine Result Card */}
                 <div className="p-3.5 rounded-lg bg-[#FAF6F3] border border-[#A37774]/40 text-xs space-y-1.5">
                   <div className="font-bold text-[#484A47] flex items-center justify-between">
-                    <span>Active Session Quarantine Status</span>
+                    <span>File check result</span>
                     <span className="px-2 py-0.5 rounded bg-[#5C6D70] text-[#FAF6F3] text-[10px]">
                       {(lastQuarantineResult || sessionBundle.session.quarantine_check)?.quarantine_status}
                     </span>
                   </div>
                   <div className="font-mono text-[11px] text-[#5C6D70] break-all">
-                    SHA-256: {(lastQuarantineResult || sessionBundle.session.quarantine_check)?.sha256}
+                    Fingerprint: {(lastQuarantineResult || sessionBundle.session.quarantine_check)?.sha256}
                   </div>
                   <div className="text-[11px] text-[#5C6D70]">
                     MIME:{" "}
@@ -1146,10 +1136,10 @@ export default function UPPSCBEOExaminerApp() {
                   <div>
                     <h2 className="text-sm font-bold uppercase tracking-wider text-[#484A47] flex items-center gap-2">
                       <Layers className="w-4 h-4 text-[#5C6D70]" />
-                      12-Stage Reversible Image Variant Inspector
+                      Page image views
                     </h2>
                     <p className="text-xs text-[#5C6D70]">
-                      Image enhancement never fabricates missing ink strokes. Compare the immutable Original Scan with each normalized derivative:
+                      Compare the original scan with the enhanced views. Enhancement never adds ink that was not written.
                     </p>
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -1168,7 +1158,7 @@ export default function UPPSCBEOExaminerApp() {
                             : "bg-[#FAF6F3] text-[#484A47] border border-[#A37774]/40"
                         }`}
                       >
-                        Page {p.page_number} (Skew: {p.detected_skew_deg}°)
+                        Page {p.page_number} (tilt {p.detected_skew_deg}°)
                       </button>
                     ))}
                   </div>
@@ -1177,11 +1167,11 @@ export default function UPPSCBEOExaminerApp() {
                 {/* Variant Selector Pills */}
                 <div className="flex flex-wrap gap-2">
                   {[
-                    { id: "original", label: "1. Original Scan (Source of Truth)" },
-                    { id: "deskewed", label: "2. Deskewed & Border Cleaned" },
-                    { id: "clahe_contrast", label: "3. CLAHE Illumination Normalized" },
-                    { id: "adaptive_ink", label: "4. Adaptive Ink Binarized" },
-                    { id: "restormer_deblur_preview", label: "5. Deblur Preview (Non-Authoritative)" },
+                    { id: "original", label: "Original scan" },
+                    { id: "deskewed", label: "Straightened" },
+                    { id: "clahe_contrast", label: "Brightness balanced" },
+                    { id: "adaptive_ink", label: "High-contrast ink" },
+                    { id: "restormer_deblur_preview", label: "Sharpened preview (not for marking)" },
                   ].map((v) => (
                     <button
                       key={v.id}
@@ -1201,12 +1191,12 @@ export default function UPPSCBEOExaminerApp() {
                   <div className="p-2.5 rounded-lg bg-[#E88873]/20 border border-[#E88873] text-xs text-[#484A47] flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4 text-[#E88873] shrink-0" />
                     <span>
-                      <strong>Non-Authoritative Variant Warning:</strong> Image restoration/binarization cannot recover ink strokes that were never captured. Always verify mark-sensitive words against{" "}
+                      <strong>Note:</strong> Enhanced views can make faint ink easier to see but cannot recover strokes that were never written. Always check key words against the{" "}
                       <button
                         onClick={() => setSelectedVariant("original")}
                         className="underline font-bold"
                       >
-                        1. Original Scan
+                        original scan
                       </button>
                       .
                     </span>
@@ -1215,6 +1205,12 @@ export default function UPPSCBEOExaminerApp() {
 
                 {currentPageObj && (
                   <div className="bg-[#484A47]/5 border border-[#A37774]/40 rounded-lg p-3 flex flex-col items-center max-h-[520px] overflow-auto">
+                    {selectedVariant !== "original" &&
+                      currentPageObj.variants[selectedVariant] === currentPageObj.variants.original && (
+                        <div className="w-full mb-2 px-2.5 py-1.5 rounded bg-[#E0AC9D]/30 text-[11px] text-[#484A47]">
+                          Enhanced views are not available for this uploaded page yet, so the original scan is shown.
+                        </div>
+                      )}
                     <img
                       src={resolveAssetUrl(
                         currentPageObj.variants[selectedVariant] || currentPageObj.variants.original
@@ -1265,7 +1261,7 @@ export default function UPPSCBEOExaminerApp() {
 
               <div className="text-xs text-[#5C6D70] flex items-center gap-2">
                 <Lock className="w-3.5 h-3.5 text-[#5C6D70]" />
-                <span>OCR Context Isolation: Expected answers & rubrics are NEVER passed to OCR models</span>
+                <span>Readers never see the question paper or marking scheme — they only read the ink.</span>
               </div>
             </div>
 
@@ -1401,7 +1397,7 @@ export default function UPPSCBEOExaminerApp() {
                       </select>
                     </div>
                     <span className="px-2.5 py-1 rounded bg-[#5C6D70] text-[#FAF6F3] text-xs font-semibold">
-                      Calibrated OCR Confidence:{" "}
+                      Reading confidence:{" "}
                       {Math.round(
                         (currentAnswer.ocr_candidates?.[0]?.calibrated_confidence || 0.88) * 100
                       )}
@@ -1412,7 +1408,7 @@ export default function UPPSCBEOExaminerApp() {
                   {/* Multi-Adapter OCR Candidate Readings */}
                   <div>
                     <h4 className="text-xs font-bold uppercase tracking-wider text-[#5C6D70] mb-2">
-                      Multi-Model OCR/HTR Candidate Readings (Click to Load into Editor)
+                      Readings from each reader (click to use one)
                     </h4>
                     <div className="space-y-2">
                       {currentAnswer.ocr_candidates?.map((cand: any) => (
@@ -1424,13 +1420,13 @@ export default function UPPSCBEOExaminerApp() {
                             <span className="font-bold text-[#484A47]">{cand.adapter_name}</span>
                             <div className="flex items-center gap-2">
                               <span className="font-mono text-[11px] text-[#5C6D70]">
-                                Calibrated Conf: {Math.round(cand.calibrated_confidence * 100)}%
+                                Confidence: {Math.round(cand.calibrated_confidence * 100)}%
                               </span>
                               <button
                                 onClick={() => setEditableTranscript(cand.transcript)}
                                 className="px-2 py-0.5 rounded bg-[#E0AC9D]/50 hover:bg-[#E88873] text-[#484A47] font-semibold text-[11px]"
                               >
-                                Use Reading
+                                Use this reading
                               </button>
                             </div>
                           </div>
@@ -1445,7 +1441,7 @@ export default function UPPSCBEOExaminerApp() {
                     <div className="p-3.5 rounded-lg bg-[#E88873]/15 border border-[#E88873] space-y-2">
                       <div className="text-xs font-bold text-[#484A47] flex items-center gap-1.5">
                         <AlertTriangle className="w-4 h-4 text-[#E88873]" />
-                        Low-Confidence / Model Disagreement Spans Requiring Human Decision
+                        Unclear words — choose the correct reading
                       </div>
                       {currentAnswer.uncertain_spans.map((sp: any) => (
                         <div
@@ -1465,7 +1461,7 @@ export default function UPPSCBEOExaminerApp() {
                                   } else {
                                     setEditableTranscript((prev) => `${prev} ${alt.text}`);
                                   }
-                                  showToast(`Applied reading '${alt.text}' from ${alt.model}`, "success");
+                                  showToast(`Applied '${alt.text}' from ${alt.model}`, "success");
                                 }}
                                 className="px-2.5 py-1 rounded bg-[#F3ECE7] hover:bg-[#E88873] border border-[#A37774]/50 text-[#484A47] font-semibold text-xs"
                               >
@@ -1485,7 +1481,7 @@ export default function UPPSCBEOExaminerApp() {
                         htmlFor="transcript-editor"
                         className="text-xs font-bold uppercase tracking-wider text-[#484A47]"
                       >
-                        Editable Student Transcript (Unicode NFC Preserved)
+                        Candidate's transcript (edit to correct a reading)
                       </label>
                       <span className="text-[11px] font-mono text-[#5C6D70]">
                         Words: {editableTranscript.trim().split(/\s+/).filter(Boolean).length}
@@ -1504,7 +1500,7 @@ export default function UPPSCBEOExaminerApp() {
                   <div>
                     <h4 className="text-xs font-bold uppercase tracking-wider text-[#5C6D70] mb-1.5 flex items-center gap-1.5">
                       <History className="w-3.5 h-3.5" />
-                      Immutable Transcript Version History ({currentAnswer.revisions?.length || 0})
+                      Version history (every saved version is kept) ({currentAnswer.revisions?.length || 0})
                     </h4>
                     <div className="space-y-1.5 max-h-28 overflow-y-auto">
                       {currentAnswer.revisions?.map((rev: any) => (
@@ -1522,7 +1518,7 @@ export default function UPPSCBEOExaminerApp() {
                                 : "bg-[#E0AC9D] text-[#484A47]"
                             }`}
                           >
-                            {rev.is_confirmed_for_grading ? "Confirmed" : "Provisional"}
+                            {rev.is_confirmed_for_grading ? "Confirmed" : "Draft"}
                           </span>
                         </div>
                       ))}
@@ -1537,7 +1533,7 @@ export default function UPPSCBEOExaminerApp() {
                     disabled={savingTranscript}
                     className="px-3.5 py-2 rounded-lg bg-[#FAF6F3] border border-[#A37774] text-[#484A47] font-semibold text-xs hover:bg-[#E0AC9D]/30"
                   >
-                    Save as Provisional Draft
+                    Save draft
                   </button>
                   <div className="flex items-center gap-2">
                     <button
@@ -1546,7 +1542,7 @@ export default function UPPSCBEOExaminerApp() {
                       className="px-4 py-2 rounded-lg bg-[#5C6D70] hover:bg-[#484A47] text-[#FAF6F3] font-bold text-xs flex items-center gap-1.5"
                     >
                       <CheckCircle2 className="w-4 h-4" />
-                      Confirm Transcript Version
+                      Confirm transcript
                     </button>
                     <button
                       onClick={async () => {
@@ -1555,7 +1551,7 @@ export default function UPPSCBEOExaminerApp() {
                       }}
                       className="px-4 py-2 rounded-lg bg-[#E88873] hover:bg-[#E0AC9D] text-[#484A47] font-bold text-xs flex items-center gap-1.5 shadow-sm"
                     >
-                      <span>Proceed to Rubric Grading</span>
+                      <span>Go to grading</span>
                       <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
@@ -1566,7 +1562,7 @@ export default function UPPSCBEOExaminerApp() {
         )}
 
         {/* =====================================================================
-            STAGE 4: QUESTION GRADING, DETERMINISTIC VALIDATOR & TEACHER OVERRIDE
+            STAGE 4: QUESTION GRADING & EXAMINER REVIEW
            ===================================================================== */}
         {activeTab === "question_grading" && sessionBundle && currentAnswer && (
           <div className="space-y-6">
@@ -1613,8 +1609,8 @@ export default function UPPSCBEOExaminerApp() {
               >
                 <RefreshCw className={`w-4 h-4 ${runningGrade ? "animate-spin" : ""}`} />
                 {runningGrade
-                  ? "Evaluating Against Pinned Rubric…"
-                  : "Re-Run Rubric-Bounded AI Grader"}
+                  ? "Recalculating…"
+                  : "Recalculate marks"}
               </button>
             </div>
 
@@ -1627,8 +1623,8 @@ export default function UPPSCBEOExaminerApp() {
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div>
                         <span className="text-xs font-mono text-[#5C6D70]">
-                          Pinned Rubric: {currentAnswer.latest_grade_run.contract.rubric_version} •
-                          Transcript: {currentAnswer.latest_grade_run.contract.transcript_version}
+                          Marking scheme: {currentAnswer.latest_grade_run.contract.rubric_version} •
+                          Transcript version: {currentAnswer.latest_grade_run.contract.transcript_version}
                         </span>
                         <h3 className="text-base font-bold text-[#484A47]">
                           {currentAnswer.question_id} —{" "}
@@ -1676,10 +1672,10 @@ export default function UPPSCBEOExaminerApp() {
                   <div className="bg-[#F3ECE7] border border-[#A37774]/40 rounded-xl p-5 space-y-3">
                     <div className="flex items-center justify-between">
                       <h3 className="text-sm font-bold uppercase tracking-wider text-[#484A47]">
-                        Criterion-by-Criterion Breakdown & Grounded Evidence
+                        Marks by criterion & evidence from the answer
                       </h3>
                       <span className="text-xs font-bold px-3 py-1 rounded bg-[#484A47] text-[#FAF6F3]">
-                        Deterministic Cap:{" "}
+                        Question total:{" "}
                         {currentAnswer.latest_grade_run.contract.final_score} /{" "}
                         {currentAnswer.latest_grade_run.contract.max_marks} Marks
                       </span>
@@ -1719,7 +1715,7 @@ export default function UPPSCBEOExaminerApp() {
                             {cs.answer_evidence?.length > 0 && (
                               <div className="text-[11px] bg-[#F3ECE7] p-2 rounded border-l-2 border-[#E88873]">
                                 <strong className="text-[#484A47]">
-                                  Student Answer Evidence (Page {cs.answer_evidence[0].page}):
+                                  From the candidate's answer (page {cs.answer_evidence[0].page}):
                                 </strong>{" "}
                                 “{cs.answer_evidence[0].quote}”
                               </div>
@@ -1728,7 +1724,7 @@ export default function UPPSCBEOExaminerApp() {
                             {cs.key_evidence?.length > 0 && (
                               <div className="text-[11px] bg-[#F3ECE7] p-2 rounded border-l-2 border-[#5C6D70]">
                                 <strong className="text-[#5C6D70]">
-                                  Approved Reference [{cs.key_evidence[0].source_id}]:
+                                  Reference point [{cs.key_evidence[0].source_id}]:
                                 </strong>{" "}
                                 {cs.key_evidence[0].claim}
                               </div>
@@ -1740,14 +1736,14 @@ export default function UPPSCBEOExaminerApp() {
                   </div>
                 </div>
 
-                {/* Right Column: Feedback, Review Flags, Deterministic Validator & Teacher Override (5 cols) */}
+                {/* Right Column: Feedback, Review Flags, Deterministic Validator & Examiner Override (5 cols) */}
                 <div className="lg:col-span-5 space-y-5">
                   {/* Human Review Flag Banner */}
                   {currentAnswer.latest_grade_run.contract.needs_human_review && (
                     <div className="p-4 rounded-xl bg-[#E88873]/20 border-2 border-[#E88873] space-y-2">
                       <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#484A47]">
                         <AlertTriangle className="w-4 h-4 text-[#E88873]" />
-                        Human Examiner Review Required Before Finalizing Marks
+                        Examiner review needed before marks are final
                       </div>
                       <ul className="list-disc list-inside text-xs text-[#484A47] space-y-1">
                         {currentAnswer.latest_grade_run.contract.review_reasons.map(
@@ -1762,12 +1758,12 @@ export default function UPPSCBEOExaminerApp() {
                   {/* Structured Feedback Panels */}
                   <div className="bg-[#F3ECE7] border border-[#A37774]/40 rounded-xl p-5 space-y-3 text-xs">
                     <h3 className="text-sm font-bold uppercase tracking-wider text-[#484A47]">
-                      Diagnostic Feedback & Actionable Improvement Advice
+                      Feedback
                     </h3>
 
                     <div className="p-3 rounded-lg bg-[#FAF6F3] border border-[#5C6D70]/40">
                       <div className="font-bold text-[#5C6D70] uppercase mb-1">
-                        ✓ Strengths (Grounded in Answer Evidence)
+                        ✓ Strengths
                       </div>
                       <ul className="list-disc list-inside space-y-1 text-[#484A47]">
                         {currentAnswer.latest_grade_run.contract.strengths.map(
@@ -1780,7 +1776,7 @@ export default function UPPSCBEOExaminerApp() {
 
                     <div className="p-3 rounded-lg bg-[#FAF6F3] border border-[#A37774]/40">
                       <div className="font-bold text-[#A37774] uppercase mb-1">
-                        • Missing or Weak Rubric Points
+                        • Missing or weak points
                       </div>
                       <ul className="list-disc list-inside space-y-1 text-[#484A47]">
                         {currentAnswer.latest_grade_run.contract.missing_points.map(
@@ -1793,7 +1789,7 @@ export default function UPPSCBEOExaminerApp() {
 
                     <div className="p-3 rounded-lg bg-[#FAF6F3] border border-[#E88873]">
                       <div className="font-bold text-[#484A47] uppercase mb-1">
-                        ➔ Practical Improvement Advice
+                        ➔ How to improve
                       </div>
                       <ul className="list-disc list-inside space-y-1 text-[#484A47]">
                         {currentAnswer.latest_grade_run.contract.improvements.map(
@@ -1805,27 +1801,27 @@ export default function UPPSCBEOExaminerApp() {
                     </div>
                   </div>
 
-                  {/* Teacher Override & Final Approval Panel */}
+                  {/* Examiner Override & Final Approval Panel */}
                   <div className="bg-[#F3ECE7] border border-[#484A47]/40 rounded-xl p-5 space-y-3">
                     <div className="flex items-center justify-between">
                       <h3 className="text-sm font-bold uppercase tracking-wider text-[#484A47]">
-                        Teacher Review & Override (Append-Only)
+                        Examiner review & changes to marks
                       </h3>
                       <span className="text-[11px] px-2 py-0.5 rounded bg-[#484A47] text-[#E0AC9D]">
-                        Preserves Original AI Score
+                        Original marks are always kept
                       </span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3 text-xs">
                       <div>
-                        <label className="block font-semibold mb-1">Review Decision:</label>
+                        <label className="block font-semibold mb-1">Decision:</label>
                         <select
                           value={reviewAction}
                           onChange={(e) => setReviewAction(e.target.value)}
                           className="w-full px-2.5 py-1.5 rounded border border-[#A37774] bg-[#FAF6F3] font-semibold"
                         >
-                          <option value="approved">Approve AI-Suggested Marks</option>
-                          <option value="overridden">Override Score with Reason</option>
+                          <option value="approved">Accept suggested marks</option>
+                          <option value="overridden">Change marks (reason required)</option>
                           <option value="returned_for_transcript_correction">
                             Return for Transcript Correction
                           </option>
@@ -1833,7 +1829,7 @@ export default function UPPSCBEOExaminerApp() {
                       </div>
                       <div>
                         <label className="block font-semibold mb-1">
-                          Final Reviewed Marks (Max {currentAnswer.latest_grade_run.contract.max_marks}):
+                          Final marks (out of {currentAnswer.latest_grade_run.contract.max_marks}):
                         </label>
                         <input
                           type="number"
@@ -1849,7 +1845,7 @@ export default function UPPSCBEOExaminerApp() {
 
                     <div className="text-xs">
                       <label className="block font-semibold mb-1">
-                        Mandatory Examiner Audit Reason:
+                        Reason (required):
                       </label>
                       <textarea
                         rows={2}
@@ -1860,20 +1856,20 @@ export default function UPPSCBEOExaminerApp() {
                     </div>
 
                     <button
-                      onClick={handleSubmitTeacherReview}
+                      onClick={handleSubmitExaminerReview}
                       disabled={submittingReview}
                       className="w-full py-2 rounded-lg bg-[#484A47] hover:bg-[#5C6D70] text-[#FAF6F3] font-bold text-xs transition-colors"
                     >
                       {submittingReview
-                        ? "Recording Immutable Human Review…"
-                        : "Record Teacher Review & Lock Audited Score"}
+                        ? "Saving review…"
+                        : "Save review"}
                     </button>
 
                     {/* Existing Human Reviews */}
                     {currentAnswer.latest_grade_run.human_reviews?.length > 0 && (
                       <div className="pt-2 border-t border-[#A37774]/30 space-y-1.5">
                         <div className="text-[11px] font-bold uppercase text-[#5C6D70]">
-                          Recorded Human Review History:
+                          Review history:
                         </div>
                         {currentAnswer.latest_grade_run.human_reviews.map((hr: any) => (
                           <div
@@ -1885,7 +1881,7 @@ export default function UPPSCBEOExaminerApp() {
                                 {hr.action.toUpperCase()} by {hr.reviewer}
                               </span>
                               <span>
-                                AI: {hr.ai_suggested_score} → Final: {hr.reviewed_final_score}
+                                Suggested: {hr.ai_suggested_score} → Final: {hr.reviewed_final_score}
                               </span>
                             </div>
                             <p className="text-[11px] text-[#5C6D70] mt-1">{hr.override_reason}</p>
@@ -1909,14 +1905,14 @@ export default function UPPSCBEOExaminerApp() {
               <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#A37774]/30 pb-4 mb-5">
                 <div>
                   <span className="text-xs font-mono uppercase text-[#5C6D70]">
-                    Pseudonymous Candidate Session: {sessionBundle.session.pseudonym_code}
+                    Candidate ID: {sessionBundle.session.pseudonym_code}
                   </span>
                   <h2 className="text-xl font-bold text-[#484A47] mt-0.5">
-                    {sessionBundle.paper.subject} — {sessionBundle.paper.mock_label} Evaluation Report
+                    {sessionBundle.paper.subject} — {sessionBundle.paper.mock_label} Score Report
                   </h2>
                   <p className="text-xs text-[#5C6D70] mt-0.5">
-                    Pinned Rubric Version: <strong>{sessionBundle.paper.rubric_version}</strong> •
-                    Paper Status: <strong>{sessionBundle.paper.status}</strong>
+                    Marking scheme version: <strong>{sessionBundle.paper.rubric_version}</strong> •
+                    Status: <strong>{sessionBundle.paper.status === "published_v1" ? "Approved" : "Draft — awaiting approval"}</strong>
                   </p>
                 </div>
 
@@ -1931,12 +1927,12 @@ export default function UPPSCBEOExaminerApp() {
                       a.href = url;
                       a.download = `${sessionBundle.session.pseudonym_code}-audited-report.json`;
                       a.click();
-                      showToast("Exported pseudonymized JSON grading report.", "success");
+                      showToast("Report exported.", "success");
                     }}
                     className="px-4 py-2 rounded-lg bg-[#484A47] hover:bg-[#5C6D70] text-[#FAF6F3] font-bold text-xs flex items-center gap-2"
                   >
                     <Download className="w-4 h-4" />
-                    Export Authorized JSON Dossier
+                    Export report (JSON)
                   </button>
                 </div>
               </div>
@@ -1946,7 +1942,7 @@ export default function UPPSCBEOExaminerApp() {
                   <div className="flex items-center gap-2.5">
                     <AlertTriangle className="w-5 h-5 text-[#E88873] shrink-0" />
                     <div>
-                      <strong>PROVISIONAL DRAFT RUBRIC WARNING (Hindi Mock 16):</strong> The supplied Hindi workbook did not include a Mock 16 rubric. Marks below are AI-suggested against the draft framework and CANNOT be released as official final marks until a teacher publishes Mock 16 in Stage 1.
+                      <strong>Draft marking scheme (Hindi Mock 16):</strong> The Hindi workbook has no Mock 16 marking scheme, so a draft was built from the 13-item pattern. Marks below are suggestions and cannot be released as final until an examiner approves the scheme in Step 1.
                     </div>
                   </div>
                   <button
@@ -1956,7 +1952,7 @@ export default function UPPSCBEOExaminerApp() {
                     }}
                     className="px-3 py-1.5 rounded bg-[#484A47] text-[#FAF6F3] font-bold whitespace-nowrap"
                   >
-                    Review & Publish Mock 16 Rubric
+                    Review & approve scheme
                   </button>
                 </div>
               )}
@@ -1968,10 +1964,10 @@ export default function UPPSCBEOExaminerApp() {
                     <tr className="border-b border-[#A37774]/40 text-[#5C6D70] uppercase">
                       <th className="py-2.5 pr-4">Question ID</th>
                       <th className="py-2.5 pr-4">Word Count & Limit</th>
-                      <th className="py-2.5 pr-4">AI-Suggested Score</th>
-                      <th className="py-2.5 pr-4">Teacher-Reviewed Score</th>
+                      <th className="py-2.5 pr-4">Suggested score</th>
+                      <th className="py-2.5 pr-4">Final score (examiner)</th>
                       <th className="py-2.5 pr-4">Approval State</th>
-                      <th className="py-2.5 pr-4">Key Improvement Action</th>
+                      <th className="py-2.5 pr-4">Key improvement</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#A37774]/20">
@@ -1991,16 +1987,16 @@ export default function UPPSCBEOExaminerApp() {
                           <td className="py-3 pr-4 font-bold text-[#484A47]">
                             {latestRev
                               ? `${latestRev.reviewed_final_score} / ${gr?.max_marks}`
-                              : "Pending Teacher Sign-off"}
+                              : "Awaiting examiner review"}
                           </td>
                           <td className="py-3 pr-4">
                             {latestRev ? (
                               <span className="px-2.5 py-0.5 rounded-full bg-[#5C6D70] text-[#FAF6F3] text-[10px] font-bold">
-                                TEACHER {latestRev.action.toUpperCase()}
+                                {latestRev.action.replace(/_/g, " ").toUpperCase()}
                               </span>
                             ) : (
                               <span className="px-2.5 py-0.5 rounded-full bg-[#E88873] text-[#484A47] text-[10px] font-bold">
-                                AI-SUGGESTED (UNAPPROVED)
+                                SUGGESTED — NOT YET REVIEWED
                               </span>
                             )}
                           </td>
@@ -2028,21 +2024,21 @@ export default function UPPSCBEOExaminerApp() {
                 <div>
                   <h2 className="text-sm font-bold uppercase tracking-wider text-[#484A47] flex items-center gap-2">
                     <Cpu className="w-4 h-4 text-[#5C6D70]" />
-                    OCR/HTR Adapter Registry, Writer-Disjoint Benchmarks & License Audit
+                    Reader comparison & usage approval
                   </h2>
                   <p className="text-xs text-[#5C6D70]">
-                    Evaluation protocol: Writer-disjoint split (70/15/15). Quadratic Weighted Kappa vs. Senior Examiner:{" "}
+                    Agreement with a senior examiner (QWK):{" "}
                     <strong>
                       {evalBenchmarks.evaluation_protocol.grading_alignment_metrics.quadratic_weighted_kappa_vs_senior_examiner}
                     </strong>{" "}
-                    • Expected Calibration Error (ECE):{" "}
+                    · Confidence reliability (ECE):{" "}
                     <strong>
                       {evalBenchmarks.evaluation_protocol.grading_alignment_metrics.ece_uncertainty_calibration_error}
                     </strong>
                   </p>
                 </div>
                 <span className="px-2.5 py-1 rounded bg-[#484A47] text-[#E0AC9D] text-xs font-mono">
-                  Zero Model Training Executed in MVP Phase
+                  Sample figures — planning targets, not yet measured on UPPSC scripts
                 </span>
               </div>
 
@@ -2050,12 +2046,12 @@ export default function UPPSCBEOExaminerApp() {
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
                     <tr className="border-b border-[#A37774]/40 text-[#5C6D70]">
-                      <th className="py-2 pr-3">Adapter / Model</th>
+                      <th className="py-2 pr-3">Reader</th>
                       <th className="py-2 pr-3">Pipeline Role</th>
-                      <th className="py-2 pr-3">Clear Scan CER / WER</th>
-                      <th className="py-2 pr-3">Camera Blur CER / WER</th>
-                      <th className="py-2 pr-3">Commercial API Cleared?</th>
-                      <th className="py-2 pr-3">License & Provenance Requirement</th>
+                      <th className="py-2 pr-3">Clear scan error (CER / WER)</th>
+                      <th className="py-2 pr-3">Blurry photo error (CER / WER)</th>
+                      <th className="py-2 pr-3">Usage status</th>
+                      <th className="py-2 pr-3">Usage note</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#A37774]/20">
@@ -2063,7 +2059,7 @@ export default function UPPSCBEOExaminerApp() {
                       <tr key={m.adapter_id} className="hover:bg-[#E0AC9D]/15">
                         <td className="py-2.5 pr-3 font-bold text-[#484A47]">
                           <div>{m.name}</div>
-                          <div className="font-mono text-[10px] text-[#5C6D70]">{m.model_ref}</div>
+                          
                         </td>
                         <td className="py-2.5 pr-3 text-[#484A47]">{m.role}</td>
                         <td className="py-2.5 pr-3 font-mono">
@@ -2082,11 +2078,11 @@ export default function UPPSCBEOExaminerApp() {
                                 : "bg-[#E88873] text-[#484A47]"
                             }`}
                           >
-                            {m.commercial_api_cleared ? "CLEARED (Apache-2.0)" : "REQUIRES SIGN-OFF"}
+                            {m.commercial_api_cleared ? "Cleared for use" : "Needs approval"}
                           </span>
                         </td>
                         <td className="py-2.5 pr-3 text-[11px] text-[#5C6D70]">
-                          {m.license_action_required}
+                          {m.commercial_api_cleared ? "Open-source licence — cleared" : "Check licence before use"}
                         </td>
                       </tr>
                     ))}
@@ -2098,7 +2094,7 @@ export default function UPPSCBEOExaminerApp() {
             {/* Candidate Datasets Lead Registry */}
             <div className="bg-[#F3ECE7] border border-[#A37774]/40 rounded-xl p-5 space-y-3">
               <h2 className="text-sm font-bold uppercase tracking-wider text-[#484A47]">
-                Future Phase Dataset Leads & License Verification Matrix (No Training Until Cleared)
+                Training data sources (not used yet)
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {evalBenchmarks.dataset_provenance_registry.map((ds: any) => (
@@ -2109,7 +2105,7 @@ export default function UPPSCBEOExaminerApp() {
                     <div className="flex items-center justify-between font-bold text-[#484A47]">
                       <span>{ds.name}</span>
                       <span className="px-2 py-0.5 rounded bg-[#E0AC9D] text-[#484A47] text-[10px]">
-                        Training Gated
+                        Not yet used
                       </span>
                     </div>
                     <p className="text-[#5C6D70]">{ds.scope}</p>
@@ -2130,14 +2126,14 @@ export default function UPPSCBEOExaminerApp() {
               <div className="bg-[#F3ECE7] border border-[#A37774]/40 rounded-xl p-5 space-y-3">
                 <h2 className="text-sm font-bold uppercase tracking-wider text-[#484A47] flex items-center gap-2">
                   <ShieldAlert className="w-4 h-4 text-[#E88873]" />
-                  Live SSRF & Prompt-Injection Guardrail Sandbox
+                  Link & input safety test
                 </h2>
                 <p className="text-xs text-[#5C6D70]">
-                  Test reference retrieval URL allowlisting (blocking metadata IPs <code className="font-mono">169.254.169.254</code>, loopback, non-HTTPS, and unapproved domains) and untrusted transcript prompt-injection sanitization:
+                  Checks that reference links only point to approved sites (blocked: <code className="font-mono">169.254.169.254</code>, private addresses, non-HTTPS links and unapproved sites), and that hidden instructions typed into an answer are ignored:
                 </p>
 
                 <div className="space-y-2 text-xs">
-                  <label className="block font-semibold">Test Reference URL:</label>
+                  <label className="block font-semibold">Reference link to test:</label>
                   <div className="flex gap-2">
                     <input
                       type="text"
@@ -2151,14 +2147,14 @@ export default function UPPSCBEOExaminerApp() {
                       }
                       className="px-2.5 py-1 rounded bg-[#E0AC9D]/50 text-[#484A47] font-semibold"
                     >
-                      Try Metadata SSRF
+                      Try a blocked address
                     </button>
                   </div>
                 </div>
 
                 <div className="space-y-2 text-xs">
                   <label className="block font-semibold">
-                    Test Untrusted Student Transcript (Injection Check):
+                    Answer text to test:
                   </label>
                   <textarea
                     rows={2}
@@ -2172,24 +2168,24 @@ export default function UPPSCBEOExaminerApp() {
                   onClick={handleRunSecurityTest}
                   className="px-4 py-2 rounded-lg bg-[#484A47] hover:bg-[#5C6D70] text-[#FAF6F3] font-bold text-xs"
                 >
-                  Run Security Guardrail Verification
+                  Run safety check
                 </button>
 
                 {securityTestResult && (
                   <div className="p-3 rounded-lg bg-[#FAF6F3] border border-[#A37774] text-xs space-y-1.5 font-mono">
                     <div>
-                      <strong>SSRF Allowed:</strong>{" "}
+                      <strong>Link allowed:</strong>{" "}
                       {String(securityTestResult.ssrf_check?.allowed)} (
                       {securityTestResult.ssrf_check?.reason ||
                         `Verified HTTPS host ${securityTestResult.ssrf_check?.host}`}
                       )
                     </div>
                     <div>
-                      <strong>Injection Detected:</strong>{" "}
+                      <strong>Hidden instruction found:</strong>{" "}
                       {String(securityTestResult.prompt_injection_check?.injection_detected)}
                     </div>
                     <div className="text-[11px] text-[#5C6D70]">
-                      Sanitized Output: {securityTestResult.prompt_injection_check?.sanitized_text}
+                      Cleaned text: {securityTestResult.prompt_injection_check?.sanitized_text}
                     </div>
                   </div>
                 )}
@@ -2198,35 +2194,8 @@ export default function UPPSCBEOExaminerApp() {
               {/* Right: Supabase & Vercel Environment Variable Names (Zero Secret Values) + Audit Log */}
               <div className="bg-[#F3ECE7] border border-[#A37774]/40 rounded-xl p-5 space-y-4">
                 <div>
-                  <h2 className="text-sm font-bold uppercase tracking-wider text-[#484A47] mb-2">
-                    Supabase & Vercel Environment Variable Registry (Names Only — Secrets Redacted)
-                  </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs">
-                    {auditBundle.env_var_names_configured.map((env: any) => (
-                      <div
-                        key={env.name}
-                        className="px-2.5 py-1.5 rounded bg-[#FAF6F3] border border-[#A37774]/30 flex items-center justify-between"
-                      >
-                        <span className="font-mono text-[11px] font-semibold text-[#484A47]">
-                          {env.name}
-                        </span>
-                        <span
-                          className={`px-1.5 py-0.5 rounded text-[10px] ${
-                            env.scope.includes("secret")
-                              ? "bg-[#484A47] text-[#E0AC9D]"
-                              : "bg-[#5C6D70] text-[#FAF6F3]"
-                          }`}
-                        >
-                          {env.scope}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
                   <h3 className="text-xs font-bold uppercase tracking-wider text-[#5C6D70] mb-1.5">
-                    Hash-Chained Append-Only Audit Trail ({auditBundle.audit_events.length} Events)
+                    Activity log ({auditBundle.audit_events.length} events)
                   </h3>
                   <div className="max-h-48 overflow-y-auto space-y-1.5 pr-1">
                     {auditBundle.audit_events.map((ev: any) => (
@@ -2239,7 +2208,7 @@ export default function UPPSCBEOExaminerApp() {
                             [{ev.id}] {ev.event_type} → {ev.entity_id}
                           </span>
                           <span className="font-mono text-[10px] text-[#5C6D70]">
-                            sha256:{ev.event_hash.slice(0, 12)}…
+                            {ev.created_at.slice(0, 16).replace("T", " ")}
                           </span>
                         </div>
                         <div className="text-[#5C6D70]">Actor: {ev.actor}</div>

@@ -2,12 +2,12 @@
 """
 FastAPI Modular Monolith API Server (apps/api/main.py).
 Implements tenant-scoped endpoints for UPPSC BEO Answer-Sheet Scanning & Rubric Grading:
-- Exam & Rubric Import Preview, Teacher Correction, Penalty Configuration & Publishing
+- Exam & Rubric Import Preview, Examiner Correction, Penalty Configuration & Publishing
 - Quarantine File Upload Validation, Page Reordering/Rotation & Reversible Derivative Pipeline
 - Multi-Adapter OCR/HTR Candidate Readings, Confidence Calibration & Span Disagreement Review
 - Immutable Transcript Versioning & Question Linking
-- Rubric-Bounded Grading with Deterministic Score & Schema Validation
-- Append-Only Teacher Override & Approval History
+- Rubric-Bounded Grading with Rule-based Score & Schema Validation
+- Recorded Examiner Override & Approval History
 - Hash-Chained Audit Trail, Evaluation Benchmarks & SSRF/Prompt-Injection Controls
 """
 
@@ -22,7 +22,7 @@ from typing import Dict, Any, List, Optional
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 ROOT_DIR = "/home/user"
 if ROOT_DIR not in sys.path:
@@ -52,9 +52,9 @@ grader_mod = _load_mod("grader_adapter", "packages/model-adapters/grader_adapter
 img_pipe_mod = _load_mod("image_pipeline", "apps/worker/image_pipeline.py")
 
 app = FastAPI(
-    title="UPPSC BEO Answer-Sheet Scanner & Rubric Grader API",
+    title="UPPSC BEO Answer Sheet Grading API",
     version="1.0.0",
-    description="Production-minded modular monolith API for scanning UPPSC BEO handwritten answer sheets and rubric-bounded evaluation."
+    description="API for scanning UPPSC BEO handwritten answer sheets and grading them against the marking scheme."
 )
 
 app.add_middleware(
@@ -94,8 +94,8 @@ STATE: Dict[str, Any] = {
         {"category": "raw_answer_sheet_scans", "retention_days": 180, "auto_purge": True, "encryption": "AES-256-GCM Envelope"},
         {"category": "normalized_page_derivatives", "retention_days": 90, "auto_purge": True, "encryption": "AES-256-GCM Envelope"},
         {"category": "immutable_transcript_versions", "retention_days": 365, "auto_purge": False, "encryption": "Postgres TDE + RLS"},
-        {"category": "grade_runs_and_teacher_reviews", "retention_days": 730, "auto_purge": False, "encryption": "Postgres TDE + RLS"},
-        {"category": "hash_chained_audit_logs", "retention_days": 1825, "auto_purge": False, "encryption": "Append-Only WORM"}
+        {"category": "grade_runs_and_examiner_reviews", "retention_days": 730, "auto_purge": False, "encryption": "Postgres TDE + RLS"},
+        {"category": "hash_chained_audit_logs", "retention_days": 1825, "auto_purge": False, "encryption": "Recorded WORM"}
     ]
 }
 
@@ -104,7 +104,7 @@ def append_audit_event(
     event_type: str,
     entity_type: str,
     entity_id: str,
-    actor: str = "teacher-examiner-01 (Dr. R. K. Sharma, Senior Examiner)",
+    actor: str = "examiner-01 (Senior Examiner (sample reviewer))",
     metadata: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     prev_hash = STATE["audit_events"][-1]["event_hash"] if STATE["audit_events"] else "0" * 64
@@ -266,7 +266,7 @@ def initialize_state():
             "ocr_candidates": [
                 {
                     "adapter_id": "indic_ocr_bodhan",
-                    "adapter_name": "IndicOCR (Bodhan AI / AI4Bharat)",
+                    "adapter_name": "Reader A (primary)",
                     "calibrated_confidence": 0.89,
                     "transcript": (
                         "वैदिक काल से महाजनपद काल (600 ई.पू.) तक भारतीय समाज एवं राजनीतिक व्यवस्था में आमूलचूल परिवर्तन हुए। "
@@ -280,7 +280,7 @@ def initialize_state():
                 },
                 {
                     "adapter_id": "qwen2vl_2b_hindi_htr",
-                    "adapter_name": "Qwen2-VL-2B Hindi Handwritten Fine-Tune",
+                    "adapter_name": "Reader B (Hindi handwriting)",
                     "calibrated_confidence": 0.86,
                     "transcript": (
                         "वैदिक काल से महाजनपद काल (600 ई.पू.) तक भारतीय समाज एवं राजनीतिक व्यवस्था में आमूलचूल परिवर्तन हुए। "
@@ -313,10 +313,10 @@ def initialize_state():
                     "bbox_norm": [0.33, 0.23, 0.55, 0.26],
                     "current_text": "सभा और समिति जैसी संस्थाओं",
                     "calibrated_confidence": 0.68,
-                    "disagreement_reason": "Smudged ink stroke on line 5: IndicOCR reads 'सभा और समिति जैसी संस्थाओं' (0.79) while Qwen2-VL reads 'सभा और सामिति जैसी संख्याओं' (0.64) and PP-OCRv5 flags low-confidence matra.",
+                    "disagreement_reason": "Smudged ink stroke on line 5: Reader A reads 'सभा और समिति जैसी संस्थाओं' (0.79) while Reader B reads 'सभा और सामिति जैसी संख्याओं' (0.64) and PP-OCRv5 flags low-confidence matra.",
                     "alternatives": [
-                        {"model": "IndicOCR", "text": "सभा और समिति जैसी संस्थाओं", "confidence": 0.79},
-                        {"model": "Qwen2-VL-2B", "text": "सभा और सामिति जैसी संख्याओं", "confidence": 0.64},
+                        {"model": "Reader A", "text": "सभा और समिति जैसी संस्थाओं", "confidence": 0.79},
+                        {"model": "Reader B-2B", "text": "सभा और सामिति जैसी संख्याओं", "confidence": 0.64},
                         {"model": "Human Unreadable Marker", "text": "[UNREADABLE_SPAN]", "confidence": 1.0}
                     ],
                     "resolved_by_human": True
@@ -329,7 +329,7 @@ def initialize_state():
                     "source_type": "ocr_ensemble",
                     "is_confirmed_for_grading": False,
                     "created_at": "2026-10-12T09:16:10Z",
-                    "author": "IndicOCR + Qwen2-VL Ensemble (Zero Rubric Context)",
+                    "author": "Automatic reading",
                     "text": (
                         "वैदिक काल से महाजनपद काल (600 ई.पू.) तक भारतीय समाज एवं राजनीतिक व्यवस्था में आमूलचूल परिवर्तन हुए। "
                         "ऋग्वैदिक काल में समाज कबीलाई संरचना ('जन') पर आधारित था तथा वर्ण व्यवस्था कर्म पर आधारित एवं लचीली थी। "
@@ -343,10 +343,10 @@ def initialize_state():
                 {
                     "version_id": "tv-gs17-q1-v2",
                     "revision_number": 2,
-                    "source_type": "teacher_verified",
+                    "source_type": "examiner_verified",
                     "is_confirmed_for_grading": True,
                     "created_at": "2026-10-12T09:18:45Z",
-                    "author": "Dr. R. K. Sharma (Verified against Original Scan Crop)",
+                    "author": "Senior Examiner (sample reviewer) (Verified against Original Scan Crop)",
                     "text": (
                         "वैदिक काल से महाजनपद काल (600 ई.पू.) तक भारतीय समाज एवं राजनीतिक व्यवस्था में आमूलचूल परिवर्तन हुए। "
                         "ऋग्वैदिक काल में समाज कबीलाई संरचना ('जन') पर आधारित था तथा वर्ण व्यवस्था कर्म पर आधारित एवं लचीली थी। "
@@ -373,7 +373,7 @@ def initialize_state():
             "ocr_candidates": [
                 {
                     "adapter_id": "indic_ocr_bodhan",
-                    "adapter_name": "IndicOCR (Bodhan AI / AI4Bharat)",
+                    "adapter_name": "Reader A (primary)",
                     "calibrated_confidence": 0.93,
                     "transcript": (
                         "Part XI (Articles 245–255) and the Seventh Schedule of the Indian Constitution govern the "
@@ -391,7 +391,7 @@ def initialize_state():
                 },
                 {
                     "adapter_id": "surya_layout_line",
-                    "adapter_name": "Surya Layout & Line Detector",
+                    "adapter_name": "Reader D Layout & Line Detector",
                     "calibrated_confidence": 0.91,
                     "transcript": (
                         "Part XI (Articles 245-255) and the Seventh Schedule of the Indian Constitution govern the "
@@ -414,10 +414,10 @@ def initialize_state():
                     "bbox_norm": [0.43, 0.69, 0.62, 0.72],
                     "current_text": "(List III — education, forests)",
                     "calibrated_confidence": 0.74,
-                    "disagreement_reason": "Blurred Roman numeral: IndicOCR reads 'List III' (0.88) while Surya reads 'List II' (0.61). Mark-sensitive constitutional term requires human confirmation.",
+                    "disagreement_reason": "Blurred Roman numeral: Reader A reads 'List III' (0.88) while Reader D reads 'List II' (0.61). Mark-sensitive constitutional term requires human confirmation.",
                     "alternatives": [
-                        {"model": "IndicOCR", "text": "(List III — education, forests)", "confidence": 0.88},
-                        {"model": "Surya", "text": "(List II — education, forests)", "confidence": 0.61}
+                        {"model": "Reader A", "text": "(List III — education, forests)", "confidence": 0.88},
+                        {"model": "Reader D", "text": "(List II — education, forests)", "confidence": 0.61}
                     ],
                     "resolved_by_human": True
                 }
@@ -426,10 +426,10 @@ def initialize_state():
                 {
                     "version_id": "tv-gs17-q4-v1",
                     "revision_number": 1,
-                    "source_type": "teacher_verified",
+                    "source_type": "examiner_verified",
                     "is_confirmed_for_grading": True,
                     "created_at": "2026-10-12T09:19:30Z",
-                    "author": "Dr. R. K. Sharma (Confirmed List III from Original Scan)",
+                    "author": "Senior Examiner (sample reviewer) (Confirmed List III from Original Scan)",
                     "text": (
                         "Part XI (Articles 245–255) and the Seventh Schedule of the Indian Constitution govern the "
                         "distribution of legislative powers between the Union and the States.\n"
@@ -460,7 +460,7 @@ def initialize_state():
             "ocr_candidates": [
                 {
                     "adapter_id": "indic_ocr_bodhan",
-                    "adapter_name": "IndicOCR (Bodhan AI / AI4Bharat)",
+                    "adapter_name": "Reader A (primary)",
                     "calibrated_confidence": 0.91,
                     "transcript": (
                         "महाजनपदों के उदय के दो प्रमुख कारण निम्नलिखित हैं:\n"
@@ -475,10 +475,10 @@ def initialize_state():
                 {
                     "version_id": "tv-gs17-q11-v1",
                     "revision_number": 1,
-                    "source_type": "teacher_verified",
+                    "source_type": "examiner_verified",
                     "is_confirmed_for_grading": True,
                     "created_at": "2026-10-12T09:20:00Z",
-                    "author": "Dr. R. K. Sharma",
+                    "author": "Senior Examiner (sample reviewer)",
                     "text": (
                         "महाजनपदों के उदय के दो प्रमुख कारण निम्नलिखित हैं:\n"
                         "१. लोहे की तकनीक और कृषि अधिशेष: मध्य गंगा घाटी की उपजाऊ जलोढ़ भूमि में लोहे के हल के व्यापक "
@@ -502,7 +502,7 @@ def initialize_state():
             "ocr_candidates": [
                 {
                     "adapter_id": "indic_ocr_bodhan",
-                    "adapter_name": "IndicOCR (Bodhan AI / AI4Bharat)",
+                    "adapter_name": "Reader A (primary)",
                     "calibrated_confidence": 0.94,
                     "transcript": (
                         "महाजनपद: छठी शताब्दी ई.पू. में उत्तर भारत में उभरे १६ बड़े क्षेत्रीय राज्यों को महाजनपद कहा गया "
@@ -515,10 +515,10 @@ def initialize_state():
                 {
                     "version_id": "tv-gs17-q21-v1",
                     "revision_number": 1,
-                    "source_type": "teacher_verified",
+                    "source_type": "examiner_verified",
                     "is_confirmed_for_grading": True,
                     "created_at": "2026-10-12T09:20:20Z",
-                    "author": "Dr. R. K. Sharma",
+                    "author": "Senior Examiner (sample reviewer)",
                     "text": (
                         "महाजनपद: छठी शताब्दी ई.पू. में उत्तर भारत में उभरे १६ बड़े क्षेत्रीय राज्यों को महाजनपद कहा गया "
                         "(बौद्ध ग्रंथ अंगुत्तर निकाय में उल्लिखित), जिनमें मगध, कोशल, वत्स, अवंति (राजतंत्र) तथा वज्जि व मल्ल (गणसंघ) प्रमुख थे।"
@@ -540,7 +540,7 @@ def initialize_state():
             "ocr_candidates": [
                 {
                     "adapter_id": "indic_ocr_bodhan",
-                    "adapter_name": "IndicOCR (Bodhan AI / AI4Bharat)",
+                    "adapter_name": "Reader A (primary)",
                     "calibrated_confidence": 0.95,
                     "transcript": (
                         "Union List: List I of the Seventh Schedule (Article 246(1)) of the Constitution enumerates "
@@ -554,10 +554,10 @@ def initialize_state():
                 {
                     "version_id": "tv-gs17-q28-v1",
                     "revision_number": 1,
-                    "source_type": "teacher_verified",
+                    "source_type": "examiner_verified",
                     "is_confirmed_for_grading": True,
                     "created_at": "2026-10-12T09:20:45Z",
-                    "author": "Dr. R. K. Sharma",
+                    "author": "Senior Examiner (sample reviewer)",
                     "text": (
                         "Union List: List I of the Seventh Schedule (Article 246(1)) of the Constitution enumerates "
                         "subjects of national importance (originally 97, presently 100 items such as Defence, Atomic Energy, "
@@ -581,7 +581,7 @@ def initialize_state():
             "ocr_candidates": [
                 {
                     "adapter_id": "qwen2vl_2b_hindi_htr",
-                    "adapter_name": "Qwen2-VL-2B Hindi Handwritten Fine-Tune",
+                    "adapter_name": "Reader B (Hindi handwriting)",
                     "calibrated_confidence": 0.88,
                     "transcript": (
                         "(i) आधारशिला — किसी संबंध या व्यवस्था का मूल आधार अथवा बुनियाद।\n"
@@ -606,9 +606,9 @@ def initialize_state():
                     "bbox_norm": [0.25, 0.14, 0.43, 0.18],
                     "current_text": "असावधानी — लापरवाही, चूक",
                     "calibrated_confidence": 0.71,
-                    "disagreement_reason": "Smudged stroke on line 3: Qwen2-VL reads 'असावधानी — लापरवाही, चूक' (0.86) while PP-OCRv5 drops the u-matra in 'चूक' ('चक', 0.58).",
+                    "disagreement_reason": "Smudged stroke on line 3: Reader B reads 'असावधानी — लापरवाही, चूक' (0.86) while PP-OCRv5 drops the u-matra in 'चूक' ('चक', 0.58).",
                     "alternatives": [
-                        {"model": "Qwen2-VL-2B", "text": "असावधानी — लापरवाही, चूक", "confidence": 0.86},
+                        {"model": "Reader B-2B", "text": "असावधानी — लापरवाही, चूक", "confidence": 0.86},
                         {"model": "PP-OCRv5 Devanagari", "text": "असावधानी — लापरवाही, चक", "confidence": 0.58}
                     ],
                     "resolved_by_human": True
@@ -618,10 +618,10 @@ def initialize_state():
                 {
                     "version_id": "tv-hi16-q1a-v1",
                     "revision_number": 1,
-                    "source_type": "teacher_verified",
+                    "source_type": "examiner_verified",
                     "is_confirmed_for_grading": True,
                     "created_at": "2026-10-12T09:24:00Z",
-                    "author": "Prof. सुधा चतुर्वेदी (Hindi Examiner)",
+                    "author": "Hindi Examiner (sample reviewer) (Hindi Examiner)",
                     "text": (
                         "(i) आधारशिला — किसी संबंध या व्यवस्था का मूल आधार अथवा बुनियाद।\n"
                         "(ii) स्थायित्व — स्थिरता, टिकाऊपन या दीर्घकाल तक बने रहने का गुण।\n"
@@ -644,7 +644,7 @@ def initialize_state():
             "ocr_candidates": [
                 {
                     "adapter_id": "indic_ocr_bodhan",
-                    "adapter_name": "IndicOCR (Bodhan AI / AI4Bharat)",
+                    "adapter_name": "Reader A (primary)",
                     "calibrated_confidence": 0.94,
                     "transcript": "उपयुक्त शीर्षक: “स्वस्थ मानवीय संबंधों में विश्वास और संवाद का महत्व”"
                 }
@@ -654,10 +654,10 @@ def initialize_state():
                 {
                     "version_id": "tv-hi16-q1c-v1",
                     "revision_number": 1,
-                    "source_type": "teacher_verified",
+                    "source_type": "examiner_verified",
                     "is_confirmed_for_grading": True,
                     "created_at": "2026-10-12T09:24:30Z",
-                    "author": "Prof. सुधा चतुर्वेदी (Hindi Examiner)",
+                    "author": "Hindi Examiner (sample reviewer) (Hindi Examiner)",
                     "text": "उपयुक्त शीर्षक: “स्वस्थ मानवीय संबंधों में विश्वास और संवाद का महत्व”"
                 }
             ]
@@ -676,7 +676,7 @@ def initialize_state():
             "ocr_candidates": [
                 {
                     "adapter_id": "indic_ocr_bodhan",
-                    "adapter_name": "IndicOCR (Bodhan AI / AI4Bharat)",
+                    "adapter_name": "Reader A (primary)",
                     "calibrated_confidence": 0.87,
                     "transcript": (
                         "कार्यालय जिला बेसिक शिक्षा अधिकारी, वाराणसी (उत्तर प्रदेश)\n"
@@ -702,7 +702,7 @@ def initialize_state():
                     "calibrated_confidence": 0.72,
                     "disagreement_reason": "Faint pen pressure in middle paragraph; verified against CLAHE contrast derivative.",
                     "alternatives": [
-                        {"model": "IndicOCR", "text": "जाता है कि विद्यालय में पूर्ण अनुशासन", "confidence": 0.84},
+                        {"model": "Reader A", "text": "जाता है कि विद्यालय में पूर्ण अनुशासन", "confidence": 0.84},
                         {"model": "PP-OCRv5", "text": "जाता है कि विध्यालय में पूर्ण अनुशासन", "confidence": 0.62}
                     ],
                     "resolved_by_human": False
@@ -712,10 +712,10 @@ def initialize_state():
                 {
                     "version_id": "tv-hi16-q2-v1",
                     "revision_number": 1,
-                    "source_type": "teacher_verified",
+                    "source_type": "examiner_verified",
                     "is_confirmed_for_grading": True,
                     "created_at": "2026-10-12T09:25:15Z",
-                    "author": "Prof. सुधा चतुर्वेदी (Hindi Examiner)",
+                    "author": "Hindi Examiner (sample reviewer) (Hindi Examiner)",
                     "text": (
                         "कार्यालय जिला बेसिक शिक्षा अधिकारी, वाराणसी (उत्तर प्रदेश)\n"
                         "पत्रांक: शि०नि०/अनु०/2026-27/148        दिनांक: 12 अक्टूबर, 2026\n"
@@ -748,7 +748,7 @@ def initialize_state():
             "ocr_candidates": [
                 {
                     "adapter_id": "qwen2vl_2b_hindi_htr",
-                    "adapter_name": "Qwen2-VL-2B Hindi Handwritten Fine-Tune",
+                    "adapter_name": "Reader B (Hindi handwriting)",
                     "calibrated_confidence": 0.93,
                     "transcript": (
                         "प्रत्यय एवं मूल शब्द पृथक्करण (विकल्प ख):\n"
@@ -765,10 +765,10 @@ def initialize_state():
                 {
                     "version_id": "tv-hi16-q3b-v1",
                     "revision_number": 1,
-                    "source_type": "teacher_verified",
+                    "source_type": "examiner_verified",
                     "is_confirmed_for_grading": True,
                     "created_at": "2026-10-12T09:26:00Z",
-                    "author": "Prof. सुधा चतुर्वेदी",
+                    "author": "Hindi Examiner (sample reviewer)",
                     "text": (
                         "प्रत्यय एवं मूल शब्द पृथक्करण (विकल्प ख):\n"
                         "१. मानवता = मानव (मूल शब्द) + ता (प्रत्यय)\n"
@@ -794,7 +794,7 @@ def initialize_state():
             "ocr_candidates": [
                 {
                     "adapter_id": "qwen2vl_2b_hindi_htr",
-                    "adapter_name": "Qwen2-VL-2B Hindi Handwritten Fine-Tune",
+                    "adapter_name": "Reader B (Hindi handwriting)",
                     "calibrated_confidence": 0.89,
                     "transcript": (
                         "शब्दों के शुद्ध रूप:\n"
@@ -821,9 +821,9 @@ def initialize_state():
                     "bbox_norm": [0.25, 0.52, 0.47, 0.56],
                     "current_text": "५. उज्जवल → उज्ज्वल",
                     "calibrated_confidence": 0.70,
-                    "disagreement_reason": "Mark-sensitive conjunct 'ज्ज्व' in item 5: Qwen2-VL detects double half-ja 'उज्ज्वल' (0.87) while PP-OCRv5 collapses conjunct to 'उज्जवल' (0.59). OCR must never auto-correct; human examiner verified ink stroke.",
+                    "disagreement_reason": "Mark-sensitive conjunct 'ज्ज्व' in item 5: Reader B detects double half-ja 'उज्ज्वल' (0.87) while PP-OCRv5 collapses conjunct to 'उज्जवल' (0.59). OCR must never auto-correct; human examiner verified ink stroke.",
                     "alternatives": [
-                        {"model": "Qwen2-VL-2B", "text": "५. उज्जवल → उज्ज्वल", "confidence": 0.87},
+                        {"model": "Reader B-2B", "text": "५. उज्जवल → उज्ज्वल", "confidence": 0.87},
                         {"model": "PP-OCRv5 Devanagari", "text": "५. उज्जवल → उज्जवल", "confidence": 0.59}
                     ],
                     "resolved_by_human": True
@@ -833,10 +833,10 @@ def initialize_state():
                 {
                     "version_id": "tv-hi16-q6a-v1",
                     "revision_number": 1,
-                    "source_type": "teacher_verified",
+                    "source_type": "examiner_verified",
                     "is_confirmed_for_grading": True,
                     "created_at": "2026-10-12T09:26:40Z",
-                    "author": "Prof. सुधा चतुर्वेदी",
+                    "author": "Hindi Examiner (sample reviewer)",
                     "text": (
                         "शब्दों के शुद्ध रूप:\n"
                         "१. कृतग्य → कृतज्ञ     २. स्वाधिन → स्वाधीन\n"
@@ -860,7 +860,7 @@ def initialize_state():
             "ocr_candidates": [
                 {
                     "adapter_id": "indic_ocr_bodhan",
-                    "adapter_name": "IndicOCR (Bodhan AI / AI4Bharat)",
+                    "adapter_name": "Reader A (primary)",
                     "calibrated_confidence": 0.94,
                     "transcript": (
                         "वाक्य-शुद्धि:\n"
@@ -877,10 +877,10 @@ def initialize_state():
                 {
                     "version_id": "tv-hi16-q6b-v1",
                     "revision_number": 1,
-                    "source_type": "teacher_verified",
+                    "source_type": "examiner_verified",
                     "is_confirmed_for_grading": True,
                     "created_at": "2026-10-12T09:27:10Z",
-                    "author": "Prof. सुधा चतुर्वेदी",
+                    "author": "Hindi Examiner (sample reviewer)",
                     "text": (
                         "वाक्य-शुद्धि:\n"
                         "१. हमें एक-दूसरे का सहयोग करना चाहिए।\n"
@@ -925,12 +925,12 @@ def initialize_state():
             "contract": grade_contract,
             "human_reviews": []
         }
-        # Seed one completed teacher approval on Mock 17-01 so the report demonstrates both
-        # AI-Suggested and Teacher-Approved states!
+        # Seed one completed examiner approval on Mock 17-01 so the report demonstrates both
+        # AI-Suggested and Examiner-Approved states!
         if ans["answer_id"] == "ans-gs17-q1":
             grade_record["human_reviews"].append({
                 "review_id": "hr-gs17-q1-01",
-                "reviewer": "Dr. R. K. Sharma (Senior Examiner, UPPSC Cell)",
+                "reviewer": "Senior Examiner (sample reviewer) (Senior Examiner, UPPSC Cell)",
                 "action": "overridden",
                 "ai_suggested_score": grade_contract["final_score"],
                 "reviewed_final_score": 8.5,
@@ -948,11 +948,11 @@ initialize_state()
 # Request Models
 # -----------------------------------------------------------------------------
 class PublishPaperRequest(BaseModel):
-    teacher_name: str = "Dr. R. K. Sharma (Senior Examiner)"
+    teacher_name: str = Field(default="Senior Examiner (sample reviewer)", title="Examiner name")
     enable_numeric_penalty: bool = False
     material_error_deduction: float = 0.0
     word_limit_deduction: float = 0.0
-    approval_note: str = "Reviewed extracted questions, VLM-verified Devanagari text, and rubric criteria."
+    approval_note: str = "Reviewed extracted questions, checked Devanagari text, and rubric criteria."
 
 
 class TranscriptPatchRequest(BaseModel):
@@ -963,8 +963,8 @@ class TranscriptPatchRequest(BaseModel):
     author: str = "Examiner Transcript Verification"
 
 
-class TeacherReviewRequest(BaseModel):
-    reviewer: str = "Dr. R. K. Sharma (Senior Examiner)"
+class ExaminerReviewRequest(BaseModel):
+    reviewer: str = "Senior Examiner (sample reviewer)"
     action: str = "approved"  # approved | overridden | returned_for_transcript_correction
     reviewed_final_score: float
     override_reason: str
@@ -1163,7 +1163,7 @@ async def upload_and_quarantine_scan(
         "ocr_candidates": [
             {
                 "adapter_id": vlm_ocr.get("adapter_used", "indic_ocr_bodhan"),
-                "adapter_name": f"Zero-Context OCR ({vlm_ocr.get('adapter_used', 'IndicOCR')})",
+                "adapter_name": f"Zero-Context OCR ({vlm_ocr.get('adapter_used', 'Reader A')})",
                 "calibrated_confidence": conf_val,
                 "transcript": transcript_str
             }
@@ -1302,7 +1302,7 @@ def get_grade_run(grade_run_id: str):
 
 
 @app.post("/v1/grade-runs/{grade_run_id}/review")
-def submit_teacher_review(grade_run_id: str, req: TeacherReviewRequest):
+def submit_examiner_review(grade_run_id: str, req: ExaminerReviewRequest):
     if grade_run_id not in STATE["grade_runs"]:
         raise HTTPException(status_code=404, detail="Grade run not found")
     gr = STATE["grade_runs"][grade_run_id]
@@ -1328,7 +1328,7 @@ def submit_teacher_review(grade_run_id: str, req: TeacherReviewRequest):
         gr["contract"]["needs_human_review"] = False
 
     ev = append_audit_event(
-        event_type=f"TEACHER_REVIEW_{req.action.upper()}",
+        event_type=f"EXAMINER_REVIEW_{req.action.upper()}",
         entity_type="human_review",
         entity_id=review_entry["review_id"],
         actor=req.reviewer,

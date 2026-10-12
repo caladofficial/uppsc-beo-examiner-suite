@@ -7,7 +7,7 @@ import {
   evaluateRubricBoundedGrade,
   validateUrlSsrfSafe,
   sanitizeUntrustedText,
-  sha256Hex,
+  stableHashHex,
 } from "@/lib/server-state";
 
 export function resolveAssetUrl(url: string): string {
@@ -167,6 +167,103 @@ async function handleStaticFallback(url: string, init?: RequestInit): Promise<Re
   }
 
   if (method === "POST") {
+    if (slug[0] === "sessions" && slug[2] === "uploads") {
+      const sessionId = slug[1];
+      const sess = state.sessions[sessionId];
+      if (!sess) return jsonResp({ detail: "Session not found" }, 404);
+      const form = init?.body as FormData | undefined;
+      const file = (form?.get("file") as File | null) || null;
+      const questionId = (form?.get("question_id") as string) || "Mock 17-02";
+      if (!file) return jsonResp({ detail: "No file provided" }, 400);
+      const buf = new Uint8Array(await file.arrayBuffer());
+      if (buf.length === 0 || buf.length > 25 * 1024 * 1024) {
+        return jsonResp({ detail: "File size rejected by the 25 MB limit." }, 400);
+      }
+      const head = String.fromCharCode(...buf.slice(0, 5));
+      const isPdf = head === "%PDF-";
+      const isPng = buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47;
+      const isJpg = buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff;
+      if (!isPdf && !isPng && !isJpg) {
+        return jsonResp({
+          detail: "File type not accepted. Please upload a PDF, PNG or JPG file.",
+        }, 400);
+      }
+      const detectedMime = isPdf ? "application/pdf" : isPng ? "image/png" : "image/jpeg";
+      const digest = await crypto.subtle.digest("SHA-256", buf);
+      const sha256 = Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+      const dataUri = isPdf
+        ? "/scans/gs17_cand01_p1_original.png"
+        : await new Promise<string>((resolve, reject) => {
+            const fr = new FileReader();
+            fr.onload = () => resolve(String(fr.result));
+            fr.onerror = () => reject(fr.error);
+            fr.readAsDataURL(new Blob([buf], { type: detectedMime }));
+          });
+      const quarantine = {
+        valid: true,
+        filename: file.name,
+        detected_mime: detectedMime,
+        size_bytes: buf.length,
+        sha256,
+        quarantine_status: "passed",
+        validated_at: new Date().toISOString(),
+      };
+      const pageId = `upload_${sha256.slice(0, 8)}`;
+      const newPageNum = sess.pages.length + 1;
+      const newPage = {
+        page_id: pageId,
+        page_number: newPageNum,
+        rotation_deg: 0,
+        detected_skew_deg: -0.8,
+        width_px: 1080,
+        height_px: 1470,
+        variants: {
+          original: dataUri,
+          deskewed: dataUri,
+          clahe_contrast: dataUri,
+          adaptive_ink: dataUri,
+          restormer_deblur_preview: dataUri,
+        },
+      };
+      sess.pages.push(newPage);
+      const newAnsId = `ans-${pageId}`;
+      const newAns: any = {
+        answer_id: newAnsId,
+        session_id: sessionId,
+        paper_id: sess.paper_id,
+        question_id: questionId,
+        page_id: pageId,
+        page_number: newPageNum,
+        bbox_norm: [0.1, 0.1, 0.9, 0.88],
+        script_detected: "hi+en",
+        assignment_confidence: 0.88,
+        informed_by_variant: "clahe_contrast",
+        ocr_candidates: [
+          {
+            adapter_id: "reader_a",
+            adapter_name: "Automatic reading (Readers A + B)",
+            calibrated_confidence: 0.86,
+            transcript: `Uploaded scan (${file.name}) passed the file check. Edit or confirm the handwritten transcription before grading.`,
+          },
+        ],
+        uncertain_spans: [],
+        revisions: [
+          {
+            version_id: `tv-${pageId}-v1`,
+            revision_number: 1,
+            source_type: "ocr_ensemble",
+            is_confirmed_for_grading: false,
+            created_at: new Date().toISOString(),
+            author: "Automatic reading (provisional)",
+            text: `Uploaded scan (${file.name}) passed the file check. Edit or confirm the handwritten transcription before grading.`,
+          },
+        ],
+      };
+      state.answers[newAnsId] = newAns;
+      sess.answer_ids.push(newAnsId);
+      return jsonResp({ quarantine, page: newPage, answer: newAns });
+    }
+
     if (slug[0] === "exams" && slug[2] === "publish") {
       const paperId = slug[1];
       const paper = state.papers[paperId];
@@ -178,7 +275,7 @@ async function handleStaticFallback(url: string, init?: RequestInit): Promise<Re
       paper.rubric_version = paper.rubric_version.includes("draft")
         ? paper.rubric_version.replace("draft-v0.9.0", "published-v1.0.0")
         : `${paper.rubric_version}-rev1`;
-      paper.published_by = body.teacher_name || "Dr. R. K. Sharma (Senior Examiner)";
+      paper.published_by = body.teacher_name || "Senior Examiner (sample reviewer)";
       paper.published_at = new Date().toISOString();
       paper.approval_note = body.approval_note;
       for (const q of paper.questions) {
@@ -273,8 +370,8 @@ async function handleStaticFallback(url: string, init?: RequestInit): Promise<Re
         );
       }
       const reviewEntry = {
-        review_id: `hr-${sha256Hex(String(Date.now())).slice(0, 8)}`,
-        reviewer: body.reviewer || "Dr. R. K. Sharma (Senior Examiner)",
+        review_id: `hr-${stableHashHex(String(Date.now())).slice(0, 8)}`,
+        reviewer: body.reviewer || "Senior Examiner (sample reviewer)",
         action: body.action || "approved",
         ai_suggested_score: gr.contract.final_score,
         reviewed_final_score: Math.round(revScore * 100) / 100,
@@ -286,7 +383,7 @@ async function handleStaticFallback(url: string, init?: RequestInit): Promise<Re
         gr.contract.needs_human_review = false;
       }
       const ev = state.appendAudit(
-        `TEACHER_REVIEW_${reviewEntry.action.toUpperCase()}`,
+        `EXAMINER_REVIEW_${reviewEntry.action.toUpperCase()}`,
         "human_review",
         reviewEntry.review_id,
         reviewEntry.reviewer,
@@ -343,6 +440,38 @@ async function handleStaticFallback(url: string, init?: RequestInit): Promise<Re
         text: body.transcript_text || "",
       };
       ans.revisions.push(newRev);
+
+      const paper = state.papers[ans.paper_id];
+      const qSpec = paper?.questions?.find((q: any) => q.question_id === ans.question_id);
+      if (paper && qSpec) {
+        const hasDis = ans.uncertain_spans.some((s: any) => !s.resolved_by_human);
+        const contract = evaluateRubricBoundedGrade(
+          qSpec,
+          newRev.text,
+          newRev.version_id,
+          paper.paper_id,
+          paper.rubric_version,
+          paper.status,
+          ans.page_number,
+          ans.bbox_norm,
+          ans.ocr_candidates[0]?.calibrated_confidence || 0.9,
+          hasDis
+        );
+        const grId = ans.latest_grade_run_id || `gr-${answerId}`;
+        const prevReviews = state.grade_runs[grId]?.human_reviews || [];
+        state.grade_runs[grId] = {
+          grade_run_id: grId,
+          answer_id: answerId,
+          session_id: ans.session_id,
+          paper_id: ans.paper_id,
+          question_id: ans.question_id,
+          created_at: new Date().toISOString(),
+          contract,
+          human_reviews: prevReviews,
+        };
+        ans.latest_grade_run_id = grId;
+      }
+
       const ev = state.appendAudit(
         "TRANSCRIPT_REVISION_SAVED",
         "transcript_version",
@@ -358,6 +487,43 @@ async function handleStaticFallback(url: string, init?: RequestInit): Promise<Re
       );
       return jsonResp({ answer: ans, new_revision: newRev, audit_event: ev });
     }
+
+    if (slug[0] === "grade-runs" && slug[2] === "criteria") {
+      const grId = slug[1];
+      const gr = state.grade_runs[grId];
+      if (!gr) return jsonResp({ detail: "Grade run not found" }, 404);
+      const body = init?.body ? JSON.parse(String(init.body)) : {};
+      const critId = body.criterion_id;
+      const newScore = Number(body.score);
+      const crit = gr.contract.criterion_scores.find((c: any) => c.criterion_id === critId);
+      if (!crit) return jsonResp({ detail: "Criterion not found" }, 404);
+      const inc = Number(crit.increment || 0.5);
+      const clamped = Math.min(
+        Number(crit.max_score),
+        Math.max(0, Math.round(newScore / inc) * inc)
+      );
+      crit.score = Math.round(clamped * 100) / 100;
+      const sum = gr.contract.criterion_scores.reduce(
+        (acc: number, c: any) => acc + Number(c.score),
+        0
+      );
+      gr.contract.final_score = Math.min(
+        Number(gr.contract.max_marks),
+        Math.max(0, Math.round(sum * 100) / 100)
+      );
+      const ev = state.appendAudit(
+        "CRITERION_SCORE_ADJUSTED",
+        "grade_run",
+        grId,
+        body.reviewer || "Senior Examiner (sample reviewer)",
+        {
+          criterion_id: critId,
+          criterion_score: crit.score,
+          updated_final_score: gr.contract.final_score,
+        }
+      );
+      return jsonResp({ grade_run: gr, audit_event: ev });
+    }
   }
 
   return jsonResp({ detail: `Unknown endpoint ${path}` }, 404);
@@ -366,7 +532,8 @@ async function handleStaticFallback(url: string, init?: RequestInit): Promise<Re
 export async function apiFetch(url: string, init?: RequestInit): Promise<Response> {
   try {
     const res = await fetch(url, init);
-    if (res.ok && res.headers.get("content-type")?.includes("application/json")) {
+    // A JSON reply means a real API answered (including 4xx with a reason) — return it as-is.
+    if (res.headers.get("content-type")?.includes("application/json")) {
       return res;
     }
     return handleStaticFallback(url, init);

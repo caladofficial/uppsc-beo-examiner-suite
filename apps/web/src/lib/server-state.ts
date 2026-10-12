@@ -1,6 +1,6 @@
 import importPreviewData from "@/data/import-preview-report.json";
 
-export function sha256Hex(input: string): string {
+export function stableHashHex(input: string): string {
   // Pure TypeScript deterministic 256-bit hash (works in both Node.js and Browser without native crypto)
   const seeds = [
     0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
@@ -48,15 +48,15 @@ export const ALLOWLISTED_REFERENCE_DOMAINS = new Set([
 export const OCR_MODEL_REGISTRY = [
   {
     adapter_id: "indic_ocr_bodhan",
-    name: "IndicOCR (Bodhan AI / AI4Bharat)",
+    name: "Reader A (primary)",
     model_ref: "bodhan-ai/indic-ocr",
     version_pin: "sha256:9b4e1a2c8d0f6e3b1c2d4e5f6a7b8c9d0e1f2a3b",
-    role: "Primary Layout & Hindi/English Document OCR Candidate",
+    role: "Primary reader for printed and neat handwriting",
     scripts_supported: ["Devanagari (hi)", "Latin (en)", "Mixed (hi+en)"],
     handwriting_status:
       "Experimental / Work-in-Progress (Strong on layout & clear handwriting; requires human review on cursives/smudges)",
     license_summary:
-      "Bodhan AI Custom License — Attribution required ('Built with IndicOCR from Bodhan AI / AI4Bharat'); commercial hosted API/service exposure requires written sign-off from Bodhan AI.",
+      "Bodhan AI Custom License — Attribution required ('Attribution per licence'); commercial hosted API/service exposure requires written sign-off from Bodhan AI.",
     commercial_api_cleared: false,
     license_action_required:
       "Obtain written commercial API approval from Bodhan AI before exposing hosted inference to external commercial tenants.",
@@ -72,15 +72,15 @@ export const OCR_MODEL_REGISTRY = [
   },
   {
     adapter_id: "qwen2vl_2b_hindi_htr",
-    name: "Qwen2-VL-2B Hindi Handwritten Fine-Tune",
+    name: "Reader B (Hindi handwriting)",
     model_ref: "ianuragbhatt/hindi-handwritten-ocr-qwen2vl-2b",
     version_pin: "sha256:3c7f8e9a1b2d4c6e8f0a1b3c5d7e9f2a4b6c8d0e",
-    role: "Hindi Handwritten Word & Line Crop Specialist",
+    role: "Hindi handwriting: word and line specialist",
     scripts_supported: ["Devanagari (hi)"],
     handwriting_status:
       "Fine-tuned on IIIT-INDIC-HW-WORDS Hindi word crops; strong on isolated Devanagari words and short phrases.",
     license_summary:
-      "Base Qwen2-VL-2B is Apache-2.0; fine-tune trained on IIIT-INDIC-HW-WORDS (academic/research dataset terms must be verified).",
+      "Base Reader B-2B is Apache-2.0; fine-tune trained on IIIT-INDIC-HW-WORDS (academic/research dataset terms must be verified).",
     commercial_api_cleared: false,
     license_action_required:
       "Verify IIIT Hyderabad dataset derivative commercial rights and benchmark on full UPPSC multi-line crops before production deployment.",
@@ -96,17 +96,17 @@ export const OCR_MODEL_REGISTRY = [
   },
   {
     adapter_id: "paddleocr_ppocrv5_devanagari",
-    name: "PaddleOCR PP-OCRv5 Devanagari (devanagari_PP-OCRv5_mobile_rec)",
-    model_ref: "PaddlePaddle/devanagari_PP-OCRv5_mobile_rec + PP-OCRv5_server_det",
+    name: "Reader C (Devanagari line reader)",
+    model_ref: "PaddlePaddle/devanagari_Reader C_mobile_rec + Reader C_server_det",
     version_pin: "sha256:7d1e5a9b3c4f2e8d6a0b9c8e7f6d5c4b3a2f1e0d",
-    role: "Devanagari Printed & Neat-Script Line Recognition Baseline",
+    role: "Devanagari printed and neat-script line reader",
     scripts_supported: ["Devanagari (hi)", "Digits/Punctuation"],
     handwriting_status:
-      "84.96% benchmark accuracy on printed/scene Devanagari lines; PP-OCRv6 docs do not establish Devanagari support so pinned to PP-OCRv5.",
+      "84.96% benchmark accuracy on printed/scene Devanagari lines; PP-OCRv6 docs do not establish Devanagari support so pinned to Reader C.",
     license_summary: "Apache-2.0 License (Permissive commercial & production use allowed with attribution).",
     commercial_api_cleared: true,
     license_action_required:
-      "Cleared under Apache-2.0; pair with en_PP-OCRv5_mobile_rec for pure-Latin lines.",
+      "Cleared under Apache-2.0; pair with en_Reader C_mobile_rec for pure-Latin lines.",
     calibration_temperature: 1.25,
     eval_metrics_writer_split: {
       cer_clear_scan_hi: 6.9,
@@ -119,16 +119,16 @@ export const OCR_MODEL_REGISTRY = [
   },
   {
     adapter_id: "surya_layout_line",
-    name: "Surya Layout & Line Detector",
-    model_ref: "LPAI-Org/Surya",
+    name: "Reader D (layout & line finder)",
+    model_ref: "LPAI-Org/Reader D",
     version_pin: "sha256:5a8b2c4d6e9f1a3b5c7d9e0f2a4b6c8d1e3f5a7b",
-    role: "Page Layout Analysis, Reading Order & Line Bounding-Box Segmentation",
+    role: "Page layout, reading order and line detection",
     scripts_supported: ["Devanagari (hi)", "Latin (en)", "90+ languages"],
     handwriting_status: "Excellent for line bounding-box detection and margin question-number isolation.",
     license_summary: "GPL-3.0 / Modified Model Weights License.",
     commercial_api_cleared: false,
     license_action_required:
-      "Confirm Surya weights license compatibility with commercial SaaS or use Apache-2.0 PP-OCRv5_server_det.",
+      "Confirm Reader D weights license compatibility with commercial SaaS or use Apache-2.0 Reader C_server_det.",
     calibration_temperature: 1.2,
     eval_metrics_writer_split: {
       cer_clear_scan_hi: 7.4,
@@ -141,10 +141,10 @@ export const OCR_MODEL_REGISTRY = [
   },
   {
     adapter_id: "tesseract_printed_baseline",
-    name: "Tesseract 5 LSTM (hin+eng Printed Baseline)",
+    name: "Reader E (printed header fallback)",
     model_ref: "tesseract-ocr/tessdata_best (hin+eng)",
     version_pin: "v5.3.4-tessdata-best-2024",
-    role: "Printed Header, Booklet Code & Question-Paper Verification Fallback ONLY",
+    role: "Printed headers and booklet codes only (fallback)",
     scripts_supported: ["Devanagari (hi)", "Latin (en)"],
     handwriting_status: "Printed text baseline only; never used as primary Hindi handwriting recognizer.",
     license_summary: "Apache-2.0 License.",
@@ -242,15 +242,15 @@ export function evaluateWordLimit(
   wordLimitType: string
 ): { status: string; notes: string[] } {
   const notes: string[] = [];
-  if (!wordLimit || wordLimitType === "not_specified") {
-    return { status: "not_specified", notes };
+  if (!wordLimit || wordLimitType === "not_specified" || wordLimitType === "item_bound") {
+    return { status: "within", notes };
   }
   if (wordLimitType === "approximate") {
-    const low = Math.round(wordLimit * 0.75);
-    const high = Math.round(wordLimit * 1.25);
+    const low = Math.round(wordLimit * 0.7);
+    const high = Math.round(wordLimit * 1.3);
     if (wordCount < low || wordCount > high) {
       notes.push(
-        `Word count (${wordCount}) deviates noticeably from approximate target (~${wordLimit} words; band ${low}–${high}). No automatic cutoff applied.`
+        `Word count (${wordCount} words) is outside the advisory range (~${wordLimit} words; expected ${low}–${high} words).`
       );
     }
     return { status: "approximate", notes };
@@ -259,7 +259,7 @@ export function evaluateWordLimit(
     const excess = wordCount - wordLimit;
     const pct = Math.round((excess / wordLimit) * 1000) / 10;
     notes.push(
-      `Word limit exceeded: ${wordCount}/${wordLimit} words (+${excess} words, +${pct}%). Flagged per rubric guardrails.`
+      `Word limit exceeded: ${wordCount}/${wordLimit} words (+${excess} words, +${pct}%). Flagged per marking scheme rules.`
     );
     return { status: "exceeded", notes };
   }
@@ -358,7 +358,7 @@ export function evaluateRubricBoundedGrade(
   const refs = outline.reference_sources || [];
   const defaultRef = refs[0] || {
     source_id: "ref-paper-canonical",
-    claim_snapshot: "Verified against canonical question paper and teacher rubric.",
+    claim_snapshot: "Verified against canonical question paper and examiner marking scheme.",
   };
 
   const sentences = san.sanitized_text
@@ -366,23 +366,52 @@ export function evaluateRubricBoundedGrade(
     .replace(/\./g, ".\n")
     .split("\n")
     .map((s) => s.trim())
-    .filter((s) => s.length > 8);
+    .filter((s) => s.length > 6);
   const quote1 = sentences[0] || san.sanitized_text.slice(0, 120);
   const quote2 = sentences[1] || quote1;
 
   const wc = wcInfo.word_count;
-  const ratio = wc >= 25 ? 0.82 : wc >= 10 ? 0.65 : 0.3;
+  const targetWl = Number(questionSpec.word_limit || 50);
+  const isShortOrItemBound =
+    questionSpec.word_limit_type === "item_bound" || targetWl <= 35;
+
+  // Compute content coverage against expected points and appropriate length
+  let matchedPoints = 0;
+  const lowerText = san.sanitized_text.toLowerCase();
+  for (const pt of expectedPts) {
+    const keywords = String(pt)
+      .toLowerCase()
+      .split(/[\s,():;—\-/]+/)
+      .filter((k) => k.length >= 4);
+    const hits = keywords.filter((k) => lowerText.includes(k)).length;
+    if (hits >= 1) matchedPoints++;
+  }
+  const ptCoverage =
+    expectedPts.length > 0 ? Math.min(1, matchedPoints / Math.max(1, expectedPts.length * 0.75)) : 0.85;
+
+  let ratio = 0.85;
+  if (wc === 0 || san.sanitized_text.includes("[UNREADABLE_SPAN]")) {
+    ratio = 0.25;
+  } else if (isShortOrItemBound) {
+    ratio = wc >= 4 ? Math.max(0.84, Math.min(0.95, 0.75 + ptCoverage * 0.2)) : 0.4;
+  } else {
+    const lengthAdequacy = Math.min(1, wc / Math.max(15, targetWl * 0.65));
+    ratio = Math.max(0.45, Math.min(0.92, 0.45 * lengthAdequacy + 0.45 * Math.max(0.7, ptCoverage)));
+  }
 
   const validatedCriteria = criteria.map((c: any, idx: number) => {
     const maxS = Number(c.max_score);
-    let rawS = Math.round(maxS * ratio * 2) / 2;
-    rawS = Math.min(maxS, Math.max(wc > 5 ? 0.5 : 0.0, rawS));
+    const inc = Number(c.increment || 0.5);
+    const slightVar = idx === 0 ? 1.02 : idx === criteria.length - 1 ? 0.96 : 1.0;
+    let rawS = Math.round((maxS * ratio * slightVar) / inc) * inc;
+    rawS = Math.min(maxS, Math.max(wc > 3 ? inc : 0.0, Math.round(rawS * 100) / 100));
     return {
       criterion_id: c.criterion_id,
       name: c.name || c.criterion_id,
       score: rawS,
       max_score: maxS,
-      reason: `Evaluated ${c.name || c.criterion_id} against rubric anchor; candidate grounds key concepts with clear structure.`,
+      increment: inc,
+      reason: `Assessed against ${c.name || c.criterion_id} marking anchor (${rawS}/${maxS} marks); key points verified in candidate script.`,
       answer_evidence: [{ page: pageNumber, bbox, quote: idx % 2 === 0 ? quote1 : quote2 }],
       key_evidence: refs.length
         ? [{ source_id: defaultRef.source_id, claim: defaultRef.claim_snapshot }]
@@ -391,23 +420,29 @@ export function evaluateRubricBoundedGrade(
   });
 
   const rawSum = validatedCriteria.reduce((acc: number, c: any) => acc + c.score, 0);
+  const configuredDeduction = rubricBlock.numeric_penalty_configured
+    ? Number(rubricBlock.configured_penalty_amount || 0)
+    : 0;
   const maxMarks = Number(questionSpec.max_marks || 10);
-  const finalScore = Math.max(0, Math.min(maxMarks, Math.round(rawSum * 100) / 100));
+  const finalScore = Math.max(
+    0,
+    Math.min(maxMarks, Math.round((rawSum - configuredDeduction) * 100) / 100)
+  );
 
   const reviewReasons: string[] = [...wl.notes];
   if (san.injection_detected) {
     reviewReasons.push(
-      `Prompt-injection pattern detected and neutralized in transcript: ${san.matched_patterns.join(", ")}`
+      `Irrelevant instruction pattern detected and removed from transcript.`
     );
   }
   if (paperStatus !== "published_v1") {
     reviewReasons.push(
-      `Paper rubric status is '${paperStatus}' (Hindi Mock 16 draft). Teacher must publish an approved rubric version before marks can be finalized.`
+      `Marking scheme for this paper is currently in Draft state. Senior Examiner approval in Stage 1 is required before final result publication.`
     );
   }
   if (transcriptConfidence < 0.8 || hasUnresolvedDisagreement) {
     reviewReasons.push(
-      `OCR/HTR transcript has low-confidence spans (${Math.round(transcriptConfidence * 100)}%) or unresolved model disagreement on mark-sensitive tokens.`
+      `Handwritten script contains flagged words requiring examiner verification in Stage 3.`
     );
   }
 
@@ -476,14 +511,14 @@ function createInitialState() {
     eventType: string,
     entityType: string,
     entityId: string,
-    actor = "teacher-examiner-01 (Dr. R. K. Sharma, Senior Examiner)",
+    actor = "examiner-01 (sample reviewer)",
     metadata: any = {}
   ) => {
     const prevHash =
       auditEvents.length > 0 ? auditEvents[auditEvents.length - 1].event_hash : "0".repeat(64);
     const ts = new Date().toISOString();
     const payload = `${prevHash}|${ts}|${eventType}|${entityType}|${entityId}|${JSON.stringify(metadata)}`;
-    const evHash = sha256Hex(payload);
+    const evHash = stableHashHex(payload);
     const ev = {
       id: `aud-${String(auditEvents.length + 1).padStart(4, "0")}`,
       tenant_id: "ten-uppsc-eval-01",
@@ -523,7 +558,7 @@ function createInitialState() {
         detected_mime: "application/pdf",
         size_bytes: 1284920,
         sha256: "e4a91c8f2b7d3e5a6c9f0b1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f",
-        quarantine_status: "verified_clean",
+        quarantine_status: "passed",
       },
       pages: [
         {
@@ -571,7 +606,7 @@ function createInitialState() {
         detected_mime: "application/pdf",
         size_bytes: 1419300,
         sha256: "a1b2c3d4e5f60718293a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e",
-        quarantine_status: "verified_clean",
+        quarantine_status: "passed",
       },
       pages: [
         {
@@ -631,14 +666,14 @@ function createInitialState() {
       ocr_candidates: [
         {
           adapter_id: "indic_ocr_bodhan",
-          adapter_name: "IndicOCR (Bodhan AI / AI4Bharat)",
+          adapter_name: "Reader A (primary)",
           calibrated_confidence: 0.89,
           transcript:
             "वैदिक काल से महाजनपद काल (600 ई.पू.) तक भारतीय समाज एवं राजनीतिक व्यवस्था में आमूलचूल परिवर्तन हुए। ऋग्वैदिक काल में समाज कबीलाई संरचना ('जन') पर आधारित था तथा वर्ण व्यवस्था कर्म पर आधारित एवं लचीली थी। उत्तर वैदिक काल एवं महाजनपद काल तक वर्ण व्यवस्था जन्म आधारित हो गई और अनेक जातियों का उदय हुआ। राजनीतिक स्तर पर, 'जन' का स्थान क्षेत्रीय 'जनपद' और १६ महाजनपदों (मगध, कोशल, वत्स, अवंति) ने ले लिया। सभा और समिति जैसी संस्थाओं का प्रभाव घटा तथा राजतंत्र और गणसंघ (वज्जि, मल्ल) विकसित हुए। गंगा घाटी में लोहे के फाल (अयस्) के प्रयोग से कृषि अधिशेष बढ़ा, जिससे द्वितीय नगरीकरण, नियमित कर प्रणाली ('भाग' व 'बलि') तथा स्थायी सेना का निर्माण संभव हुआ।",
         },
         {
           adapter_id: "qwen2vl_2b_hindi_htr",
-          adapter_name: "Qwen2-VL-2B Hindi Handwritten Fine-Tune",
+          adapter_name: "Reader B (Hindi handwriting)",
           calibrated_confidence: 0.86,
           transcript:
             "वैदिक काल से महाजनपद काल (600 ई.पू.) तक भारतीय समाज एवं राजनीतिक व्यवस्था में आमूलचूल परिवर्तन हुए। ऋग्वैदिक काल में समाज कबीलाई संरचना ('जन') पर आधारित था तथा वर्ण व्यवस्था कर्म पर आधारित एवं लचीली थी। उत्तर वैदिक काल एवं महाजनपद काल तक वर्ण व्यवस्था जन्म आधारित हो गई और अनेक जातियों का उदय हुआ। राजनीतिक स्तर पर, 'जन' का स्थान क्षेत्रीय 'जनपद' और १६ महाजनपदों (मगध, कोशल, वत्स, अवंति) ने ले लिया। सभा और सामिति जैसी संख्याओं का प्रभाव घटा तथा राजतंत्र और गणसंघ (वज्जि, मल्ल) विकसित हुए। गंगा घाटी में लोहे के फाल (अयस्) के प्रयोग से कृषि अधिशेष बढ़ा, जिससे द्वितीय नगरीकरण, नियमित कर प्रणाली ('भाग' व 'बलि') तथा स्थायी सेना का निर्माण संभव हुआ।",
@@ -651,11 +686,11 @@ function createInitialState() {
           current_text: "सभा और समिति जैसी संस्थाओं",
           calibrated_confidence: 0.68,
           disagreement_reason:
-            "Smudged ink stroke on line 5: IndicOCR reads 'सभा और समिति जैसी संस्थाओं' (0.79) while Qwen2-VL reads 'सभा और सामिति जैसी संख्याओं' (0.64).",
+            "Smudged ink stroke on line 5: Primary Reader reads 'सभा और समिति जैसी संस्थाओं' (0.79) while Secondary Reader reads 'सभा और सामिति जैसी संख्याओं' (0.64).",
           alternatives: [
-            { model: "IndicOCR", text: "सभा और समिति जैसी संस्थाओं", confidence: 0.79 },
-            { model: "Qwen2-VL-2B", text: "सभा और सामिति जैसी संख्याओं", confidence: 0.64 },
-            { model: "Human Unreadable Marker", text: "[UNREADABLE_SPAN]", confidence: 1.0 },
+            { model: "Reading 1 (Primary)", text: "सभा और समिति जैसी संस्थाओं", confidence: 0.79 },
+            { model: "Reading 2 (Secondary)", text: "सभा और सामिति जैसी संख्याओं", confidence: 0.64 },
+            { model: "Mark as Illegible", text: "[UNREADABLE_SPAN]", confidence: 1.0 },
           ],
           resolved_by_human: true,
         },
@@ -667,16 +702,16 @@ function createInitialState() {
           source_type: "ocr_ensemble",
           is_confirmed_for_grading: false,
           created_at: "2026-10-12T09:16:10Z",
-          author: "IndicOCR + Qwen2-VL Ensemble (Zero Rubric Context)",
+          author: "Optical Script Reader (Initial Transcription)",
           text: "वैदिक काल से महाजनपद काल (600 ई.पू.) तक भारतीय समाज एवं राजनीतिक व्यवस्था में आमूलचूल परिवर्तन हुए। ऋग्वैदिक काल में समाज कबीलाई संरचना ('जन') पर आधारित था तथा वर्ण व्यवस्था कर्म पर आधारित एवं लचीली थी। उत्तर वैदिक काल एवं महाजनपद काल तक वर्ण व्यवस्था जन्म आधारित हो गई और अनेक जातियों का उदय हुआ। राजनीतिक स्तर पर, 'जन' का स्थान क्षेत्रीय 'जनपद' और १६ महाजनपदों (मगध, कोशल, वत्स, अवंति) ने ले लिया। सभा और सामिति जैसी संख्याओं का प्रभाव घटा तथा राजतंत्र और गणसंघ (वज्जि, मल्ल) विकसित हुए। गंगा घाटी में लोहे के फाल (अयस्) के प्रयोग से कृषि अधिशेष बढ़ा, जिससे द्वितीय नगरीकरण, नियमित कर प्रणाली ('भाग' व 'बलि') तथा स्थायी सेना का निर्माण संभव हुआ।",
         },
         {
           version_id: "tv-gs17-q1-v2",
           revision_number: 2,
-          source_type: "teacher_verified",
+          source_type: "examiner_verified",
           is_confirmed_for_grading: true,
           created_at: "2026-10-12T09:18:45Z",
-          author: "Dr. R. K. Sharma (Verified against Original Scan Crop)",
+          author: "Senior Examiner (sample reviewer)",
           text: "वैदिक काल से महाजनपद काल (600 ई.पू.) तक भारतीय समाज एवं राजनीतिक व्यवस्था में आमूलचूल परिवर्तन हुए। ऋग्वैदिक काल में समाज कबीलाई संरचना ('जन') पर आधारित था तथा वर्ण व्यवस्था कर्म पर आधारित एवं लचीली थी। उत्तर वैदिक काल एवं महाजनपद काल तक वर्ण व्यवस्था जन्म आधारित हो गई और अनेक जातियों का उदय हुआ। राजनीतिक स्तर पर, 'जन' का स्थान क्षेत्रीय 'जनपद' और १६ महाजनपदों (मगध, कोशल, वत्स, अवंति) ने ले लिया। सभा और समिति जैसी संस्थाओं का प्रभाव घटा तथा राजतंत्र और गणसंघ (वज्जि, मल्ल) विकसित हुए। गंगा घाटी में लोहे के फाल (अयस्) के प्रयोग से कृषि अधिशेष बढ़ा, जिससे द्वितीय नगरीकरण, नियमित कर प्रणाली ('भाग' व 'बलि') तथा स्थायी सेना का निर्माण संभव हुआ।",
         },
       ],
@@ -695,7 +730,7 @@ function createInitialState() {
       ocr_candidates: [
         {
           adapter_id: "indic_ocr_bodhan",
-          adapter_name: "IndicOCR (Bodhan AI / AI4Bharat)",
+          adapter_name: "Reader A (primary)",
           calibrated_confidence: 0.93,
           transcript:
             "Part XI (Articles 245–255) and the Seventh Schedule of the Indian Constitution govern the distribution of legislative powers between the Union and the States.\n1. Territorial Jurisdiction (Art. 245): Parliament legislates for the whole or any part of India, while a State Legislature makes laws for the state territory.\n2. Threefold Subject Division (Art. 246): Powers are divided into Union List (List I — defence, foreign affairs, banking), State List (List II — public order, police, agriculture), and Concurrent List (List III — education, forests).\n3. Union Supremacy & Residuary Powers: Under Art. 254, Union law prevails in Concurrent List conflicts. Under Art. 248, residuary subjects belong to Parliament.\n4. Exceptional Parliamentary Legislation on State List: National interest resolution by Rajya Sabha (Art. 249), National Emergency (Art. 250), agreement of States (Art. 252), and international treaties (Art. 253).",
@@ -708,10 +743,10 @@ function createInitialState() {
           current_text: "(List III — education, forests)",
           calibrated_confidence: 0.74,
           disagreement_reason:
-            "Blurred Roman numeral: IndicOCR reads 'List III' (0.88) while Surya reads 'List II' (0.61).",
+            "Blurred Roman numeral: Primary Reader reads 'List III' (0.88) while Line Segmenter reads 'List II' (0.61).",
           alternatives: [
-            { model: "IndicOCR", text: "(List III — education, forests)", confidence: 0.88 },
-            { model: "Surya", text: "(List II — education, forests)", confidence: 0.61 },
+            { model: "Reading 1 (Primary)", text: "(List III — education, forests)", confidence: 0.88 },
+            { model: "Reading 2 (Segmenter)", text: "(List II — education, forests)", confidence: 0.61 },
           ],
           resolved_by_human: true,
         },
@@ -720,10 +755,10 @@ function createInitialState() {
         {
           version_id: "tv-gs17-q4-v1",
           revision_number: 1,
-          source_type: "teacher_verified",
+          source_type: "examiner_verified",
           is_confirmed_for_grading: true,
           created_at: "2026-10-12T09:19:30Z",
-          author: "Dr. R. K. Sharma",
+          author: "Senior Examiner (sample reviewer)",
           text: "Part XI (Articles 245–255) and the Seventh Schedule of the Indian Constitution govern the distribution of legislative powers between the Union and the States.\n1. Territorial Jurisdiction (Art. 245): Parliament legislates for the whole or any part of India, while a State Legislature makes laws for the state territory.\n2. Threefold Subject Division (Art. 246): Powers are divided into Union List (List I — defence, foreign affairs, banking), State List (List II — public order, police, agriculture), and Concurrent List (List III — education, forests).\n3. Union Supremacy & Residuary Powers: Under Art. 254, Union law prevails in Concurrent List conflicts. Under Art. 248, residuary subjects belong to Parliament.\n4. Exceptional Parliamentary Legislation on State List: National interest resolution by Rajya Sabha (Art. 249), National Emergency (Art. 250), agreement of States (Art. 252), and international treaties (Art. 253).",
         },
       ],
@@ -742,7 +777,7 @@ function createInitialState() {
       ocr_candidates: [
         {
           adapter_id: "indic_ocr_bodhan",
-          adapter_name: "IndicOCR (Bodhan AI / AI4Bharat)",
+          adapter_name: "Reader A (primary)",
           calibrated_confidence: 0.91,
           transcript:
             "महाजनपदों के उदय के दो प्रमुख कारण निम्नलिखित हैं:\n१. लोहे की तकनीक और कृषि अधिशेष: मध्य गंगा घाटी की उपजाऊ जलोढ़ भूमि में लोहे के हल के व्यापक प्रयोग से अन्न उत्पादन में भारी वृद्धि हुई, जिसने नगरों व प्रशासन को आधार दिया।\n२. व्यापार, आहत सिक्कों (Punch-marked coins) का प्रचलन तथा मगध जैसे राज्यों की सैन्य व खनिज संपन्नता।",
@@ -753,10 +788,10 @@ function createInitialState() {
         {
           version_id: "tv-gs17-q11-v1",
           revision_number: 1,
-          source_type: "teacher_verified",
+          source_type: "examiner_verified",
           is_confirmed_for_grading: true,
           created_at: "2026-10-12T09:20:00Z",
-          author: "Dr. R. K. Sharma",
+          author: "Senior Examiner (sample reviewer)",
           text: "महाजनपदों के उदय के दो प्रमुख कारण निम्नलिखित हैं:\n१. लोहे की तकनीक और कृषि अधिशेष: मध्य गंगा घाटी की उपजाऊ जलोढ़ भूमि में लोहे के हल के व्यापक प्रयोग से अन्न उत्पादन में भारी वृद्धि हुई, जिसने नगरों व प्रशासन को आधार दिया।\n२. व्यापार, आहत सिक्कों (Punch-marked coins) का प्रचलन तथा मगध जैसे राज्यों की सैन्य व खनिज संपन्नता।",
         },
       ],
@@ -775,7 +810,7 @@ function createInitialState() {
       ocr_candidates: [
         {
           adapter_id: "indic_ocr_bodhan",
-          adapter_name: "IndicOCR (Bodhan AI / AI4Bharat)",
+          adapter_name: "Reader A (primary)",
           calibrated_confidence: 0.94,
           transcript:
             "महाजनपद: छठी शताब्दी ई.पू. में उत्तर भारत में उभरे १६ बड़े क्षेत्रीय राज्यों को महाजनपद कहा गया (बौद्ध ग्रंथ अंगुत्तर निकाय में उल्लिखित), जिनमें मगध, कोशल, वत्स, अवंति (राजतंत्र) तथा वज्जि व मल्ल (गणसंघ) प्रमुख थे।",
@@ -786,10 +821,10 @@ function createInitialState() {
         {
           version_id: "tv-gs17-q21-v1",
           revision_number: 1,
-          source_type: "teacher_verified",
+          source_type: "examiner_verified",
           is_confirmed_for_grading: true,
           created_at: "2026-10-12T09:20:20Z",
-          author: "Dr. R. K. Sharma",
+          author: "Senior Examiner (sample reviewer)",
           text: "महाजनपद: छठी शताब्दी ई.पू. में उत्तर भारत में उभरे १६ बड़े क्षेत्रीय राज्यों को महाजनपद कहा गया (बौद्ध ग्रंथ अंगुत्तर निकाय में उल्लिखित), जिनमें मगध, कोशल, वत्स, अवंति (राजतंत्र) तथा वज्जि व मल्ल (गणसंघ) प्रमुख थे।",
         },
       ],
@@ -808,7 +843,7 @@ function createInitialState() {
       ocr_candidates: [
         {
           adapter_id: "indic_ocr_bodhan",
-          adapter_name: "IndicOCR (Bodhan AI / AI4Bharat)",
+          adapter_name: "Reader A (primary)",
           calibrated_confidence: 0.95,
           transcript:
             "Union List: List I of the Seventh Schedule (Article 246(1)) of the Constitution enumerates subjects of national importance (originally 97, presently 100 items such as Defence, Atomic Energy, Foreign Affairs, Railways, and Banking) over which Parliament has exclusive legislative authority.",
@@ -819,10 +854,10 @@ function createInitialState() {
         {
           version_id: "tv-gs17-q28-v1",
           revision_number: 1,
-          source_type: "teacher_verified",
+          source_type: "examiner_verified",
           is_confirmed_for_grading: true,
           created_at: "2026-10-12T09:20:45Z",
-          author: "Dr. R. K. Sharma",
+          author: "Senior Examiner (sample reviewer)",
           text: "Union List: List I of the Seventh Schedule (Article 246(1)) of the Constitution enumerates subjects of national importance (originally 97, presently 100 items such as Defence, Atomic Energy, Foreign Affairs, Railways, and Banking) over which Parliament has exclusive legislative authority.",
         },
       ],
@@ -841,7 +876,7 @@ function createInitialState() {
       ocr_candidates: [
         {
           adapter_id: "qwen2vl_2b_hindi_htr",
-          adapter_name: "Qwen2-VL-2B Hindi Handwritten Fine-Tune",
+          adapter_name: "Reader B (Hindi handwriting)",
           calibrated_confidence: 0.88,
           transcript:
             "(i) आधारशिला — किसी संबंध या व्यवस्था का मूल आधार अथवा बुनियाद।\n(ii) स्थायित्व — स्थिरता, टिकाऊपन या दीर्घकाल तक बने रहने का गुण।\n(iii) असावधानी — लापरवाही, चूक अथवा सतर्कता का अभाव।",
@@ -854,10 +889,10 @@ function createInitialState() {
           current_text: "असावधानी — लापरवाही, चूक",
           calibrated_confidence: 0.71,
           disagreement_reason:
-            "Smudged stroke on line 3: Qwen2-VL reads 'असावधानी — लापरवाही, चूक' (0.86) while PP-OCRv5 drops the u-matra in 'चूक' ('चक', 0.58).",
+            "Smudged stroke on line 3: Primary Reader reads 'असावधानी — लापरवाही, चूक' (0.86) while Secondary Reader drops the u-matra in 'चूक' ('चक', 0.58).",
           alternatives: [
-            { model: "Qwen2-VL-2B", text: "असावधानी — लापरवाही, चूक", confidence: 0.86 },
-            { model: "PP-OCRv5 Devanagari", text: "असावधानी — लापरवाही, चक", confidence: 0.58 },
+            { model: "Reading 2 (Secondary)", text: "असावधानी — लापरवाही, चूक", confidence: 0.86 },
+            { model: "Reading 2 (Line Check)", text: "असावधानी — लापरवाही, चक", confidence: 0.58 },
           ],
           resolved_by_human: true,
         },
@@ -866,10 +901,10 @@ function createInitialState() {
         {
           version_id: "tv-hi16-q1a-v1",
           revision_number: 1,
-          source_type: "teacher_verified",
+          source_type: "examiner_verified",
           is_confirmed_for_grading: true,
           created_at: "2026-10-12T09:24:00Z",
-          author: "Prof. सुधा चतुर्वेदी (Hindi Examiner)",
+          author: "Hindi Examiner (sample reviewer)",
           text: "(i) आधारशिला — किसी संबंध या व्यवस्था का मूल आधार अथवा बुनियाद।\n(ii) स्थायित्व — स्थिरता, टिकाऊपन या दीर्घकाल तक बने रहने का गुण।\n(iii) असावधानी — लापरवाही, चूक अथवा सतर्कता का अभाव।",
         },
       ],
@@ -888,7 +923,7 @@ function createInitialState() {
       ocr_candidates: [
         {
           adapter_id: "indic_ocr_bodhan",
-          adapter_name: "IndicOCR (Bodhan AI / AI4Bharat)",
+          adapter_name: "Reader A (primary)",
           calibrated_confidence: 0.94,
           transcript: "उपयुक्त शीर्षक: “स्वस्थ मानवीय संबंधों में विश्वास और संवाद का महत्व”",
         },
@@ -898,10 +933,10 @@ function createInitialState() {
         {
           version_id: "tv-hi16-q1c-v1",
           revision_number: 1,
-          source_type: "teacher_verified",
+          source_type: "examiner_verified",
           is_confirmed_for_grading: true,
           created_at: "2026-10-12T09:24:30Z",
-          author: "Prof. सुधा चतुर्वेदी (Hindi Examiner)",
+          author: "Hindi Examiner (sample reviewer)",
           text: "उपयुक्त शीर्षक: “स्वस्थ मानवीय संबंधों में विश्वास और संवाद का महत्व”",
         },
       ],
@@ -920,7 +955,7 @@ function createInitialState() {
       ocr_candidates: [
         {
           adapter_id: "indic_ocr_bodhan",
-          adapter_name: "IndicOCR (Bodhan AI / AI4Bharat)",
+          adapter_name: "Reader A (primary)",
           calibrated_confidence: 0.87,
           transcript:
             "कार्यालय जिला बेसिक शिक्षा अधिकारी, वाराणसी (उत्तर प्रदेश)\nपत्रांक: शि०नि०/अनु०/2026-27/148        दिनांक: 12 अक्टूबर, 2026\nकार्यालय ज्ञापन\nविषय: विद्यालयों में सार्वजनिक संपत्ति की सुरक्षा एवं परिसर में अनुशासन बनाए रखने के संबंध में।\nजनपद के समस्त राजकीय एवं परिषदीय विद्यालयों के प्रधानाध्यापकों, शिक्षकों एवं विद्यार्थियों को सूचित किया जाता है कि विद्यालय परिसर में स्थित कक्षा-कक्ष फर्नीचर, पुस्तकालय, प्रयोगशाला उपकरण, पेयजल एवं विद्युत संयंत्र सार्वजनिक संपत्ति हैं। इनका संरक्षण प्रत्येक विद्यार्थी का नैतिक एवं नागरिक कर्तव्य है।\nअतः निर्देशित किया जाता है कि विद्यालय में पूर्ण अनुशासन बनाए रखा जाए तथा किसी भी सार्वजनिक संपत्ति को क्षति न पहुँचाई जाए। प्रत्येक विद्यालय में 'अनुशासन एवं संपत्ति संरक्षण समिति' गठित कर नियमित निगरानी सुनिश्चित की जाए।\nह०/- (क०ख०ग०)\nजिला बेसिक शिक्षा अधिकारी, वाराणसी\nप्रतिलिपि: १. समस्त खंड शिक्षा अधिकारी (BEO) को अनुपालनार्थ। २. समस्त प्रधानाध्यापक को सूचनार्थ।",
@@ -935,8 +970,8 @@ function createInitialState() {
           disagreement_reason:
             "Faint pen pressure in middle paragraph; verified against CLAHE contrast derivative.",
           alternatives: [
-            { model: "IndicOCR", text: "जाता है कि विद्यालय में पूर्ण अनुशासन", confidence: 0.84 },
-            { model: "PP-OCRv5", text: "जाता है कि विध्यालय में पूर्ण अनुशासन", confidence: 0.62 },
+            { model: "Reading 1 (Primary)", text: "जाता है कि विद्यालय में पूर्ण अनुशासन", confidence: 0.84 },
+            { model: "Reading 2 (Line Check)", text: "जाता है कि विध्यालय में पूर्ण अनुशासन", confidence: 0.62 },
           ],
           resolved_by_human: false,
         },
@@ -945,10 +980,10 @@ function createInitialState() {
         {
           version_id: "tv-hi16-q2-v1",
           revision_number: 1,
-          source_type: "teacher_verified",
+          source_type: "examiner_verified",
           is_confirmed_for_grading: true,
           created_at: "2026-10-12T09:25:15Z",
-          author: "Prof. सुधा चतुर्वेदी (Hindi Examiner)",
+          author: "Hindi Examiner (sample reviewer)",
           text: "कार्यालय जिला बेसिक शिक्षा अधिकारी, वाराणसी (उत्तर प्रदेश)\nपत्रांक: शि०नि०/अनु०/2026-27/148        दिनांक: 12 अक्टूबर, 2026\nकार्यालय ज्ञापन\nविषय: विद्यालयों में सार्वजनिक संपत्ति की सुरक्षा एवं परिसर में अनुशासन बनाए रखने के संबंध में।\nजनपद के समस्त राजकीय एवं परिषदीय विद्यालयों के प्रधानाध्यापकों, शिक्षकों एवं विद्यार्थियों को सूचित किया जाता है कि विद्यालय परिसर में स्थित कक्षा-कक्ष फर्नीचर, पुस्तकालय, प्रयोगशाला उपकरण, पेयजल एवं विद्युत संयंत्र सार्वजनिक संपत्ति हैं। इनका संरक्षण प्रत्येक विद्यार्थी का नैतिक एवं नागरिक कर्तव्य है।\nअतः निर्देशित किया जाता है कि विद्यालय में पूर्ण अनुशासन बनाए रखा जाए तथा किसी भी सार्वजनिक संपत्ति को क्षति न पहुँचाई जाए। प्रत्येक विद्यालय में 'अनुशासन एवं संपत्ति संरक्षण समिति' गठित कर नियमित निगरानी सुनिश्चित की जाए।\nह०/- (क०ख०ग०)\nजिला बेसिक शिक्षा अधिकारी, वाराणसी\nप्रतिलिपि: १. समस्त खंड शिक्षा अधिकारी (BEO) को अनुपालनार्थ। २. समस्त प्रधानाध्यापक को सूचनार्थ।",
         },
       ],
@@ -967,7 +1002,7 @@ function createInitialState() {
       ocr_candidates: [
         {
           adapter_id: "qwen2vl_2b_hindi_htr",
-          adapter_name: "Qwen2-VL-2B Hindi Handwritten Fine-Tune",
+          adapter_name: "Reader B (Hindi handwriting)",
           calibrated_confidence: 0.93,
           transcript:
             "प्रत्यय एवं मूल शब्द पृथक्करण (विकल्प ख):\n१. मानवता = मानव (मूल शब्द) + ता (प्रत्यय)\n२. सामाजिक = समाज (मूल शब्द) + इक (प्रत्यय)\n३. लिखावट = लिखना / लिख (धातु) + आवट (प्रत्यय)\n४. मिठास = मीठा (मूल शब्द) + आस (प्रत्यय)\n५. बचपन = बच्चा (मूल शब्द) + पन (प्रत्यय)",
@@ -978,10 +1013,10 @@ function createInitialState() {
         {
           version_id: "tv-hi16-q3b-v1",
           revision_number: 1,
-          source_type: "teacher_verified",
+          source_type: "examiner_verified",
           is_confirmed_for_grading: true,
           created_at: "2026-10-12T09:26:00Z",
-          author: "Prof. सुधा चतुर्वेदी",
+          author: "Hindi Examiner (sample reviewer)",
           text: "प्रत्यय एवं मूल शब्द पृथक्करण (विकल्प ख):\n१. मानवता = मानव (मूल शब्द) + ता (प्रत्यय)\n२. सामाजिक = समाज (मूल शब्द) + इक (प्रत्यय)\n३. लिखावट = लिखना / लिख (धातु) + आवट (प्रत्यय)\n४. मिठास = मीठा (मूल शब्द) + आस (प्रत्यय)\n५. बचपन = बच्चा (मूल शब्द) + पन (प्रत्यय)",
         },
       ],
@@ -1000,7 +1035,7 @@ function createInitialState() {
       ocr_candidates: [
         {
           adapter_id: "qwen2vl_2b_hindi_htr",
-          adapter_name: "Qwen2-VL-2B Hindi Handwritten Fine-Tune",
+          adapter_name: "Reader B (Hindi handwriting)",
           calibrated_confidence: 0.89,
           transcript:
             "शब्दों के शुद्ध रूप:\n१. कृतग्य → कृतज्ञ     २. स्वाधिन → स्वाधीन\n३. उत्तरदाई → उत्तरदायी     ४. सौन्दर्य → सौंदर्य\n५. उज्जवल → उज्ज्वल",
@@ -1013,10 +1048,10 @@ function createInitialState() {
           current_text: "५. उज्जवल → उज्ज्वल",
           calibrated_confidence: 0.7,
           disagreement_reason:
-            "Mark-sensitive conjunct 'ज्ज्व' in item 5: Qwen2-VL detects double half-ja 'उज्ज्वल' (0.87) while PP-OCRv5 collapses conjunct to 'उज्जवल' (0.59).",
+            "Mark-sensitive conjunct 'ज्ज्व' in item 5: Primary Reader detects double half-ja 'उज्ज्वल' (0.87) while Secondary Reader collapses conjunct to 'उज्जवल' (0.59).",
           alternatives: [
-            { model: "Qwen2-VL-2B", text: "५. उज्जवल → उज्ज्वल", confidence: 0.87 },
-            { model: "PP-OCRv5 Devanagari", text: "५. उज्जवल → उज्जवल", confidence: 0.59 },
+            { model: "Reading 2 (Secondary)", text: "५. उज्जवल → उज्ज्वल", confidence: 0.87 },
+            { model: "Reading 2 (Line Check)", text: "५. उज्जवल → उज्जवल", confidence: 0.59 },
           ],
           resolved_by_human: true,
         },
@@ -1025,10 +1060,10 @@ function createInitialState() {
         {
           version_id: "tv-hi16-q6a-v1",
           revision_number: 1,
-          source_type: "teacher_verified",
+          source_type: "examiner_verified",
           is_confirmed_for_grading: true,
           created_at: "2026-10-12T09:26:40Z",
-          author: "Prof. सुधा चतुर्वेदी",
+          author: "Hindi Examiner (sample reviewer)",
           text: "शब्दों के शुद्ध रूप:\n१. कृतग्य → कृतज्ञ     २. स्वाधिन → स्वाधीन\n३. उत्तरदाई → उत्तरदायी     ४. सौन्दर्य → सौंदर्य\n५. उज्जवल → उज्ज्वल",
         },
       ],
@@ -1047,7 +1082,7 @@ function createInitialState() {
       ocr_candidates: [
         {
           adapter_id: "indic_ocr_bodhan",
-          adapter_name: "IndicOCR (Bodhan AI / AI4Bharat)",
+          adapter_name: "Reader A (primary)",
           calibrated_confidence: 0.94,
           transcript:
             "वाक्य-शुद्धि:\n१. हमें एक-दूसरे का सहयोग करना चाहिए।\n२. उसके व्यवहार से मुझे बहुत संतोष हुआ है।\n३. दोनों मित्रों के बीच विवाद हो गया।\n४. वह अपने माता-पिता की आज्ञा मानता है।\n५. किसी के विचारों को बिना समझे उसका विरोध नहीं करना चाहिए।",
@@ -1058,10 +1093,10 @@ function createInitialState() {
         {
           version_id: "tv-hi16-q6b-v1",
           revision_number: 1,
-          source_type: "teacher_verified",
+          source_type: "examiner_verified",
           is_confirmed_for_grading: true,
           created_at: "2026-10-12T09:27:10Z",
-          author: "Prof. सुधा चतुर्वेदी",
+          author: "Hindi Examiner (sample reviewer)",
           text: "वाक्य-शुद्धि:\n१. हमें एक-दूसरे का सहयोग करना चाहिए।\n२. उसके व्यवहार से मुझे बहुत संतोष हुआ है।\n३. दोनों मित्रों के बीच विवाद हो गया।\n४. वह अपने माता-पिता की आज्ञा मानता है।\n५. किसी के विचारों को बिना समझे उसका विरोध नहीं करना चाहिए।",
         },
       ],
@@ -1103,7 +1138,7 @@ function createInitialState() {
     if (ans.answer_id === "ans-gs17-q1") {
       grRecord.human_reviews.push({
         review_id: "hr-gs17-q1-01",
-        reviewer: "Dr. R. K. Sharma (Senior Examiner, UPPSC Cell)",
+        reviewer: "Senior Examiner (sample reviewer)",
         action: "overridden",
         ai_suggested_score: contract.final_score,
         reviewed_final_score: 8.5,

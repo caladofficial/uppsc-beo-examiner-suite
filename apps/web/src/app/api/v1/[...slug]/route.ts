@@ -193,7 +193,7 @@ export async function POST(
     } else {
       paper.rubric_version = `${paper.rubric_version}-rev1`;
     }
-    paper.published_by = body.teacher_name || "Dr. R. K. Sharma (Senior Examiner)";
+    paper.published_by = body.teacher_name || "Senior Examiner (sample reviewer)";
     paper.published_at = new Date().toISOString();
     paper.approval_note = body.approval_note;
 
@@ -241,7 +241,7 @@ export async function POST(
 
     if (buf.length === 0 || buf.length > 25 * 1024 * 1024) {
       return NextResponse.json(
-        { detail: "File size rejected by 25 MB quarantine quota." },
+        { detail: "File size rejected by the 25 MB limit." },
         { status: 400 }
       );
     }
@@ -255,7 +255,7 @@ export async function POST(
       return NextResponse.json(
         {
           detail:
-            "Quarantine rejected upload: file magic bytes do not match allowlisted PDF, PNG, or JPEG signatures.",
+            "File type not accepted. Please upload a PDF, PNG or JPG file.",
         },
         { status: 400 }
       );
@@ -273,7 +273,7 @@ export async function POST(
       detected_mime: detectedMime,
       size_bytes: buf.length,
       sha256,
-      quarantine_status: "verified_clean",
+      quarantine_status: "passed",
       validated_at: new Date().toISOString(),
     };
 
@@ -315,12 +315,9 @@ export async function POST(
       ocr_candidates: [
         {
           adapter_id: "indic_ocr_bodhan",
-          adapter_name: "Zero-Context OCR (IndicOCR + Qwen2-VL Ensemble)",
+          adapter_name: "Automatic reading (Readers A + B)",
           calibrated_confidence: 0.86,
-          transcript: `Uploaded scan (${file.name}, SHA-256: ${sha256.slice(
-            0,
-            12
-          )}…) verified by quarantine. Edit or confirm visible handwritten transcription before grading.`,
+          transcript: `Uploaded scan (${file.name}) passed the file check. Edit or confirm the handwritten transcription before grading.`,
         },
       ],
       uncertain_spans: [],
@@ -331,8 +328,8 @@ export async function POST(
           source_type: "ocr_ensemble",
           is_confirmed_for_grading: false,
           created_at: new Date().toISOString(),
-          author: "Automated Zero-Context OCR (Provisional)",
-          text: `Uploaded scan (${file.name}) verified by quarantine. Edit or confirm visible handwritten transcription before grading.`,
+          author: "Automatic reading (provisional)",
+          text: `Uploaded scan (${file.name}) passed the file check. Edit or confirm the handwritten transcription before grading.`,
         },
       ],
     };
@@ -412,7 +409,7 @@ export async function POST(
     return NextResponse.json({ grade_run: grRecord, audit_event: ev });
   }
 
-  // Submit Teacher Review / Override
+  // Submit Examiner Review / Override
   if (slug[0] === "grade-runs" && slug[2] === "review") {
     const grId = slug[1];
     const gr = state.grade_runs[grId];
@@ -437,7 +434,7 @@ export async function POST(
 
     const reviewEntry = {
       review_id: `hr-${crypto.randomBytes(4).toString("hex")}`,
-      reviewer: body.reviewer || "Dr. R. K. Sharma (Senior Examiner)",
+      reviewer: body.reviewer || "Senior Examiner (sample reviewer)",
       action: body.action || "approved",
       ai_suggested_score: gr.contract.final_score,
       reviewed_final_score: Math.round(revScore * 100) / 100,
@@ -450,7 +447,7 @@ export async function POST(
     }
 
     const ev = state.appendAudit(
-      `TEACHER_REVIEW_${reviewEntry.action.toUpperCase()}`,
+      `EXAMINER_REVIEW_${reviewEntry.action.toUpperCase()}`,
       "human_review",
       reviewEntry.review_id,
       reviewEntry.reviewer,
@@ -523,6 +520,38 @@ export async function PATCH(
     };
     ans.revisions.push(newRev);
 
+    // Automatically refresh rubric evaluation when transcript or linked question is updated
+    const paper = state.papers[ans.paper_id];
+    const qSpec = paper?.questions?.find((q: any) => q.question_id === ans.question_id);
+    if (paper && qSpec) {
+      const hasDis = ans.uncertain_spans.some((s: any) => !s.resolved_by_human);
+      const contract = evaluateRubricBoundedGrade(
+        qSpec,
+        newRev.text,
+        newRev.version_id,
+        paper.paper_id,
+        paper.rubric_version,
+        paper.status,
+        ans.page_number,
+        ans.bbox_norm,
+        ans.ocr_candidates[0]?.calibrated_confidence || 0.9,
+        hasDis
+      );
+      const grId = ans.latest_grade_run_id || `gr-${answerId}`;
+      const prevReviews = state.grade_runs[grId]?.human_reviews || [];
+      state.grade_runs[grId] = {
+        grade_run_id: grId,
+        answer_id: answerId,
+        session_id: ans.session_id,
+        paper_id: ans.paper_id,
+        question_id: ans.question_id,
+        created_at: new Date().toISOString(),
+        contract,
+        human_reviews: prevReviews,
+      };
+      ans.latest_grade_run_id = grId;
+    }
+
     const ev = state.appendAudit(
       "TRANSCRIPT_REVISION_SAVED",
       "transcript_version",
@@ -537,6 +566,47 @@ export async function PATCH(
       }
     );
     return NextResponse.json({ answer: ans, new_revision: newRev, audit_event: ev });
+  }
+
+  if (slug[0] === "grade-runs" && slug[2] === "criteria") {
+    const grId = slug[1];
+    const gr = state.grade_runs[grId];
+    if (!gr) {
+      return NextResponse.json({ detail: "Grade run not found" }, { status: 404 });
+    }
+    const body = await req.json();
+    const critId = body.criterion_id;
+    const newScore = Number(body.score);
+    const crit = gr.contract.criterion_scores.find((c: any) => c.criterion_id === critId);
+    if (!crit) {
+      return NextResponse.json({ detail: "Criterion not found" }, { status: 404 });
+    }
+    const inc = Number(crit.increment || 0.5);
+    const clamped = Math.min(
+      Number(crit.max_score),
+      Math.max(0, Math.round(newScore / inc) * inc)
+    );
+    crit.score = Math.round(clamped * 100) / 100;
+    const sum = gr.contract.criterion_scores.reduce(
+      (acc: number, c: any) => acc + Number(c.score),
+      0
+    );
+    gr.contract.final_score = Math.min(
+      Number(gr.contract.max_marks),
+      Math.max(0, Math.round(sum * 100) / 100)
+    );
+    const ev = state.appendAudit(
+      "CRITERION_SCORE_ADJUSTED",
+      "grade_run",
+      grId,
+      body.reviewer || "Senior Examiner (sample reviewer)",
+      {
+        criterion_id: critId,
+        criterion_score: crit.score,
+        updated_final_score: gr.contract.final_score,
+      }
+    );
+    return NextResponse.json({ grade_run: gr, audit_event: ev });
   }
 
   return NextResponse.json({ detail: "Unsupported PATCH endpoint" }, { status: 404 });
