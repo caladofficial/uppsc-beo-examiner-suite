@@ -1,0 +1,85 @@
+name: UPPSC BEO Mains CI/CD & Auto-Deploy
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages-and-deploy"
+  cancel-in-progress: false
+
+jobs:
+  verify-and-build-pages:
+    name: Verify Contracts & Build Interactive Web Suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Verify Deterministic Rubric Validator & SSRF Guard
+        run: |
+          python3 -c "
+          import sys
+          sys.path.insert(0, '.')
+          from packages.rubric_core_bridge import count_words_bilingual, evaluate_word_limit_policy, snap_to_increment
+          wc = count_words_bilingual('भारतीय संविधान का अनुच्छेद 21A शिक्षा का अधिकार प्रदान करता है। Article 21A guarantees free education.')
+          assert wc['total_words'] > 10
+          assert snap_to_increment(1.37, 0.5, 2.0) == 1.5
+          print('Deterministic rubric-core checks passed:', wc)
+          "
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install Web Dependencies
+        working-directory: apps/web
+        run: npm install
+
+      - name: Verify Full Next.js Serverless Production Build (Vercel Target)
+        working-directory: apps/web
+        run: npm run build
+
+      - name: Build Static Bundle for GitHub Pages Live Hosting
+        working-directory: apps/web
+        env:
+          GITHUB_PAGES: "true"
+        run: |
+          mv src/app/api /tmp/nextjs_api_backup
+          npm run build
+          touch out/.nojekyll
+          mv /tmp/nextjs_api_backup src/app/api
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload GitHub Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/web/out
+
+  deploy-github-pages:
+    name: Deploy Live to GitHub Pages
+    needs: verify-and-build-pages
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

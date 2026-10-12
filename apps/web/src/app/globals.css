@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --outer-space: #484A47;
+  --paynes-gray: #5C6D70;
+  --old-rose: #A37774;
+  --salmon: #E88873;
+  --melon: #E0AC9D;
+  --canvas-cream: #FAF6F3;
+  --linen-card: #F3ECE7;
+}
+
+body {
+  background-color: var(--canvas-cream);
+  color: var(--outer-space);
+  font-family: "Inter", "Noto Sans Devanagari", -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Custom subtle scrollbars matching Old Rose & Outer Space */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #F3ECE7;
+}
+::-webkit-scrollbar-thumb {
+  background: #A37774;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #5C6D70;
+}

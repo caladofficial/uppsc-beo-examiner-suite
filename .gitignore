@@ -1,0 +1,24 @@
+# Dependencies & Build Artifacts
+node_modules/
+.next/
+out/
+dist/
+build/
+__pycache__/
+*.pyc
+.venv/
+.vercel/
+.npm/
+.cache/
+.local/
+.config/
+.bash_history
+.python_history
+
+# Sensitive Local Environment & Credentials (NEVER COMMIT)
+.env
+.env.*
+!.env.example
+uploads/
+*.pem
+*.key

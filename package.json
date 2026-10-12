@@ -1,0 +1,15 @@
+{
+  "name": "uppsc-beo-examiner-suite-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install:web": "npm --prefix apps/web install",
+    "build": "npm --prefix apps/web install && npm --prefix apps/web run build",
+    "start": "npm --prefix apps/web run start",
+    "dev": "npm --prefix apps/web run dev",
+    "sync": "bash scripts/git-sync.sh"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

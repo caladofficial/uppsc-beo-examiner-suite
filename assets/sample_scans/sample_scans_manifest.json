@@ -1,0 +1,650 @@
+{
+  "generated_at": "2026-10-12T15:54:56.317942+00:00",
+  "pages": [
+    {
+      "page_id": "gs17_cand01_p1",
+      "dimensions": {
+        "width": 1500,
+        "height": 2042
+      },
+      "detected_skew_deg": 1.01,
+      "variants": {
+        "original": {
+          "variant_id": "original",
+          "label": "Original Scan (Immutable Source)",
+          "file_path": "/home/user/assets/sample_scans/gs17_cand01_p1_original.png",
+          "public_url": "/scans/gs17_cand01_p1_original.png",
+          "transform_params": {
+            "rotation_deg": 0.0,
+            "crop": [
+              0,
+              0,
+              1500,
+              2042
+            ],
+            "enhancement": "none"
+          },
+          "is_authoritative": true,
+          "warning": null
+        },
+        "deskewed": {
+          "variant_id": "deskewed",
+          "label": "Deskewed (-1.01° corrected)",
+          "file_path": "/home/user/assets/sample_scans/gs17_cand01_p1_deskewed.png",
+          "public_url": "/scans/gs17_cand01_p1_deskewed.png",
+          "transform_params": {
+            "detected_skew_deg": 1.01,
+            "applied_rotation_deg": -1.01,
+            "interpolation": "INTER_CUBIC",
+            "reversible_matrix": [
+              [
+                0.9998446339083082,
+                0.017626912513571756,
+                -17.880553107587946
+              ],
+              [
+                -0.017626912513571756,
+                0.9998446339083082,
+                13.3788131647961
+              ]
+            ]
+          },
+          "is_authoritative": true,
+          "warning": null
+        },
+        "clahe_contrast": {
+          "variant_id": "clahe_contrast",
+          "label": "CLAHE Shadow Cleanup & Contrast",
+          "file_path": "/home/user/assets/sample_scans/gs17_cand01_p1_clahe_contrast.png",
+          "public_url": "/scans/gs17_cand01_p1_clahe_contrast.png",
+          "transform_params": {
+            "color_space": "CIE-LAB",
+            "clip_limit": 2.2,
+            "tile_grid": [
+              8,
+              8
+            ]
+          },
+          "is_authoritative": true,
+          "warning": null
+        },
+        "adaptive_ink": {
+          "variant_id": "adaptive_ink",
+          "label": "Adaptive Ink Threshold (Faint Pen Assist)",
+          "file_path": "/home/user/assets/sample_scans/gs17_cand01_p1_adaptive_ink.png",
+          "public_url": "/scans/gs17_cand01_p1_adaptive_ink.png",
+          "transform_params": {
+            "method": "ADAPTIVE_THRESH_GAUSSIAN_C",
+            "block_size": 31,
+            "C": 12,
+            "nl_means_h": 9
+          },
+          "is_authoritative": false,
+          "warning": "Binarization may thin faint Shirorekha or sub-matras; always verify against Original Scan."
+        },
+        "restormer_deblur_preview": {
+          "variant_id": "restormer_deblur_preview",
+          "label": "Deblur & Edge Restoration Preview (Non-Authoritative)",
+          "file_path": "/home/user/assets/sample_scans/gs17_cand01_p1_restormer_deblur.png",
+          "public_url": "/scans/gs17_cand01_p1_restormer_deblur.png",
+          "transform_params": {
+            "adapter": "restormer_bilateral_unsharp_v1",
+            "sigma": 2.0,
+            "amount": 0.65
+          },
+          "is_authoritative": false,
+          "warning": "CAUTION: Image restoration cannot recover ink strokes never captured by the sensor. Never use this view as sole source of truth."
+        }
+      },
+      "regions": [
+        {
+          "region_id": "reg-gs17-q1",
+          "question_id": "Mock 17-01",
+          "bbox_pt": [
+            104,
+            88,
+            666,
+            495
+          ],
+          "script": "hi",
+          "bbox_px": [
+            216,
+            183,
+            1387,
+            1031
+          ],
+          "bbox_norm": [
+            0.1444,
+            0.0898,
+            0.925,
+            0.5051
+          ]
+        },
+        {
+          "region_id": "reg-gs17-q4",
+          "question_id": "Mock 17-04",
+          "bbox_pt": [
+            104,
+            520,
+            666,
+            925
+          ],
+          "script": "en",
+          "bbox_px": [
+            216,
+            1083,
+            1387,
+            1927
+          ],
+          "bbox_norm": [
+            0.1444,
+            0.5306,
+            0.925,
+            0.9439
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "gs17_cand01_p2",
+      "dimensions": {
+        "width": 1500,
+        "height": 2042
+      },
+      "detected_skew_deg": -0.98,
+      "variants": {
+        "original": {
+          "variant_id": "original",
+          "label": "Original Scan (Immutable Source)",
+          "file_path": "/home/user/assets/sample_scans/gs17_cand01_p2_original.png",
+          "public_url": "/scans/gs17_cand01_p2_original.png",
+          "transform_params": {
+            "rotation_deg": 0.0,
+            "crop": [
+              0,
+              0,
+              1500,
+              2042
+            ],
+            "enhancement": "none"
+          },
+          "is_authoritative": true,
+          "warning": null
+        },
+        "deskewed": {
+          "variant_id": "deskewed",
+          "label": "Deskewed (+0.98° corrected)",
+          "file_path": "/home/user/assets/sample_scans/gs17_cand01_p2_deskewed.png",
+          "public_url": "/scans/gs17_cand01_p2_deskewed.png",
+          "transform_params": {
+            "detected_skew_deg": -0.98,
+            "applied_rotation_deg": 0.98,
+            "interpolation": "INTER_CUBIC",
+            "reversible_matrix": [
+              [
+                0.9998537262811577,
+                -0.017103392695130698,
+                17.572269230860204
+              ],
+              [
+                0.017103392695130698,
+                0.9998537262811577,
+                -12.678199054409985
+              ]
+            ]
+          },
+          "is_authoritative": true,
+          "warning": null
+        },
+        "clahe_contrast": {
+          "variant_id": "clahe_contrast",
+          "label": "CLAHE Shadow Cleanup & Contrast",
+          "file_path": "/home/user/assets/sample_scans/gs17_cand01_p2_clahe_contrast.png",
+          "public_url": "/scans/gs17_cand01_p2_clahe_contrast.png",
+          "transform_params": {
+            "color_space": "CIE-LAB",
+            "clip_limit": 2.2,
+            "tile_grid": [
+              8,
+              8
+            ]
+          },
+          "is_authoritative": true,
+          "warning": null
+        },
+        "adaptive_ink": {
+          "variant_id": "adaptive_ink",
+          "label": "Adaptive Ink Threshold (Faint Pen Assist)",
+          "file_path": "/home/user/assets/sample_scans/gs17_cand01_p2_adaptive_ink.png",
+          "public_url": "/scans/gs17_cand01_p2_adaptive_ink.png",
+          "transform_params": {
+            "method": "ADAPTIVE_THRESH_GAUSSIAN_C",
+            "block_size": 31,
+            "C": 12,
+            "nl_means_h": 9
+          },
+          "is_authoritative": false,
+          "warning": "Binarization may thin faint Shirorekha or sub-matras; always verify against Original Scan."
+        },
+        "restormer_deblur_preview": {
+          "variant_id": "restormer_deblur_preview",
+          "label": "Deblur & Edge Restoration Preview (Non-Authoritative)",
+          "file_path": "/home/user/assets/sample_scans/gs17_cand01_p2_restormer_deblur.png",
+          "public_url": "/scans/gs17_cand01_p2_restormer_deblur.png",
+          "transform_params": {
+            "adapter": "restormer_bilateral_unsharp_v1",
+            "sigma": 2.0,
+            "amount": 0.65
+          },
+          "is_authoritative": false,
+          "warning": "CAUTION: Image restoration cannot recover ink strokes never captured by the sensor. Never use this view as sole source of truth."
+        }
+      },
+      "regions": [
+        {
+          "region_id": "reg-gs17-q11",
+          "question_id": "Mock 17-11",
+          "bbox_pt": [
+            104,
+            90,
+            666,
+            360
+          ],
+          "script": "hi",
+          "bbox_px": [
+            216,
+            187,
+            1387,
+            750
+          ],
+          "bbox_norm": [
+            0.1444,
+            0.0918,
+            0.925,
+            0.3673
+          ]
+        },
+        {
+          "region_id": "reg-gs17-q21",
+          "question_id": "Mock 17-21",
+          "bbox_pt": [
+            104,
+            395,
+            666,
+            610
+          ],
+          "script": "hi",
+          "bbox_px": [
+            216,
+            823,
+            1387,
+            1271
+          ],
+          "bbox_norm": [
+            0.1444,
+            0.4031,
+            0.925,
+            0.6224
+          ]
+        },
+        {
+          "region_id": "reg-gs17-q28",
+          "question_id": "Mock 17-28",
+          "bbox_pt": [
+            104,
+            645,
+            666,
+            890
+          ],
+          "script": "en",
+          "bbox_px": [
+            216,
+            1343,
+            1387,
+            1854
+          ],
+          "bbox_norm": [
+            0.1444,
+            0.6582,
+            0.925,
+            0.9082
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "hi16_cand02_p1",
+      "dimensions": {
+        "width": 1500,
+        "height": 2042
+      },
+      "detected_skew_deg": 1.85,
+      "variants": {
+        "original": {
+          "variant_id": "original",
+          "label": "Original Scan (Immutable Source)",
+          "file_path": "/home/user/assets/sample_scans/hi16_cand02_p1_original.png",
+          "public_url": "/scans/hi16_cand02_p1_original.png",
+          "transform_params": {
+            "rotation_deg": 0.0,
+            "crop": [
+              0,
+              0,
+              1500,
+              2042
+            ],
+            "enhancement": "none"
+          },
+          "is_authoritative": true,
+          "warning": null
+        },
+        "deskewed": {
+          "variant_id": "deskewed",
+          "label": "Deskewed (-1.85° corrected)",
+          "file_path": "/home/user/assets/sample_scans/hi16_cand02_p1_deskewed.png",
+          "public_url": "/scans/hi16_cand02_p1_deskewed.png",
+          "transform_params": {
+            "detected_skew_deg": 1.85,
+            "applied_rotation_deg": -1.85,
+            "interpolation": "INTER_CUBIC",
+            "reversible_matrix": [
+              [
+                0.9994787687270248,
+                0.03228298102577449,
+                -32.57000017258434
+              ],
+              [
+                -0.03228298102577449,
+                0.9994787687270248,
+                24.744412899038554
+              ]
+            ]
+          },
+          "is_authoritative": true,
+          "warning": null
+        },
+        "clahe_contrast": {
+          "variant_id": "clahe_contrast",
+          "label": "CLAHE Shadow Cleanup & Contrast",
+          "file_path": "/home/user/assets/sample_scans/hi16_cand02_p1_clahe_contrast.png",
+          "public_url": "/scans/hi16_cand02_p1_clahe_contrast.png",
+          "transform_params": {
+            "color_space": "CIE-LAB",
+            "clip_limit": 2.2,
+            "tile_grid": [
+              8,
+              8
+            ]
+          },
+          "is_authoritative": true,
+          "warning": null
+        },
+        "adaptive_ink": {
+          "variant_id": "adaptive_ink",
+          "label": "Adaptive Ink Threshold (Faint Pen Assist)",
+          "file_path": "/home/user/assets/sample_scans/hi16_cand02_p1_adaptive_ink.png",
+          "public_url": "/scans/hi16_cand02_p1_adaptive_ink.png",
+          "transform_params": {
+            "method": "ADAPTIVE_THRESH_GAUSSIAN_C",
+            "block_size": 31,
+            "C": 12,
+            "nl_means_h": 9
+          },
+          "is_authoritative": false,
+          "warning": "Binarization may thin faint Shirorekha or sub-matras; always verify against Original Scan."
+        },
+        "restormer_deblur_preview": {
+          "variant_id": "restormer_deblur_preview",
+          "label": "Deblur & Edge Restoration Preview (Non-Authoritative)",
+          "file_path": "/home/user/assets/sample_scans/hi16_cand02_p1_restormer_deblur.png",
+          "public_url": "/scans/hi16_cand02_p1_restormer_deblur.png",
+          "transform_params": {
+            "adapter": "restormer_bilateral_unsharp_v1",
+            "sigma": 2.0,
+            "amount": 0.65
+          },
+          "is_authoritative": false,
+          "warning": "CAUTION: Image restoration cannot recover ink strokes never captured by the sensor. Never use this view as sole source of truth."
+        }
+      },
+      "regions": [
+        {
+          "region_id": "reg-hi16-q1a",
+          "question_id": "Hindi-Mock16-1(a)",
+          "bbox_pt": [
+            104,
+            88,
+            666,
+            265
+          ],
+          "script": "hi",
+          "bbox_px": [
+            216,
+            183,
+            1387,
+            552
+          ],
+          "bbox_norm": [
+            0.1444,
+            0.0898,
+            0.925,
+            0.2704
+          ]
+        },
+        {
+          "region_id": "reg-hi16-q1c",
+          "question_id": "Hindi-Mock16-1(c)",
+          "bbox_pt": [
+            104,
+            280,
+            666,
+            370
+          ],
+          "script": "hi",
+          "bbox_px": [
+            216,
+            583,
+            1387,
+            770
+          ],
+          "bbox_norm": [
+            0.1444,
+            0.2857,
+            0.925,
+            0.3776
+          ]
+        },
+        {
+          "region_id": "reg-hi16-q2",
+          "question_id": "Hindi-Mock16-2",
+          "bbox_pt": [
+            104,
+            395,
+            666,
+            930
+          ],
+          "script": "hi",
+          "bbox_px": [
+            216,
+            823,
+            1387,
+            1937
+          ],
+          "bbox_norm": [
+            0.1444,
+            0.4031,
+            0.925,
+            0.949
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "hi16_cand02_p2",
+      "dimensions": {
+        "width": 1500,
+        "height": 2042
+      },
+      "detected_skew_deg": -0.97,
+      "variants": {
+        "original": {
+          "variant_id": "original",
+          "label": "Original Scan (Immutable Source)",
+          "file_path": "/home/user/assets/sample_scans/hi16_cand02_p2_original.png",
+          "public_url": "/scans/hi16_cand02_p2_original.png",
+          "transform_params": {
+            "rotation_deg": 0.0,
+            "crop": [
+              0,
+              0,
+              1500,
+              2042
+            ],
+            "enhancement": "none"
+          },
+          "is_authoritative": true,
+          "warning": null
+        },
+        "deskewed": {
+          "variant_id": "deskewed",
+          "label": "Deskewed (+0.97° corrected)",
+          "file_path": "/home/user/assets/sample_scans/hi16_cand02_p2_deskewed.png",
+          "public_url": "/scans/hi16_cand02_p2_deskewed.png",
+          "transform_params": {
+            "detected_skew_deg": -0.97,
+            "applied_rotation_deg": 0.97,
+            "interpolation": "INTER_CUBIC",
+            "reversible_matrix": [
+              [
+                0.9998566961576574,
+                -0.01692888503989769,
+                17.39186950749251
+              ],
+              [
+                0.01692888503989769,
+                0.9998566961576574,
+                -12.55035055689145
+              ]
+            ]
+          },
+          "is_authoritative": true,
+          "warning": null
+        },
+        "clahe_contrast": {
+          "variant_id": "clahe_contrast",
+          "label": "CLAHE Shadow Cleanup & Contrast",
+          "file_path": "/home/user/assets/sample_scans/hi16_cand02_p2_clahe_contrast.png",
+          "public_url": "/scans/hi16_cand02_p2_clahe_contrast.png",
+          "transform_params": {
+            "color_space": "CIE-LAB",
+            "clip_limit": 2.2,
+            "tile_grid": [
+              8,
+              8
+            ]
+          },
+          "is_authoritative": true,
+          "warning": null
+        },
+        "adaptive_ink": {
+          "variant_id": "adaptive_ink",
+          "label": "Adaptive Ink Threshold (Faint Pen Assist)",
+          "file_path": "/home/user/assets/sample_scans/hi16_cand02_p2_adaptive_ink.png",
+          "public_url": "/scans/hi16_cand02_p2_adaptive_ink.png",
+          "transform_params": {
+            "method": "ADAPTIVE_THRESH_GAUSSIAN_C",
+            "block_size": 31,
+            "C": 12,
+            "nl_means_h": 9
+          },
+          "is_authoritative": false,
+          "warning": "Binarization may thin faint Shirorekha or sub-matras; always verify against Original Scan."
+        },
+        "restormer_deblur_preview": {
+          "variant_id": "restormer_deblur_preview",
+          "label": "Deblur & Edge Restoration Preview (Non-Authoritative)",
+          "file_path": "/home/user/assets/sample_scans/hi16_cand02_p2_restormer_deblur.png",
+          "public_url": "/scans/hi16_cand02_p2_restormer_deblur.png",
+          "transform_params": {
+            "adapter": "restormer_bilateral_unsharp_v1",
+            "sigma": 2.0,
+            "amount": 0.65
+          },
+          "is_authoritative": false,
+          "warning": "CAUTION: Image restoration cannot recover ink strokes never captured by the sensor. Never use this view as sole source of truth."
+        }
+      },
+      "regions": [
+        {
+          "region_id": "reg-hi16-q3b",
+          "question_id": "Hindi-Mock16-3",
+          "bbox_pt": [
+            104,
+            90,
+            666,
+            360
+          ],
+          "script": "hi",
+          "bbox_px": [
+            216,
+            187,
+            1387,
+            750
+          ],
+          "bbox_norm": [
+            0.1444,
+            0.0918,
+            0.925,
+            0.3673
+          ]
+        },
+        {
+          "region_id": "reg-hi16-q6a",
+          "question_id": "Hindi-Mock16-6a",
+          "bbox_pt": [
+            104,
+            385,
+            666,
+            600
+          ],
+          "script": "hi",
+          "bbox_px": [
+            216,
+            802,
+            1387,
+            1250
+          ],
+          "bbox_norm": [
+            0.1444,
+            0.3929,
+            0.925,
+            0.6122
+          ]
+        },
+        {
+          "region_id": "reg-hi16-q6b",
+          "question_id": "Hindi-Mock16-6b",
+          "bbox_pt": [
+            104,
+            625,
+            666,
+            910
+          ],
+          "script": "hi",
+          "bbox_px": [
+            216,
+            1302,
+            1387,
+            1896
+          ],
+          "bbox_norm": [
+            0.1444,
+            0.6378,
+            0.925,
+            0.9286
+          ]
+        }
+      ]
+    }
+  ]
+}
