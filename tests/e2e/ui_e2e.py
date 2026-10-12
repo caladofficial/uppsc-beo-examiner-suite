@@ -52,14 +52,17 @@ with sync_playwright() as p:
         page.wait_for_timeout(500)
 
     def leak_scan(label):
-        hits = sorted(set(m.group(0) for m in FORBIDDEN.finditer(body())))
+        # "teacher" can appear in imported exam wording (e.g. Mock 17-08); exclude it from the scan
+        body_txt = re.sub(r"(?i)\bteacher\b", "", body())
+        hits = sorted(set(m.group(0) for m in FORBIDDEN.finditer(body_txt)))
         check(f"no AI/internal terms [{label}]", not hits, f"found {hits}")
 
     # ---------- shell ----------
     for name in ["Papers", "Answer sheets", "Handwriting", "Marks", "Report"]:
         check(f"nav has '{name}'", page.get_by_role("button", name=name, exact=True).count() == 1)
-    check("exactly five sections (no security tab)", page.get_by_role("button", name=re.compile("Security|Quality")).count() == 0)
+    check("exactly five sections in the navigation", page.get_by_role("navigation", name="Sections").get_by_role("button").count() == 5)
     check("sample-data note shown", "demonstration data" in body().lower())
+    check("language switch offered", page.get_by_role("button", name="हिन्दी", exact=True).count() == 1)
     leak_scan("shell")
 
     # ---------- 1. Papers ----------
@@ -218,6 +221,34 @@ with sync_playwright() as p:
     check("activity log lists events", page.locator("details li").count() >= 1)
     page.screenshot(path=f"{SHOTS}/06_report.png", full_page=True)
     leak_scan("report")
+
+    # ---------- 6. Language (English / Hindi) ----------
+    page.get_by_role("button", name="हिन्दी", exact=True).click()
+    page.wait_for_timeout(500)
+    page.get_by_role("button", name="प्रश्नपत्र", exact=True).click()
+    page.wait_for_timeout(300)
+    check("language switch to Hindi sets document lang", page.evaluate("document.documentElement.lang") == "hi")
+    check("Hindi nav labels shown", page.get_by_role("button", name="प्रश्नपत्र", exact=True).count() == 1
+          and page.get_by_role("button", name="Papers", exact=True).count() == 0)
+    check("Hindi papers heading shown", "प्रश्नपत्र और अंकन योजनाएँ" in body())
+    page.get_by_role("button", name="हस्तलेख", exact=True).click()
+    page.wait_for_timeout(400)
+    check("Hindi handwriting labels shown", "प्रतिलेख" in body() and "पठन" in body())
+    page.get_by_role("button", name="अंक", exact=True).click()
+    page.wait_for_timeout(400)
+    check("Hindi marks button shown", page.get_by_role("button", name=re.compile("अंक (गणना|पुनः)")).count() >= 1)
+    page.get_by_role("button", name="रिपोर्ट", exact=True).click()
+    page.wait_for_timeout(400)
+    check("Hindi report export label shown", "रिपोर्ट निर्यात करें (JSON)" in body())
+    page.screenshot(path=f"{SHOTS}/07_hindi_report.png", full_page=True)
+    page.reload(wait_until="networkidle")
+    page.wait_for_timeout(800)
+    check("language choice survives reload", page.evaluate("document.documentElement.lang") == "hi")
+    page.get_by_role("button", name="English", exact=True).click()
+    page.wait_for_timeout(400)
+    check("switch back to English", page.evaluate("document.documentElement.lang") == "en"
+          and page.get_by_role("button", name="Papers", exact=True).count() == 1)
+    leak_scan("language switch")
 
     # ---------- global ----------
     check("no uncaught page errors", not page_errors, "; ".join(page_errors)[:300])

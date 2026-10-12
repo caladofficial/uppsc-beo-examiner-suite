@@ -19,6 +19,13 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Hindi text: prefer a Devanagari-capable face on every device */
+:lang(hi),
+[lang="hi"] {
+  font-family: "Noto Sans Devanagari", "Nirmala UI", "Mangal", "Kohinoor Devanagari", sans-serif;
+  line-height: 1.7;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,

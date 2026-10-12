@@ -3,7 +3,22 @@
 Test: `/home/user/tests/e2e/ui_e2e.py <base_url> <screenshot_dir>`
 Browser: Chromium via Playwright, 1440 px desktop viewport.
 
-## Latest run (five-section examiner workspace)
+## Latest run (English / Hindi interface)
+
+| Build | Base URL | Result |
+|---|---|---|
+| Next.js server build | `http://127.0.0.1:3000` | 71 / 71 |
+| Static GitHub Pages build | `http://127.0.0.1:3100/uppsc-beo-examiner-suite` | 73 / 73 |
+
+The counts differ because the server keeps the Hindi paper approval from earlier runs, so the static run performs the full approval step.
+
+### Dual-language interface
+
+- Language switch in the header: English | हिन्दी. The choice is saved in the browser and restored after reload; `<html lang>` follows it.
+- Every interface label, button, status, message and activity-log label is translated. Exam content (question text, rubric criteria, reader transcripts, import notes) stays in its source language.
+- The test switches to Hindi, checks the navigation, Papers, Handwriting, Marks and Report labels, reloads, and switches back.
+
+## Previous run (five-section examiner workspace)
 
 | Build | Base URL | Result |
 |---|---|---|
