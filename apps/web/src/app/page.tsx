@@ -181,6 +181,10 @@ export default function ExaminerWorkspace() {
   const [reviewScore, setReviewScore] = useState("");
   const [reviewReason, setReviewReason] = useState("");
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [gradeMode, setGradeMode] = useState<"single" | "copy">("single");
+  const [gradingAll, setGradingAll] = useState(false);
+  const [includeDecided, setIncludeDecided] = useState(false);
+  const [copyRun, setCopyRun] = useState<any>(null);
 
   // report
   const [authorised, setAuthorised] = useState(false);
@@ -299,6 +303,23 @@ export default function ExaminerWorkspace() {
     if (goTo) setTab(goTo);
   };
 
+  // Helpers shared by both grading modes
+  const latestRevOf = (a: any) => (a?.revisions?.length ? a.revisions[a.revisions.length - 1] : null);
+  const isDecided = (a: any) => (a?.latest_grade_run?.human_reviews?.length ?? 0) > 0;
+  const isStale = (a: any) => {
+    const gr = a?.latest_grade_run;
+    const rev = latestRevOf(a);
+    return Boolean(gr && rev && gr.contract?.transcript_version !== rev.version_id);
+  };
+  const errorDetail = async (res: Response, fallback: string) => {
+    try {
+      const body = await res.json();
+      return typeof body?.detail === "string" ? body.detail : fallback;
+    } catch {
+      return fallback;
+    }
+  };
+
   const publish = async () => {
     if (!paper) return;
     setPublishing(true);
@@ -367,7 +388,7 @@ export default function ExaminerWorkspace() {
     setGrading(true);
     try {
       const res = await apiFetch(`/api/v1/answers/${answer.answer_id}/grade`, { method: "POST" });
-      if (!res.ok) throw new Error(t("marks.calcFailed"));
+      if (!res.ok) throw new Error(await errorDetail(res, t("marks.calcFailed")));
       const data = await res.json();
       await loadAll(sessionId, { answerId: answer.answer_id });
       setReviewScore(String(data.grade_run.contract.final_score));
@@ -376,6 +397,26 @@ export default function ExaminerWorkspace() {
       notify(e.message, "error");
     } finally {
       setGrading(false);
+    }
+  };
+
+  const runGradeAll = async () => {
+    setGradingAll(true);
+    try {
+      const res = await apiFetch(`/api/v1/sessions/${sessionId}/grade-all`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ include_reviewed: includeDecided }),
+      });
+      if (!res.ok) throw new Error(await errorDetail(res, t("copy.calcFailed")));
+      const data = await res.json();
+      setCopyRun(data);
+      await loadAll(sessionId, { answerId: answer?.answer_id });
+      notify(t("copy.resultDone", { g: data.graded_count, s: data.skipped.length }));
+    } catch (e: any) {
+      notify(e.message, "error");
+    } finally {
+      setGradingAll(false);
     }
   };
 
@@ -408,6 +449,8 @@ export default function ExaminerWorkspace() {
       notify(t("marks.enterReason"), "error");
       return;
     }
+    // Accepting or returning keeps the suggested mark; only "Change marks" uses the typed mark.
+    const finalScore = reviewAction === "overridden" ? Number(reviewScore) : gr.contract.final_score;
     setSubmittingReview(true);
     try {
       const res = await apiFetch(`/api/v1/grade-runs/${gr.grade_run_id}/review`, {
@@ -416,11 +459,11 @@ export default function ExaminerWorkspace() {
         body: JSON.stringify({
           reviewer: EXAMINER,
           action: reviewAction,
-          reviewed_final_score: Number(reviewScore),
+          reviewed_final_score: finalScore,
           override_reason: reviewReason,
         }),
       });
-      if (!res.ok) throw new Error(t("marks.decisionFailed"));
+      if (!res.ok) throw new Error(await errorDetail(res, t("marks.decisionFailed")));
       await loadAll(sessionId, { answerId: answer.answer_id });
       setReviewReason("");
       notify(t("marks.decisionSaved"));
@@ -1061,11 +1104,158 @@ export default function ExaminerWorkspace() {
   };
 
   const renderMarks = () => {
+    const modes: { id: "single" | "copy"; label: string; hint: string }[] = [
+      { id: "single", label: t("mode.single"), hint: t("mode.singleHint") },
+      { id: "copy", label: t("mode.copy"), hint: t("mode.copyHint") },
+    ];
+    const current = modes.find((m) => m.id === gradeMode) || modes[0];
+    return (
+      <div className="space-y-5">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex gap-2" role="group" aria-label={t("nav.marks")}>
+            {modes.map((m) => (
+              <button
+                key={m.id}
+                type="button"
+                aria-pressed={gradeMode === m.id}
+                onClick={() => setGradeMode(m.id)}
+                className={gradeMode === m.id ? CHIP_ON : CHIP_OFF}
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-sm text-[#5C6D70]">{current.hint}</p>
+        </div>
+        {gradeMode === "copy" ? renderCopyMarks() : renderSingleMarks()}
+      </div>
+    );
+  };
+
+  const renderCopyMarks = () => {
+    const list: any[] = sessionData?.answers || answers;
+    if (list.length === 0) return <p className="text-sm text-[#5C6D70]">{t("copy.none")}</p>;
+    const gradedList = list.filter((a) => a.latest_grade_run);
+    const decidedCount = list.filter(isDecided).length;
+    const suggestedSoFar = gradedList.reduce((sum, a) => sum + (a.latest_grade_run.contract.final_score ?? 0), 0);
+    const maxSoFar = gradedList.reduce((sum, a) => sum + (a.latest_grade_run.contract.max_marks ?? 0), 0);
+    const pctDecided = Math.round((decidedCount / list.length) * 100);
+    return (
+      <section className={CARD}>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 className="text-base font-semibold">{t("mode.copy")}</h2>
+            <p className="mt-1 text-sm text-[#5C6D70]">{t("copy.progress", { t: decidedCount, n: list.length })}</p>
+            {decidedCount === list.length && <p className="mt-1 text-sm font-medium text-[#484A47]">{t("copy.complete")}</p>}
+          </div>
+          <div className="flex flex-col items-end gap-2">
+            <label className="flex items-center gap-2 text-xs text-[#5C6D70]">
+              <input type="checkbox" checked={includeDecided} onChange={(e) => setIncludeDecided(e.target.checked)} />
+              {t("copy.includeDecided")}
+            </label>
+            <button type="button" onClick={runGradeAll} disabled={gradingAll} className={BTN_PRIMARY}>
+              {gradingAll ? t("copy.calculatingAll") : t("copy.calcAll")}
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-5 h-2 w-full overflow-hidden rounded-full bg-[#E0AC9D]/40" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pctDecided} aria-label={t("copy.progress", { t: decidedCount, n: list.length })}>
+          <div className="h-full bg-[#484A47]" style={{ width: `${pctDecided}%` }} />
+        </div>
+
+        <div className="mt-5 grid gap-4 sm:grid-cols-3">
+          <div className="rounded-lg bg-[#FAF6F3] p-4">
+            <p className="text-xs text-[#5C6D70]">{t("copy.sumCalculated")}</p>
+            <p className="mt-1 text-2xl font-semibold">{gradedList.length} <span className="text-base font-normal text-[#5C6D70]">/ {list.length}</span></p>
+          </div>
+          <div className="rounded-lg bg-[#FAF6F3] p-4">
+            <p className="text-xs text-[#5C6D70]">{t("copy.sumDecided")}</p>
+            <p className="mt-1 text-2xl font-semibold">{decidedCount} <span className="text-base font-normal text-[#5C6D70]">/ {list.length}</span></p>
+          </div>
+          <div className="rounded-lg bg-[#FAF6F3] p-4">
+            <p className="text-xs text-[#5C6D70]">{t("copy.sumTotal")}</p>
+            <p className="mt-1 text-2xl font-semibold">{Math.round(suggestedSoFar * 100) / 100} <span className="text-base font-normal text-[#5C6D70]">/ {maxSoFar}</span></p>
+          </div>
+        </div>
+
+        <div className="mt-6 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-[#E0AC9D] text-left text-xs text-[#5C6D70]">
+                <th className="py-2 font-medium">{t("copy.colQuestion")}</th>
+                <th className="py-2 font-medium">{t("copy.colTranscript")}</th>
+                <th className="py-2 pl-4 text-right font-medium">{t("copy.colMarks")}</th>
+                <th className="py-2 pl-6 font-medium">{t("copy.colStatus")}</th>
+                <th className="py-2 pl-6 font-medium"><span className="sr-only">{t("copy.colAction")}</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              {list.map((a) => {
+                const gr = a.latest_grade_run;
+                const c = gr?.contract;
+                const confirmed = Boolean(latestRevOf(a)?.is_confirmed_for_grading);
+                const reviewedHere = isDecided(a);
+                let status: { tone: "ok" | "warn" | "neutral"; label: string };
+                if (!confirmed) status = { tone: "warn", label: t("copy.stUnconfirmed") };
+                else if (!gr) status = { tone: "neutral", label: t("copy.stNotCalc") };
+                else if (isStale(a)) status = { tone: "warn", label: t("copy.stStale") };
+                else if (reviewedHere) status = { tone: "ok", label: t("copy.stDecided") };
+                else if (c?.needs_human_review) status = { tone: "warn", label: t("copy.stNeedsReview") };
+                else status = { tone: "ok", label: t("copy.stCalc") };
+                return (
+                  <tr key={a.answer_id} className="border-b border-[#E0AC9D]/40 align-top">
+                    <td className="py-3 pr-4">
+                      <p className="font-medium">{a.question_id}</p>
+                      <p className="mt-1 text-xs text-[#5C6D70]">{a.question_spec?.topic}</p>
+                    </td>
+                    <td className="py-3">
+                      <Badge tone={confirmed ? "ok" : "warn"}>{confirmed ? t("copy.confirmedYes") : t("copy.confirmedNo")}</Badge>
+                    </td>
+                    <td className="py-3 pl-4 text-right font-mono">{c ? `${c.final_score} / ${c.max_marks}` : "—"}</td>
+                    <td className="py-3 pl-6">
+                      <Badge tone={status.tone}>{status.label}</Badge>
+                    </td>
+                    <td className="py-3 pl-6 text-right">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setGradeMode("single");
+                          openAnswer(a, "marks");
+                        }}
+                        className={BTN_GHOST + " px-3 py-2 text-xs"}
+                      >
+                        {t("copy.open")}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        {copyRun?.skipped?.length > 0 && (
+          <div className="mt-4 rounded-lg bg-[#FAF6F3] p-4 text-sm">
+            <p className="font-medium">{t("copy.skippedTitle")}</p>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-[#5C6D70]">
+              {copyRun.skipped.map((sk: any) => (
+                <li key={sk.answer_id}>
+                  {sk.question_id}: {t(`copy.skip.${sk.reason}` as Key)}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </section>
+    );
+  };
+
+  const renderSingleMarks = () => {
     if (!answer) return <p className="text-sm text-[#5C6D70]">{t("hw.none")}</p>;
     const gr = answer.latest_grade_run;
     const c = gr?.contract;
     const reviews: any[] = gr?.human_reviews || [];
     const max = c?.max_marks ?? answer.question_spec?.max_marks;
+    const confirmed = Boolean(latestRevOf(answer)?.is_confirmed_for_grading);
     return (
       <div className="space-y-5">
         {renderAnswerPicker()}
@@ -1075,8 +1265,10 @@ export default function ExaminerWorkspace() {
               <h2 className="text-base font-semibold">{answer.question_id}</h2>
               <p className="text-sm text-[#5C6D70]">{answer.question_spec?.topic}</p>
               <p className="mt-1 text-xs text-[#5C6D70]">{answer.question_spec?.word_limit_label}</p>
+              {!confirmed && <p className="mt-2 text-sm text-[#A37774]">{t("marks.notConfirmed")}</p>}
+              {isStale(answer) && <p className="mt-2 text-sm text-[#A37774]">{t("marks.stale")}</p>}
             </div>
-            <button type="button" onClick={runGrade} disabled={grading} className={BTN_PRIMARY}>
+            <button type="button" onClick={runGrade} disabled={grading || !confirmed} className={BTN_PRIMARY}>
               {grading ? t("marks.calculating") : gr ? t("marks.recalculate") : t("marks.calculate")}
             </button>
           </div>
@@ -1177,7 +1369,15 @@ export default function ExaminerWorkspace() {
               <div className="mt-4 space-y-4">
                 <div>
                   <label htmlFor="decision" className="block text-sm font-medium">{t("marks.decision")}</label>
-                  <select id="decision" value={reviewAction} onChange={(e) => setReviewAction(e.target.value)} className={`${INPUT} mt-1`}>
+                  <select
+                    id="decision"
+                    value={reviewAction}
+                    onChange={(e) => {
+                      setReviewAction(e.target.value);
+                      if (e.target.value !== "overridden") setReviewScore(String(c.final_score));
+                    }}
+                    className={`${INPUT} mt-1`}
+                  >
                     <option value="approved">{t("marks.optAccept")}</option>
                     <option value="overridden">{t("marks.optChange")}</option>
                     <option value="returned_for_transcript_correction">{t("marks.optReturn")}</option>
@@ -1185,7 +1385,8 @@ export default function ExaminerWorkspace() {
                 </div>
                 <div>
                   <label htmlFor="final-marks" className="block text-sm font-medium">{t("marks.finalMarks")}</label>
-                  <input id="final-marks" type="number" step="0.5" min={0} max={max} value={reviewScore} onChange={(e) => setReviewScore(e.target.value)} className={`${INPUT} mt-1 max-w-[160px]`} />
+                  <input id="final-marks" type="number" step="0.5" min={0} max={max} disabled={reviewAction !== "overridden"} value={reviewAction === "overridden" ? reviewScore : String(c.final_score)} onChange={(e) => setReviewScore(e.target.value)} className={`${INPUT} mt-1 max-w-[160px] disabled:opacity-60`} />
+                  {reviewAction === "approved" && <p className="mt-1 text-xs text-[#5C6D70]">{t("marks.acceptNote")}</p>}
                 </div>
                 <div>
                   <label htmlFor="reason" className="block text-sm font-medium">

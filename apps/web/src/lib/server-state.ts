@@ -1181,3 +1181,164 @@ export function getAppState() {
   }
   return globalForState.__UPPSC_STATE__;
 }
+
+export const REVIEW_ACTIONS = ["approved", "overridden", "returned_for_transcript_correction"] as const;
+
+/**
+ * Validates an examiner decision against its grade run.
+ * - "approved" accepts the AI suggestion as-is, so the mark must equal the suggestion.
+ * - "overridden" changes the mark and always needs a substantive reason (min 5 characters).
+ * - "returned_for_transcript_correction" needs no reason and leaves the mark unchanged.
+ * Returns an error message, or null when the decision is valid.
+ */
+export function validateExaminerDecision(
+  gr: any,
+  body: { action?: string; reviewed_final_score?: unknown; override_reason?: unknown }
+): { detail: string; status: number } | null {
+  const action = body.action || "approved";
+  if (!(REVIEW_ACTIONS as readonly string[]).includes(action)) {
+    return { detail: "Unknown decision type.", status: 400 };
+  }
+  const maxM = Number(gr.contract.max_marks);
+  const revScore = Number(body.reviewed_final_score);
+  if (!Number.isFinite(revScore) || revScore < 0 || revScore > maxM) {
+    return { detail: `Reviewed score must be between 0 and ${maxM}`, status: 400 };
+  }
+  const reason = typeof body.override_reason === "string" ? body.override_reason.trim() : "";
+  if (action === "overridden" && reason.length < 5) {
+    return { detail: "A substantive examiner reason is required when the mark is changed.", status: 400 };
+  }
+  if (action === "approved" && Math.abs(revScore - Number(gr.contract.final_score)) > 1e-9) {
+    return { detail: "Accepting keeps the suggested mark. Choose 'Change mark' to record a different mark.", status: 400 };
+  }
+  return null;
+}
+
+export class GradeRequestError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+  }
+}
+
+/** Grades one answer against its latest transcript. Shared by single-question and whole-copy grading. */
+export function gradeAnswerRun(state: any, answerId: string) {
+  const ans = state.answers[answerId];
+  if (!ans) throw new GradeRequestError("Answer not found", 404);
+  const paper = state.papers[ans.paper_id];
+  const qSpec = paper?.questions.find((q: any) => q.question_id === ans.question_id);
+  if (!qSpec) throw new GradeRequestError("Question spec not found", 400);
+  const latestRev = ans.revisions[ans.revisions.length - 1];
+  if (!latestRev) throw new GradeRequestError("No transcript for this answer yet", 400);
+  if (!latestRev.is_confirmed_for_grading) {
+    throw new GradeRequestError("Confirm the transcript before calculating marks.", 409);
+  }
+  const hasDis = ans.uncertain_spans.some((s: any) => !s.resolved_by_human);
+
+  const contract = evaluateRubricBoundedGrade(
+    qSpec,
+    latestRev.text,
+    latestRev.version_id,
+    paper.paper_id,
+    paper.rubric_version,
+    paper.status,
+    ans.page_number,
+    ans.bbox_norm,
+    ans.ocr_candidates[0]?.calibrated_confidence || 0.88,
+    hasDis
+  );
+
+  const grId = `gr-${answerId}-r${Object.keys(state.grade_runs).length + 1}`;
+  const prevReviews =
+    ans.latest_grade_run_id && state.grade_runs[ans.latest_grade_run_id]
+      ? state.grade_runs[ans.latest_grade_run_id].human_reviews
+      : [];
+  const grRecord = {
+    grade_run_id: grId,
+    answer_id: answerId,
+    session_id: ans.session_id,
+    paper_id: ans.paper_id,
+    question_id: ans.question_id,
+    created_at: new Date().toISOString(),
+    contract,
+    human_reviews: prevReviews,
+  };
+  state.grade_runs[grId] = grRecord;
+  ans.latest_grade_run_id = grId;
+  const ev = state.appendAudit(
+    "RUBRIC_GRADE_RUN_COMPLETED",
+    "grade_run",
+    grId,
+    "rubric-grading-worker",
+    {
+      question_id: ans.question_id,
+      rubric_version: paper.rubric_version,
+      transcript_version: latestRev.version_id,
+      ai_suggested_score: contract.final_score,
+    }
+  );
+  return { grade_run: grRecord, audit_event: ev };
+}
+
+/**
+ * Grades every answer on a candidate's copy. Answers already decided by an examiner are skipped
+ * unless includeReviewed is set, so a re-run never silently replaces reviewed marks.
+ */
+export function gradeWholeCopy(state: any, sessionId: string, includeReviewed = false) {
+  const sess = state.sessions?.[sessionId];
+  if (!sess) throw new GradeRequestError("Session not found", 404);
+  const graded: any[] = [];
+  const skipped: any[] = [];
+  for (const aid of sess.answer_ids) {
+    const ans = state.answers[aid];
+    const prev = state.grade_runs[ans.latest_grade_run_id || ""];
+    if (!ans.revisions?.length) {
+      skipped.push({ answer_id: aid, question_id: ans.question_id, reason: "no_transcript" });
+      continue;
+    }
+    if (!ans.revisions[ans.revisions.length - 1].is_confirmed_for_grading) {
+      skipped.push({ answer_id: aid, question_id: ans.question_id, reason: "transcript_not_confirmed" });
+      continue;
+    }
+    if (prev?.human_reviews?.length && !includeReviewed) {
+      skipped.push({ answer_id: aid, question_id: ans.question_id, reason: "already_reviewed" });
+      continue;
+    }
+    const { grade_run } = gradeAnswerRun(state, aid);
+    const c = grade_run.contract;
+    graded.push({
+      answer_id: aid,
+      question_id: ans.question_id,
+      grade_run_id: grade_run.grade_run_id,
+      final_score: c.final_score,
+      max_marks: c.max_marks,
+      needs_human_review: c.needs_human_review,
+      word_limit_status: c.word_limit_status,
+    });
+  }
+  const totalSuggested = Math.round(graded.reduce((a, g) => a + g.final_score, 0) * 100) / 100;
+  const totalMax = Math.round(graded.reduce((a, g) => a + g.max_marks, 0) * 100) / 100;
+  const ev = state.appendAudit(
+    "RUBRIC_COPY_GRADE_RUN_COMPLETED",
+    "session",
+    sessionId,
+    "rubric-grading-worker",
+    {
+      graded_count: graded.length,
+      skipped_count: skipped.length,
+      total_suggested: totalSuggested,
+      include_reviewed: includeReviewed,
+    }
+  );
+  return {
+    session_id: sessionId,
+    graded_count: graded.length,
+    needs_review_count: graded.filter((g) => g.needs_human_review).length,
+    total_suggested: totalSuggested,
+    total_max: totalMax,
+    answers: graded,
+    skipped,
+    audit_event: ev,
+  };
+}

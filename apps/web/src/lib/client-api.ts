@@ -4,10 +4,13 @@ import {
   DATASET_PROVENANCE_REGISTRY,
   ALLOWLISTED_REFERENCE_DOMAINS,
   countUnicodeWords,
-  evaluateRubricBoundedGrade,
   validateUrlSsrfSafe,
   sanitizeUntrustedText,
   stableHashHex,
+  gradeAnswerRun,
+  gradeWholeCopy,
+  validateExaminerDecision,
+  GradeRequestError,
 } from "@/lib/server-state";
 
 export function resolveAssetUrl(url: string): string {
@@ -302,55 +305,22 @@ async function handleStaticFallback(url: string, init?: RequestInit): Promise<Re
     }
 
     if (slug[0] === "answers" && slug[2] === "grade") {
-      const answerId = slug[1];
-      const ans = state.answers[answerId];
-      if (!ans) return jsonResp({ detail: "Answer not found" }, 404);
-      const paper = state.papers[ans.paper_id];
-      const qSpec = paper.questions.find((q: any) => q.question_id === ans.question_id);
-      const latestRev = ans.revisions[ans.revisions.length - 1];
-      const hasDis = ans.uncertain_spans.some((s: any) => !s.resolved_by_human);
-      const contract = evaluateRubricBoundedGrade(
-        qSpec,
-        latestRev.text,
-        latestRev.version_id,
-        paper.paper_id,
-        paper.rubric_version,
-        paper.status,
-        ans.page_number,
-        ans.bbox_norm,
-        ans.ocr_candidates[0]?.calibrated_confidence || 0.88,
-        hasDis
-      );
-      const grId = `gr-${answerId}-r${Object.keys(state.grade_runs).length + 1}`;
-      const prevReviews =
-        ans.latest_grade_run_id && state.grade_runs[ans.latest_grade_run_id]
-          ? state.grade_runs[ans.latest_grade_run_id].human_reviews
-          : [];
-      const grRecord = {
-        grade_run_id: grId,
-        answer_id: answerId,
-        session_id: ans.session_id,
-        paper_id: ans.paper_id,
-        question_id: ans.question_id,
-        created_at: new Date().toISOString(),
-        contract,
-        human_reviews: prevReviews,
-      };
-      state.grade_runs[grId] = grRecord;
-      ans.latest_grade_run_id = grId;
-      const ev = state.appendAudit(
-        "RUBRIC_GRADE_RUN_COMPLETED",
-        "grade_run",
-        grId,
-        "rubric-grading-worker",
-        {
-          question_id: ans.question_id,
-          rubric_version: paper.rubric_version,
-          transcript_version: latestRev.version_id,
-          ai_suggested_score: contract.final_score,
-        }
-      );
-      return jsonResp({ grade_run: grRecord, audit_event: ev });
+      try {
+        return jsonResp(gradeAnswerRun(state, slug[1]));
+      } catch (e: any) {
+        if (e instanceof GradeRequestError) return jsonResp({ detail: e.message }, e.status);
+        throw e;
+      }
+    }
+
+    if (slug[0] === "sessions" && slug[2] === "grade-all") {
+      const body = init?.body ? JSON.parse(String(init.body)) : {};
+      try {
+        return jsonResp(gradeWholeCopy(state, slug[1], body?.include_reviewed === true));
+      } catch (e: any) {
+        if (e instanceof GradeRequestError) return jsonResp({ detail: e.message }, e.status);
+        throw e;
+      }
     }
 
     if (slug[0] === "grade-runs" && slug[2] === "review") {
@@ -358,24 +328,16 @@ async function handleStaticFallback(url: string, init?: RequestInit): Promise<Re
       const gr = state.grade_runs[grId];
       if (!gr) return jsonResp({ detail: "Grade run not found" }, 404);
       const body = init?.body ? JSON.parse(String(init.body)) : {};
-      const maxM = Number(gr.contract.max_marks);
+      const decisionError = validateExaminerDecision(gr, body);
+      if (decisionError) return jsonResp({ detail: decisionError.detail }, decisionError.status);
       const revScore = Number(body.reviewed_final_score);
-      if (revScore < 0 || revScore > maxM) {
-        return jsonResp({ detail: `Reviewed score must be between 0 and ${maxM}` }, 400);
-      }
-      if (!body.override_reason || body.override_reason.trim().length < 5) {
-        return jsonResp(
-          { detail: "A substantive examiner reason is required for auditability." },
-          400
-        );
-      }
       const reviewEntry = {
-        review_id: `hr-${stableHashHex(String(Date.now())).slice(0, 8)}`,
+        review_id: `hr-${stableHashHex(`${Date.now()}-${Math.random()}`).slice(0, 8)}`,
         reviewer: body.reviewer || "Senior Examiner (sample reviewer)",
         action: body.action || "approved",
         ai_suggested_score: gr.contract.final_score,
         reviewed_final_score: Math.round(revScore * 100) / 100,
-        override_reason: body.override_reason.trim(),
+        override_reason: String(body.override_reason || "").trim(),
         created_at: new Date().toISOString(),
       };
       gr.human_reviews.push(reviewEntry);
@@ -441,36 +403,8 @@ async function handleStaticFallback(url: string, init?: RequestInit): Promise<Re
       };
       ans.revisions.push(newRev);
 
-      const paper = state.papers[ans.paper_id];
-      const qSpec = paper?.questions?.find((q: any) => q.question_id === ans.question_id);
-      if (paper && qSpec) {
-        const hasDis = ans.uncertain_spans.some((s: any) => !s.resolved_by_human);
-        const contract = evaluateRubricBoundedGrade(
-          qSpec,
-          newRev.text,
-          newRev.version_id,
-          paper.paper_id,
-          paper.rubric_version,
-          paper.status,
-          ans.page_number,
-          ans.bbox_norm,
-          ans.ocr_candidates[0]?.calibrated_confidence || 0.9,
-          hasDis
-        );
-        const grId = ans.latest_grade_run_id || `gr-${answerId}`;
-        const prevReviews = state.grade_runs[grId]?.human_reviews || [];
-        state.grade_runs[grId] = {
-          grade_run_id: grId,
-          answer_id: answerId,
-          session_id: ans.session_id,
-          paper_id: ans.paper_id,
-          question_id: ans.question_id,
-          created_at: new Date().toISOString(),
-          contract,
-          human_reviews: prevReviews,
-        };
-        ans.latest_grade_run_id = grId;
-      }
+      // Saving a transcript only adds an immutable revision. Marks are recalculated explicitly
+      // (single question or whole copy), so an examiner-reviewed mark is never replaced silently.
 
       const ev = state.appendAudit(
         "TRANSCRIPT_REVISION_SAVED",

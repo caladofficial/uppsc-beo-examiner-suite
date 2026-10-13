@@ -9,6 +9,10 @@ import {
   evaluateRubricBoundedGrade,
   validateUrlSsrfSafe,
   sanitizeUntrustedText,
+  validateExaminerDecision,
+  gradeAnswerRun,
+  gradeWholeCopy,
+  GradeRequestError,
 } from "@/lib/server-state";
 
 export const dynamic = "force-dynamic";
@@ -349,64 +353,22 @@ export async function POST(
 
   // Trigger Rubric-Bounded Grade Run
   if (slug[0] === "answers" && slug[2] === "grade") {
-    const answerId = slug[1];
-    const ans = state.answers[answerId];
-    if (!ans) {
-      return NextResponse.json({ detail: "Answer not found" }, { status: 404 });
+    try {
+      return NextResponse.json(gradeAnswerRun(state, slug[1]));
+    } catch (e: any) {
+      if (e instanceof GradeRequestError) return NextResponse.json({ detail: e.message }, { status: e.status });
+      throw e;
     }
-    const paper = state.papers[ans.paper_id];
-    const qSpec = paper.questions.find((q: any) => q.question_id === ans.question_id);
-    if (!qSpec) {
-      return NextResponse.json({ detail: "Question spec not found" }, { status: 400 });
+  }
+
+  if (slug[0] === "sessions" && slug[2] === "grade-all") {
+    const body = await req.json().catch(() => ({}));
+    try {
+      return NextResponse.json(gradeWholeCopy(state, slug[1], body?.include_reviewed === true));
+    } catch (e: any) {
+      if (e instanceof GradeRequestError) return NextResponse.json({ detail: e.message }, { status: e.status });
+      throw e;
     }
-    const latestRev = ans.revisions[ans.revisions.length - 1];
-    const hasDis = ans.uncertain_spans.some((s: any) => !s.resolved_by_human);
-
-    const contract = evaluateRubricBoundedGrade(
-      qSpec,
-      latestRev.text,
-      latestRev.version_id,
-      paper.paper_id,
-      paper.rubric_version,
-      paper.status,
-      ans.page_number,
-      ans.bbox_norm,
-      ans.ocr_candidates[0]?.calibrated_confidence || 0.88,
-      hasDis
-    );
-
-    const grId = `gr-${answerId}-r${Object.keys(state.grade_runs).length + 1}`;
-    const prevReviews =
-      ans.latest_grade_run_id && state.grade_runs[ans.latest_grade_run_id]
-        ? state.grade_runs[ans.latest_grade_run_id].human_reviews
-        : [];
-
-    const grRecord = {
-      grade_run_id: grId,
-      answer_id: answerId,
-      session_id: ans.session_id,
-      paper_id: ans.paper_id,
-      question_id: ans.question_id,
-      created_at: new Date().toISOString(),
-      contract,
-      human_reviews: prevReviews,
-    };
-    state.grade_runs[grId] = grRecord;
-    ans.latest_grade_run_id = grId;
-
-    const ev = state.appendAudit(
-      "RUBRIC_GRADE_RUN_COMPLETED",
-      "grade_run",
-      grId,
-      "rubric-grading-worker",
-      {
-        question_id: ans.question_id,
-        rubric_version: paper.rubric_version,
-        transcript_version: latestRev.version_id,
-        ai_suggested_score: contract.final_score,
-      }
-    );
-    return NextResponse.json({ grade_run: grRecord, audit_event: ev });
   }
 
   // Submit Examiner Review / Override
@@ -419,17 +381,9 @@ export async function POST(
     const body = await req.json();
     const maxM = Number(gr.contract.max_marks);
     const revScore = Number(body.reviewed_final_score);
-    if (revScore < 0 || revScore > maxM) {
-      return NextResponse.json(
-        { detail: `Reviewed score must be between 0 and ${maxM}` },
-        { status: 400 }
-      );
-    }
-    if (!body.override_reason || body.override_reason.trim().length < 5) {
-      return NextResponse.json(
-        { detail: "A substantive examiner reason is required for auditability." },
-        { status: 400 }
-      );
+    const decisionError = validateExaminerDecision(gr, body);
+    if (decisionError) {
+      return NextResponse.json({ detail: decisionError.detail }, { status: decisionError.status });
     }
 
     const reviewEntry = {

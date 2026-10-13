@@ -3,7 +3,29 @@
 Test: `/home/user/tests/e2e/ui_e2e.py <base_url> <screenshot_dir>`
 Browser: Chromium via Playwright, 1440 px desktop viewport.
 
-## Latest run (English / Hindi interface)
+## Latest run (two grading modes, server and static builds)
+
+| Build | Base URL | Result |
+|---|---|---|
+| Next.js server build (`next start`, fresh state) | `http://localhost:3000` | 86 / 86 |
+| Static GitHub Pages build (`GITHUB_PAGES=true`) | `http://localhost:8001/uppsc-beo-examiner-suite` | 86 / 86 |
+
+API tests: `python3 -m pytest tests/api -q` → 12 passed (single-question and whole-copy grading, confirmation gate, skip reasons, examiner decision rules).
+
+### Grading modes (Marks tab)
+
+- **One question:** confirm transcript → calculate marks → criterion adjustments → examiner decision. Calculation is blocked with a clear message until the transcript is confirmed; a stale-marks notice appears when the transcript has changed since marks were calculated.
+- **Whole copy:** one table for every answer on the candidate's copy (transcript status, suggested marks, decision status, Open). "Calculate marks for whole copy" grades every answer with a confirmed transcript. Answers already decided by an examiner are skipped unless "Also recalculate answers that already have a decision" is ticked; the run summary lists skipped answers and the reason.
+- **Decisions:** "Accept" keeps the suggested mark and needs no reason. "Change marks" needs a reason of at least 5 characters. "Return for transcript correction" needs no reason.
+
+### Fixes found by this test pass
+
+- Accepting a suggested mark without a reason failed with "could not be saved" in both backends. Accept now needs no reason and keeps the suggested mark.
+- Saving a transcript in the static build re-graded in place and overwrote the grade record. The live API did not. Both now only add an immutable transcript revision; marks are recalculated explicitly.
+- Decision rules now match in the Next route, the static client and FastAPI (`validateExaminerDecision` / `_run_grade`).
+- Grading now requires a confirmed transcript (HTTP 409 for single, `transcript_not_confirmed` skip for whole copy).
+
+## Earlier run (English / Hindi interface)
 
 | Build | Base URL | Result |
 |---|---|---|

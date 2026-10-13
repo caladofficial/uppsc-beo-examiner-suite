@@ -967,7 +967,7 @@ class ExaminerReviewRequest(BaseModel):
     reviewer: str = "Senior Examiner (sample reviewer)"
     action: str = "approved"  # approved | overridden | returned_for_transcript_correction
     reviewed_final_score: float
-    override_reason: str
+    override_reason: str = ""
 
 
 class SSRFCheckRequest(BaseModel):
@@ -1233,8 +1233,8 @@ def save_transcript_revision(answer_id: str, req: TranscriptPatchRequest):
     return {"answer": ans, "new_revision": new_rev, "audit_event": ev}
 
 
-@app.post("/v1/answers/{answer_id}/grade")
-def trigger_grade_run(answer_id: str):
+def _run_grade(answer_id: str):
+    """Grade one answer against its latest transcript. Shared by single-question and whole-copy grading."""
     if answer_id not in STATE["answers"]:
         raise HTTPException(status_code=404, detail="Answer region not found")
     ans = STATE["answers"][answer_id]
@@ -1244,6 +1244,8 @@ def trigger_grade_run(answer_id: str):
         raise HTTPException(status_code=400, detail=f"Question {ans['question_id']} not found in paper {paper['paper_id']}")
 
     latest_rev = ans["revisions"][-1]
+    if not latest_rev.get("is_confirmed_for_grading"):
+        raise HTTPException(status_code=409, detail="Confirm the transcript before calculating marks.")
     has_disagreement = any(not sp.get("resolved_by_human", False) for sp in ans["uncertain_spans"])
 
     contract = grader_mod.execute_rubric_bounded_grading(
@@ -1291,7 +1293,77 @@ def trigger_grade_run(answer_id: str):
             "needs_human_review": contract["needs_human_review"]
         }
     )
+    return grade_record, ev
+
+
+@app.post("/v1/answers/{answer_id}/grade")
+def trigger_grade_run(answer_id: str):
+    grade_record, ev = _run_grade(answer_id)
     return {"grade_run": grade_record, "audit_event": ev}
+
+
+class GradeWholeCopyRequest(BaseModel):
+    include_reviewed: bool = False
+
+
+@app.post("/v1/sessions/{session_id}/grade-all")
+def grade_whole_copy(session_id: str, body: Optional[GradeWholeCopyRequest] = None):
+    """Grade every answer on a candidate's copy. Answers already decided by an examiner are
+    skipped unless include_reviewed is set, so a re-run never silently replaces reviewed marks."""
+    if session_id not in STATE["sessions"]:
+        raise HTTPException(status_code=404, detail="Session not found")
+    include_reviewed = bool(body and body.include_reviewed)
+    sess = STATE["sessions"][session_id]
+
+    graded, skipped = [], []
+    for aid in sess["answer_ids"]:
+        ans = STATE["answers"][aid]
+        prev = STATE["grade_runs"].get(ans.get("latest_grade_run_id", ""))
+        if not ans.get("revisions"):
+            skipped.append({"answer_id": aid, "question_id": ans["question_id"], "reason": "no_transcript"})
+            continue
+        if not ans["revisions"][-1].get("is_confirmed_for_grading"):
+            skipped.append({"answer_id": aid, "question_id": ans["question_id"], "reason": "transcript_not_confirmed"})
+            continue
+        if prev and prev.get("human_reviews") and not include_reviewed:
+            skipped.append({"answer_id": aid, "question_id": ans["question_id"], "reason": "already_reviewed"})
+            continue
+        record, _ = _run_grade(aid)
+        c = record["contract"]
+        graded.append({
+            "answer_id": aid,
+            "question_id": ans["question_id"],
+            "grade_run_id": record["grade_run_id"],
+            "final_score": c["final_score"],
+            "max_marks": c["max_marks"],
+            "needs_human_review": c["needs_human_review"],
+            "word_limit_status": c.get("word_limit_status"),
+        })
+
+    total_suggested = round(sum(g["final_score"] for g in graded), 2)
+    total_max = round(sum(g["max_marks"] for g in graded), 2)
+    ev = append_audit_event(
+        event_type="RUBRIC_COPY_GRADE_RUN_COMPLETED",
+        entity_type="session",
+        entity_id=session_id,
+        actor="rubric-grading-worker",
+        metadata={
+            "graded_count": len(graded),
+            "skipped_count": len(skipped),
+            "total_suggested": total_suggested,
+            "include_reviewed": include_reviewed,
+        }
+    )
+    return {
+        "session_id": session_id,
+        "graded_count": len(graded),
+        "needs_review_count": sum(1 for g in graded if g["needs_human_review"]),
+        "total_suggested": total_suggested,
+        "total_max": total_max,
+        "answers": graded,
+        "skipped": skipped,
+        "audit_event": ev,
+    }
 
 
 @app.get("/v1/grade-runs/{grade_run_id}")
@@ -1309,8 +1381,13 @@ def submit_examiner_review(grade_run_id: str, req: ExaminerReviewRequest):
     max_m = float(gr["contract"]["max_marks"])
     if req.reviewed_final_score < 0 or req.reviewed_final_score > max_m:
         raise HTTPException(status_code=400, detail=f"Reviewed score must be between 0 and {max_m}")
-    if len(req.override_reason.strip()) < 5:
-        raise HTTPException(status_code=400, detail="A substantive examiner reason is required for auditability.")
+    if req.action not in ("approved", "overridden", "returned_for_transcript_correction"):
+        raise HTTPException(status_code=400, detail="Unknown decision type.")
+    reason = req.override_reason.strip()
+    if req.action == "overridden" and len(reason) < 5:
+        raise HTTPException(status_code=400, detail="A substantive examiner reason is required when the mark is changed.")
+    if req.action == "approved" and abs(req.reviewed_final_score - float(gr["contract"]["final_score"])) > 1e-9:
+        raise HTTPException(status_code=400, detail="Accepting keeps the suggested mark. Choose 'Change mark' to record a different mark.")
 
     review_entry = {
         "review_id": f"hr-{uuid.uuid4().hex[:8]}",
@@ -1318,7 +1395,7 @@ def submit_examiner_review(grade_run_id: str, req: ExaminerReviewRequest):
         "action": req.action,
         "ai_suggested_score": gr["contract"]["final_score"],
         "reviewed_final_score": round(req.reviewed_final_score, 2),
-        "override_reason": req.override_reason.strip(),
+        "override_reason": reason,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     # Append-only: preserves both AI suggestion and every human review record

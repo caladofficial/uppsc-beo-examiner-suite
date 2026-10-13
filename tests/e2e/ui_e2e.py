@@ -205,6 +205,43 @@ with sync_playwright() as p:
     page.screenshot(path=f"{SHOTS}/05_marks.png", full_page=True)
     leak_scan("marks")
 
+    # Accepting the suggested mark needs no reason (regression: accept used to fail with an empty reason)
+    decision.select_option("approved")
+    check("accept enables save without a reason", save_btn.is_enabled())
+    check("accept locks the mark to the suggestion", page.locator("#final-marks").is_disabled())
+    save_btn.click()
+    page.wait_for_timeout(900)
+    check("accept saved without error", "could not be saved" not in body())
+
+    # ---------- 4b. Marks: whole-copy mode ----------
+    page.get_by_role("button", name="Whole copy", exact=True).click()
+    page.wait_for_timeout(500)
+    check("whole-copy mode selected", page.get_by_role("button", name="Whole copy", exact=True).get_attribute("aria-pressed") == "true")
+    m = re.search(r"(\d+) of (\d+) answers have a decision", body())
+    check("whole-copy progress shown", m is not None)
+    rows_copy = page.locator("table tbody tr")
+    # Uploads can add answer regions to a sheet, so the total comes from the progress line, not a constant.
+    check("whole-copy lists every answer", m is not None and rows_copy.count() == int(m.group(2)), f"rows={rows_copy.count()} progress={m.group(0) if m else None}")
+    page.get_by_role("button", name="Calculate marks for whole copy").click()
+    page.wait_for_timeout(1500)
+    check("whole-copy run reports a result", "Marks calculated for" in body())
+    check("skipped answers are explained", "Answers skipped in the last run" in body() and "Already decided" in body())
+    page.get_by_role("checkbox", name=re.compile("recalculate")).check()
+    page.get_by_role("button", name="Calculate marks for whole copy").click()
+    page.wait_for_timeout(1500)
+    check("recalculating decided answers no longer skips them", "Already decided" not in body())
+    page.get_by_role("checkbox", name=re.compile("recalculate")).uncheck()
+    page.screenshot(path=f"{SHOTS}/05b_marks_copy.png", full_page=True)
+    leak_scan("marks copy")
+
+    # Open one row in one-question mode
+    rows_copy.nth(1).get_by_role("button", name="Open", exact=True).click()
+    page.wait_for_timeout(500)
+    check("Open switches to one-question mode", page.get_by_role("button", name="One question", exact=True).get_attribute("aria-pressed") == "true")
+    check("Open shows the chosen answer", page.locator("h2", has_text="Mock 17-04").count() >= 1)
+    page.get_by_role("button", name="Whole copy", exact=True).click()
+    page.wait_for_timeout(300)
+
     # ---------- 5. Report ----------
     tab("Report")
     check("report lists per-question rows", page.locator("tbody tr").count() >= 1)
@@ -236,7 +273,8 @@ with sync_playwright() as p:
     check("Hindi handwriting labels shown", "प्रतिलेख" in body() and "पठन" in body())
     page.get_by_role("button", name="अंक", exact=True).click()
     page.wait_for_timeout(400)
-    check("Hindi marks button shown", page.get_by_role("button", name=re.compile("अंक (गणना|पुनः)")).count() >= 1)
+    check("Hindi grading modes shown", "एक प्रश्न" in body() and "पूरी कॉपी" in body())
+    check("Hindi marks button shown", page.get_by_role("button", name=re.compile("अंक (गणना|पुनः|निकालें)")).count() >= 1)
     page.get_by_role("button", name="रिपोर्ट", exact=True).click()
     page.wait_for_timeout(400)
     check("Hindi report export label shown", "रिपोर्ट निर्यात करें (JSON)" in body())
