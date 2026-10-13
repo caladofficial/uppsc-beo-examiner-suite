@@ -27,7 +27,7 @@ def answers_of(client, session=SESSION):
     return client.get(f"/v1/sessions/{session}/answers").json()["answers"]
 
 
-def fresh_answer(client, session=SESSION, skip_graded=False):
+def fresh_answer(client, session=SESSION):
     """Return an answer id with a confirmed transcript; tests mutate state so they pick one fresh."""
     for a in answers_of(client, session):
         if a["revisions"] and a["revisions"][-1]["is_confirmed_for_grading"]:

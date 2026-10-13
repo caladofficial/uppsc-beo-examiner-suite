@@ -1,0 +1,12 @@
+# FastAPI service (apps/api). Install: pip install -r apps/api/requirements.txt
+# Versions used for the verified run; ranges are the minimum tested.
+fastapi>=0.143.0
+uvicorn>=0.54.0
+pydantic>=2.13.5
+python-multipart>=0.0.32
+pymupdf>=1.28.2
+pillow>=12.3.0
+numpy>=2.3.5
+httpx>=0.28.1
+pytest>=9.0.3
+# Playwright (tests/e2e): playwright>=1.40  then: playwright install chromium

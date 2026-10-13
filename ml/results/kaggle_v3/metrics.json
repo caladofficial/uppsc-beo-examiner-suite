@@ -1,0 +1,79 @@
+{
+  "device": "cpu",
+  "dataset": "ashokpant/devanagari-character-dataset (NHCD handwritten Devanagari)",
+  "task": "isolated handwritten Devanagari character classification (HTR building block, not full-line HTR)",
+  "images": 12912,
+  "classes": 58,
+  "split": {
+    "train": 10364,
+    "val": 1274,
+    "test": 1274
+  },
+  "epochs_planned": 12,
+  "epochs_run": 12,
+  "parameters": 1446186,
+  "best_val_acc": 0.9819,
+  "test_acc": 0.9827,
+  "test_loss": 0.0955,
+  "test_macro_f1": 0.9816,
+  "test_weighted_f1": 0.9828,
+  "majority_class_baseline_acc": 0.0228,
+  "per_category_test_acc": {
+    "consonants": 0.9764,
+    "numerals": 0.9931,
+    "vowels": 0.9886
+  },
+  "top_confusions": [
+    {
+      "count": 1,
+      "true": "vowels/5",
+      "predicted": "consonants/13"
+    },
+    {
+      "count": 1,
+      "true": "vowels/3",
+      "predicted": "numerals/3"
+    },
+    {
+      "count": 1,
+      "true": "vowels/12",
+      "predicted": "consonants/9"
+    },
+    {
+      "count": 1,
+      "true": "numerals/9",
+      "predicted": "consonants/13"
+    },
+    {
+      "count": 1,
+      "true": "numerals/3",
+      "predicted": "vowels/3"
+    },
+    {
+      "count": 1,
+      "true": "consonants/5",
+      "predicted": "consonants/13"
+    },
+    {
+      "count": 1,
+      "true": "consonants/4",
+      "predicted": "consonants/19"
+    },
+    {
+      "count": 1,
+      "true": "consonants/36",
+      "predicted": "consonants/8"
+    },
+    {
+      "count": 1,
+      "true": "consonants/36",
+      "predicted": "consonants/4"
+    },
+    {
+      "count": 1,
+      "true": "consonants/36",
+      "predicted": "consonants/30"
+    }
+  ],
+  "train_seconds": 1002.0
+}

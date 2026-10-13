@@ -26,7 +26,7 @@ EPOCHS = int(os.environ.get("EPOCHS", 12))
 TIME_BUDGET_S = 30 * 60  # stop early and still score the test split
 BATCH = 128
 IMG = 32
-OUT = Path("/kaggle/working")
+OUT = Path(os.environ.get("OUT_DIR", "/kaggle/working"))
 random.seed(SEED)
 np.random.seed(SEED)
 torch.manual_seed(SEED)
@@ -34,7 +34,7 @@ dev = "cuda" if torch.cuda.is_available() else "cpu"
 print("device", dev, "torch", torch.__version__, flush=True)
 
 # ---------- data ----------
-root = next(Path("/kaggle/input").rglob("nhcd"))
+root = next(Path(os.environ.get("DATA_DIR", "/kaggle/input")).rglob("nhcd"))
 samples = []
 for img in root.rglob("*.jpg"):
     rel = img.relative_to(root).parts  # e.g. ('nhcd', 'vowels', '9', '046_02.jpg')
@@ -122,7 +122,7 @@ print("parameters", n_params, flush=True)
 opt = torch.optim.AdamW(model.parameters(), lr=3e-3, weight_decay=5e-4)
 sched = torch.optim.lr_scheduler.OneCycleLR(opt, max_lr=3e-3, epochs=EPOCHS, steps_per_epoch=len(train_dl))
 use_amp = dev == "cuda"
-scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
 
 
 def evaluate(dl, return_preds=False):

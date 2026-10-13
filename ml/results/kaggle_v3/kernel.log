@@ -1,0 +1,119 @@
+[{"stream_name":"stdout","time":17.603546812,"data":"device cpu torch 2.11.0+cpu\n"}
+,{"stream_name":"stdout","time":33.765664976,"data":"images 12912 classes 58\n"}
+,{"stream_name":"stdout","time":33.776727663,"data":"split train/val/test 10364 1274 1274\n"}
+,{"stream_name":"stdout","time":33.868081296,"data":"parameters 1446186\n"}
+,{"stream_name":"stderr","time":33.868578452,"data":"/kaggle/src/script.py:125: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.\n"}
+,{"stream_name":"stderr","time":33.868588741,"data":"  scaler = torch.cuda.amp.GradScaler(enabled=use_amp)\n"}
+,{"stream_name":"stderr","time":33.872735166,"data":"/usr/local/lib/python3.13/dist-packages/torch/utils/data/dataloader.py:775: UserWarning: 'pin_memory' argument is set as true but no accelerator is found, then device pinned memory won't be used.\n"}
+,{"stream_name":"stderr","time":33.872766452,"data":"  super().__init__(loader)\n"}
+,{"stream_name":"stdout","time":141.934699646,"data":"{\"epoch\": 1, \"train_loss\": 3.3412, \"train_acc\": 0.2037, \"val_loss\": 1.4124, \"val_acc\": 0.6374, \"seconds\": 108.1}\n"}
+,{"stream_name":"stdout","time":141.93474377,"data":"progress 1 val_acc 0.6374\n"}
+,{"stream_name":"stdout","time":221.863263345,"data":"{\"epoch\": 2, \"train_loss\": 1.5168, \"train_acc\": 0.6653, \"val_loss\": 0.4897, \"val_acc\": 0.8619, \"seconds\": 188.0}\n"}
+,{"stream_name":"stdout","time":221.863321925,"data":"progress 2 val_acc 0.8619\n"}
+,{"stream_name":"stdout","time":303.210919117,"data":"{\"epoch\": 3, \"train_loss\": 1.1085, \"train_acc\": 0.8065, \"val_loss\": 0.417, \"val_acc\": 0.8846, \"seconds\": 269.3}\n"}
+,{"stream_name":"stdout","time":303.210961916,"data":"progress 3 val_acc 0.8846\n"}
+,{"stream_name":"stdout","time":382.801429932,"data":"{\"epoch\": 4, \"train_loss\": 0.9911, \"train_acc\": 0.8503, \"val_loss\": 0.3562, \"val_acc\": 0.8925, \"seconds\": 348.9}\n"}
+,{"stream_name":"stdout","time":382.801476577,"data":"progress 4 val_acc 0.8925\n"}
+,{"stream_name":"stdout","time":462.219230515,"data":"{\"epoch\": 5, \"train_loss\": 0.8689, \"train_acc\": 0.895, \"val_loss\": 0.2354, \"val_acc\": 0.9388, \"seconds\": 428.4}\n"}
+,{"stream_name":"stdout","time":462.219294498,"data":"progress 5 val_acc 0.9388\n"}
+,{"stream_name":"stdout","time":541.899367659,"data":"{\"epoch\": 6, \"train_loss\": 0.7851, \"train_acc\": 0.9205, \"val_loss\": 0.1842, \"val_acc\": 0.956, \"seconds\": 508.0}\n"}
+,{"stream_name":"stdout","time":541.899427139,"data":"progress 6 val_acc 0.956\n"}
+,{"stream_name":"stdout","time":622.127581577,"data":"{\"epoch\": 7, \"train_loss\": 0.7195, \"train_acc\": 0.941, \"val_loss\": 0.1524, \"val_acc\": 0.9694, \"seconds\": 588.3}\n"}
+,{"stream_name":"stdout","time":622.127653437,"data":"progress 7 val_acc 0.9694\n"}
+,{"stream_name":"stdout","time":703.434761554,"data":"{\"epoch\": 8, \"train_loss\": 0.6718, \"train_acc\": 0.9537, \"val_loss\": 0.1257, \"val_acc\": 0.971, \"seconds\": 669.6}\n"}
+,{"stream_name":"stdout","time":703.434851341,"data":"progress 8 val_acc 0.971\n"}
+,{"stream_name":"stdout","time":783.958333405,"data":"{\"epoch\": 9, \"train_loss\": 0.6432, \"train_acc\": 0.9646, \"val_loss\": 0.13, \"val_acc\": 0.9741, \"seconds\": 750.1}\n"}
+,{"stream_name":"stdout","time":783.958380377,"data":"progress 9 val_acc 0.9741\n"}
+,{"stream_name":"stdout","time":864.800237733,"data":"{\"epoch\": 10, \"train_loss\": 0.6073, \"train_acc\": 0.9717, \"val_loss\": 0.1153, \"val_acc\": 0.9788, \"seconds\": 830.9}\n"}
+,{"stream_name":"stdout","time":864.800283682,"data":"progress 10 val_acc 0.9788\n"}
+,{"stream_name":"stdout","time":945.817383014,"data":"{\"epoch\": 11, \"train_loss\": 0.5925, \"train_acc\": 0.9781, \"val_loss\": 0.1076, \"val_acc\": 0.9804, \"seconds\": 911.9}\n"}
+,{"stream_name":"stdout","time":945.817449305,"data":"progress 11 val_acc 0.9804\n"}
+,{"stream_name":"stdout","time":1026.888108501,"data":"{\"epoch\": 12, \"train_loss\": 0.5876, \"train_acc\": 0.9797, \"val_loss\": 0.1061, \"val_acc\": 0.9819, \"seconds\": 993.0}\n"}
+,{"stream_name":"stdout","time":1026.888162618,"data":"progress 12 val_acc 0.9819\n"}
+,{"stream_name":"stdout","time":1035.911498436,"data":"{\n"}
+,{"stream_name":"stdout","time":1035.911541606,"data":" \"device\": \"cpu\",\n"}
+,{"stream_name":"stdout","time":1035.911548139,"data":" \"dataset\": \"ashokpant/devanagari-character-dataset (NHCD handwritten Devanagari)\",\n"}
+,{"stream_name":"stdout","time":1035.911553685,"data":" \"task\": \"isolated handwritten Devanagari character classification (HTR building block, not full-line HTR)\",\n"}
+,{"stream_name":"stdout","time":1035.911628897,"data":" \"images\": 12912,\n"}
+,{"stream_name":"stdout","time":1035.911634188,"data":" \"classes\": 58,\n"}
+,{"stream_name":"stdout","time":1035.911637735,"data":" \"split\": {\n"}
+,{"stream_name":"stdout","time":1035.911640832,"data":"  \"train\": 10364,\n"}
+,{"stream_name":"stdout","time":1035.911643876,"data":"  \"val\": 1274,\n"}
+,{"stream_name":"stdout","time":1035.911646883,"data":"  \"test\": 1274\n"}
+,{"stream_name":"stdout","time":1035.911649926,"data":" },\n"}
+,{"stream_name":"stdout","time":1035.911652929,"data":" \"epochs_planned\": 12,\n"}
+,{"stream_name":"stdout","time":1035.911655812,"data":" \"epochs_run\": 12,\n"}
+,{"stream_name":"stdout","time":1035.911658643,"data":" \"parameters\": 1446186,\n"}
+,{"stream_name":"stdout","time":1035.911661553,"data":" \"best_val_acc\": 0.9819,\n"}
+,{"stream_name":"stdout","time":1035.911664362,"data":" \"test_acc\": 0.9827,\n"}
+,{"stream_name":"stdout","time":1035.911667172,"data":" \"test_loss\": 0.0955,\n"}
+,{"stream_name":"stdout","time":1035.911669987,"data":" \"test_macro_f1\": 0.9816,\n"}
+,{"stream_name":"stdout","time":1035.911672878,"data":" \"test_weighted_f1\": 0.9828,\n"}
+,{"stream_name":"stdout","time":1035.911676188,"data":" \"majority_class_baseline_acc\": 0.0228,\n"}
+,{"stream_name":"stdout","time":1035.911679105,"data":" \"per_category_test_acc\": {\n"}
+,{"stream_name":"stdout","time":1035.911681969,"data":"  \"consonants\": 0.9764,\n"}
+,{"stream_name":"stdout","time":1035.91168483,"data":"  \"numerals\": 0.9931,\n"}
+,{"stream_name":"stdout","time":1035.911687657,"data":"  \"vowels\": 0.9886\n"}
+,{"stream_name":"stdout","time":1035.911690536,"data":" },\n"}
+,{"stream_name":"stdout","time":1035.911693319,"data":" \"top_confusions\": [\n"}
+,{"stream_name":"stdout","time":1035.911696147,"data":"  {\n"}
+,{"stream_name":"stdout","time":1035.911698988,"data":"   \"count\": 1,\n"}
+,{"stream_name":"stdout","time":1035.911701857,"data":"   \"true\": \"vowels/5\",\n"}
+,{"stream_name":"stdout","time":1035.911704859,"data":"   \"predicted\": \"consonants/13\"\n"}
+,{"stream_name":"stdout","time":1035.911707845,"data":"  },\n"}
+,{"stream_name":"stdout","time":1035.911710625,"data":"  {\n"}
+,{"stream_name":"stdout","time":1035.911713339,"data":"   \"count\": 1,\n"}
+,{"stream_name":"stdout","time":1035.911716092,"data":"   \"true\": \"vowels/3\",\n"}
+,{"stream_name":"stdout","time":1035.911718954,"data":"   \"predicted\": \"numerals/3\"\n"}
+,{"stream_name":"stdout","time":1035.911722035,"data":"  },\n"}
+,{"stream_name":"stdout","time":1035.911724847,"data":"  {\n"}
+,{"stream_name":"stdout","time":1035.911727583,"data":"   \"count\": 1,\n"}
+,{"stream_name":"stdout","time":1035.911730342,"data":"   \"true\": \"vowels/12\",\n"}
+,{"stream_name":"stdout","time":1035.911746693,"data":"   \"predicted\": \"consonants/9\"\n"}
+,{"stream_name":"stdout","time":1035.911749383,"data":"  },\n"}
+,{"stream_name":"stdout","time":1035.911751714,"data":"  {\n"}
+,{"stream_name":"stdout","time":1035.911753898,"data":"   \"count\": 1,\n"}
+,{"stream_name":"stdout","time":1035.911756326,"data":"   \"true\": \"numerals/9\",\n"}
+,{"stream_name":"stdout","time":1035.911758772,"data":"   \"predicted\": \"consonants/13\"\n"}
+,{"stream_name":"stdout","time":1035.911761139,"data":"  },\n"}
+,{"stream_name":"stdout","time":1035.911763331,"data":"  {\n"}
+,{"stream_name":"stdout","time":1035.911765609,"data":"   \"count\": 1,\n"}
+,{"stream_name":"stdout","time":1035.911767846,"data":"   \"true\": \"numerals/3\",\n"}
+,{"stream_name":"stdout","time":1035.911770198,"data":"   \"predicted\": \"vowels/3\"\n"}
+,{"stream_name":"stdout","time":1035.911772524,"data":"  },\n"}
+,{"stream_name":"stdout","time":1035.911774894,"data":"  {\n"}
+,{"stream_name":"stdout","time":1035.911777351,"data":"   \"count\": 1,\n"}
+,{"stream_name":"stdout","time":1035.911779676,"data":"   \"true\": \"consonants/5\",\n"}
+,{"stream_name":"stdout","time":1035.911820318,"data":"   \"predicted\": \"consonants/13\"\n"}
+,{"stream_name":"stdout","time":1035.911831529,"data":"  },\n"}
+,{"stream_name":"stdout","time":1035.911835402,"data":"  {\n"}
+,{"stream_name":"stdout","time":1035.911839351,"data":"   \"count\": 1,\n"}
+,{"stream_name":"stdout","time":1035.911842797,"data":"   \"true\": \"consonants/4\",\n"}
+,{"stream_name":"stdout","time":1035.911946409,"data":"   \"predicted\": \"consonants/19\"\n"}
+,{"stream_name":"stdout","time":1035.911949395,"data":"  },\n"}
+,{"stream_name":"stdout","time":1035.911952175,"data":"  {\n"}
+,{"stream_name":"stdout","time":1035.911954566,"data":"   \"count\": 1,\n"}
+,{"stream_name":"stdout","time":1035.91195699,"data":"   \"true\": \"consonants/36\",\n"}
+,{"stream_name":"stdout","time":1035.911959667,"data":"   \"predicted\": \"consonants/8\"\n"}
+,{"stream_name":"stdout","time":1035.911962218,"data":"  },\n"}
+,{"stream_name":"stdout","time":1035.911964486,"data":"  {\n"}
+,{"stream_name":"stdout","time":1035.911966698,"data":"   \"count\": 1,\n"}
+,{"stream_name":"stdout","time":1035.911969067,"data":"   \"true\": \"consonants/36\",\n"}
+,{"stream_name":"stdout","time":1035.911971565,"data":"   \"predicted\": \"consonants/4\"\n"}
+,{"stream_name":"stdout","time":1035.911974009,"data":"  },\n"}
+,{"stream_name":"stdout","time":1035.911976178,"data":"  {\n"}
+,{"stream_name":"stdout","time":1035.911978609,"data":"   \"count\": 1,\n"}
+,{"stream_name":"stdout","time":1035.911980926,"data":"   \"true\": \"consonants/36\",\n"}
+,{"stream_name":"stdout","time":1035.911983403,"data":"   \"predicted\": \"consonants/30\"\n"}
+,{"stream_name":"stdout","time":1035.911985923,"data":"  }\n"}
+,{"stream_name":"stdout","time":1035.911988475,"data":" ],\n"}
+,{"stream_name":"stdout","time":1035.911991006,"data":" \"train_seconds\": 1002.0\n"}
+,{"stream_name":"stdout","time":1035.911993462,"data":"}\n"}
+,{"stream_name":"stdout","time":1035.94242415,"data":"saved outputs\n"}
+,{"stream_name":"stderr","time":1040.371216977,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":1040.371272449,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":1040.810702849,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":1040.810743414,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":1041.889366388,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":1043.339521017,"data":"[NbConvertApp] Writing 328272 bytes to __results__.html\n"}
+]
