@@ -49,11 +49,29 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 _SERVICE_KEY = os.environ.get("SERVICE_KEY", "").strip()
 
 
+def _token_ok(token: str) -> bool:
+    """Short-lived token from the website server: "<unix time>.<HMAC of the time with the shared key>"."""
+    import hashlib
+    import hmac
+    import time
+    try:
+        ts, sig = token.split(".", 1)
+        stamp = int(ts)
+    except ValueError:
+        return False
+    if abs(time.time() - stamp) > 600:
+        return False
+    expected = hmac.new(_SERVICE_KEY.encode(), ts.encode(), hashlib.sha256).hexdigest()
+    return hmac.compare_digest(expected, sig)
+
+
 @app.middleware("http")
 async def _require_key(request, call_next):
     from fastapi.responses import JSONResponse
     if _SERVICE_KEY and request.url.path != "/health" and request.method != "OPTIONS":
-        if request.headers.get("x-service-key", "") != _SERVICE_KEY:
+        key_ok = request.headers.get("x-service-key", "") == _SERVICE_KEY
+        token_ok = _token_ok(request.headers.get("x-service-token", ""))
+        if not (key_ok or token_ok):
             return JSONResponse({"detail": "Not authorised."}, status_code=401)
     return await call_next(request)
 

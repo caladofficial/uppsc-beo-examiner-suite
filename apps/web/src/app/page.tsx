@@ -145,7 +145,16 @@ export default function AnswerCheckPage() {
       form.set("paper_id", paperId);
       form.set("question_id", questionId);
       form.set("file", file);
-      const res = await fetch("/api/grade", { method: "POST", body: form });
+      // Upload straight to the answer-check service with a short-lived token (the hosting platform
+      // limits request bodies to a few megabytes, too small for a multi-page sheet).
+      const tokRes = await fetch("/api/token", { cache: "no-store" });
+      if (!tokRes.ok) throw new Error("token");
+      const tok = (await tokRes.json()) as { url: string; token: string };
+      const res = await fetch(`${tok.url}/grade`, {
+        method: "POST",
+        body: form,
+        headers: { "x-service-token": tok.token },
+      });
       if (!res.ok) throw new Error("check failed");
       setResult((await res.json()) as GradeResult);
     } catch {
