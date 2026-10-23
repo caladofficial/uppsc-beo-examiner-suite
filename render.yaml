@@ -1,8 +1,12 @@
-# Render Blueprint for the answer-check service (grading API).
-# In Render: New > Blueprint > pick this repository. Then fill in the secret values when asked:
-#   GROQ_API_KEY  - your Groq key (rotate the one used during setup first)
-#   SERVICE_KEY   - a long random string; the website's server uses the same value as CHECK_SERVICE_KEY
-# Copy the service URL Render gives you into the website's CHECK_SERVICE_URL setting on Vercel.
+# Render Blueprint for the answer-check service (grading API). Free plan.
+# Setup in Render: New > Blueprint > choose this repository.
+# Render asks for two secret values:
+#   GROQ_API_KEY  - your Groq key (use a new key, the old one was shared in chat)
+#   SERVICE_KEY   - a long random string. The website's server needs the same value (CHECK_SERVICE_KEY on Vercel).
+# When the service is live, Render shows its URL. Send that URL to set the website's CHECK_SERVICE_URL.
+# Free-plan notes: the service sleeps after about 15 minutes without traffic, so the first request after a
+# pause takes about a minute to wake it. It has no persistent disk, so the cached model answers are rebuilt
+# after a restart.
 services:
   - type: web
     name: uppsc-answer-check
@@ -10,7 +14,7 @@ services:
     dockerfilePath: ./services/answer-check/Dockerfile
     dockerContext: .
     healthCheckPath: /health
-    plan: standard
+    plan: free
     envVars:
       - key: GROQ_API_KEY
         sync: false

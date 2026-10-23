@@ -44,7 +44,13 @@ def _load(name: str, path: str):
     return mod
 
 
-HTR = _load("htr_pipeline", os.path.join(ADAPTERS, "htr_pipeline.py"))
+# The handwriting fallback needs PyTorch. The free hosting image leaves PyTorch out, so the fallback is
+# simply unavailable there; the vision reader is the primary reader either way.
+try:
+    HTR = _load("htr_pipeline", os.path.join(ADAPTERS, "htr_pipeline.py"))
+except ImportError as _exc:
+    print(f"[answer_check] fallback handwriting reader unavailable: {_exc}", file=sys.stderr)
+    HTR = None
 
 app = FastAPI(title="Answer check service", version="1.0.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -177,6 +183,8 @@ def _read_lines(raw: bytes, filename: str) -> Tuple[List[str], Dict[str, Any]]:
             lines.extend(ln.strip() for ln in text.splitlines() if ln.strip())
             continue
         info["fallback_pages"] += 1
+        if HTR is None:
+            continue
         res = HTR.recognise(img, HTR.Config(), *HTR.load_default_model())
         lines.extend(seg.text.strip() for seg in res.segments if seg.text.strip())
     return lines, info
