@@ -1,0 +1,371 @@
+{
+  "model": {
+    "file": "crnn_best.pt",
+    "params": 876860,
+    "fp32_mb": 3.53,
+    "charset": 139,
+    "int8_mb": 1.26
+  },
+  "validation_grid": [
+    {
+      "deskew": false,
+      "binarise": "none",
+      "remove_rules": true,
+      "cer": 0.4327,
+      "wer": 1.0987,
+      "line_recall": 1.0,
+      "spurious_segments": 0,
+      "review_flag_f1": 0.073,
+      "review_precision": 1.0,
+      "review_recall": 0.0379,
+      "sec_per_page": 0.089
+    },
+    {
+      "deskew": true,
+      "binarise": "none",
+      "remove_rules": false,
+      "cer": 0.4425,
+      "wer": 1.0405,
+      "line_recall": 1.0,
+      "spurious_segments": 0,
+      "review_flag_f1": 0.1538,
+      "review_precision": 1.0,
+      "review_recall": 0.0833,
+      "sec_per_page": 0.114
+    },
+    {
+      "deskew": true,
+      "binarise": "none",
+      "remove_rules": true,
+      "cer": 0.4436,
+      "wer": 1.0937,
+      "line_recall": 1.0,
+      "spurious_segments": 0,
+      "review_flag_f1": 0.087,
+      "review_precision": 1.0,
+      "review_recall": 0.0455,
+      "sec_per_page": 0.128
+    },
+    {
+      "deskew": false,
+      "binarise": "none",
+      "remove_rules": false,
+      "cer": 0.4483,
+      "wer": 1.0658,
+      "line_recall": 1.0,
+      "spurious_segments": 0,
+      "review_flag_f1": 0.1277,
+      "review_precision": 1.0,
+      "review_recall": 0.0682,
+      "sec_per_page": 0.083
+    },
+    {
+      "deskew": true,
+      "binarise": "clahe",
+      "remove_rules": true,
+      "cer": 0.4709,
+      "wer": 0.9975,
+      "line_recall": 1.0,
+      "spurious_segments": 0,
+      "review_flag_f1": 0.1277,
+      "review_precision": 1.0,
+      "review_recall": 0.0682,
+      "sec_per_page": 0.132
+    },
+    {
+      "deskew": false,
+      "binarise": "otsu",
+      "remove_rules": true,
+      "cer": 0.4842,
+      "wer": 1.1443,
+      "line_recall": 1.0,
+      "spurious_segments": 0,
+      "review_flag_f1": 0.1143,
+      "review_precision": 1.0,
+      "review_recall": 0.0606,
+      "sec_per_page": 0.088
+    },
+    {
+      "deskew": true,
+      "binarise": "otsu",
+      "remove_rules": true,
+      "cer": 0.4928,
+      "wer": 1.0911,
+      "line_recall": 1.0,
+      "spurious_segments": 0,
+      "review_flag_f1": 0.1408,
+      "review_precision": 1.0,
+      "review_recall": 0.0758,
+      "sec_per_page": 0.132
+    },
+    {
+      "deskew": false,
+      "binarise": "otsu",
+      "remove_rules": false,
+      "cer": 0.499,
+      "wer": 1.1241,
+      "line_recall": 1.0,
+      "spurious_segments": 0,
+      "review_flag_f1": 0.1667,
+      "review_precision": 1.0,
+      "review_recall": 0.0909,
+      "sec_per_page": 0.081
+    },
+    {
+      "deskew": true,
+      "binarise": "otsu",
+      "remove_rules": false,
+      "cer": 0.5025,
+      "wer": 1.0658,
+      "line_recall": 1.0,
+      "spurious_segments": 0,
+      "review_flag_f1": 0.2041,
+      "review_precision": 1.0,
+      "review_recall": 0.1136,
+      "sec_per_page": 0.12
+    },
+    {
+      "deskew": false,
+      "binarise": "clahe",
+      "remove_rules": true,
+      "cer": 0.6808,
+      "wer": 1.0253,
+      "line_recall": 1.0,
+      "spurious_segments": 0,
+      "review_flag_f1": 0.4471,
+      "review_precision": 1.0,
+      "review_recall": 0.2879,
+      "sec_per_page": 0.095
+    },
+    {
+      "deskew": true,
+      "binarise": "clahe",
+      "remove_rules": false,
+      "cer": 0.6918,
+      "wer": 1.0025,
+      "line_recall": 1.0,
+      "spurious_segments": 0,
+      "review_flag_f1": 0.4379,
+      "review_precision": 1.0,
+      "review_recall": 0.2803,
+      "sec_per_page": 0.126
+    },
+    {
+      "deskew": false,
+      "binarise": "clahe",
+      "remove_rules": false,
+      "cer": 0.7838,
+      "wer": 1.0076,
+      "line_recall": 1.0,
+      "spurious_segments": 0,
+      "review_flag_f1": 0.5957,
+      "review_precision": 1.0,
+      "review_recall": 0.4242,
+      "sec_per_page": 0.091
+    }
+  ],
+  "validation_tau_sweep": [
+    {
+      "tau": 0.3,
+      "review_flag_f1": 0.0,
+      "review_precision": 0.0,
+      "review_recall": 0.0
+    },
+    {
+      "tau": 0.35,
+      "review_flag_f1": 0.0,
+      "review_precision": 0.0,
+      "review_recall": 0.0
+    },
+    {
+      "tau": 0.4,
+      "review_flag_f1": 0.0,
+      "review_precision": 0.0,
+      "review_recall": 0.0
+    },
+    {
+      "tau": 0.45,
+      "review_flag_f1": 0.0,
+      "review_precision": 0.0,
+      "review_recall": 0.0
+    },
+    {
+      "tau": 0.5,
+      "review_flag_f1": 0.0444,
+      "review_precision": 1.0,
+      "review_recall": 0.0227
+    },
+    {
+      "tau": 0.55,
+      "review_flag_f1": 0.073,
+      "review_precision": 1.0,
+      "review_recall": 0.0379
+    },
+    {
+      "tau": 0.6,
+      "review_flag_f1": 0.1667,
+      "review_precision": 1.0,
+      "review_recall": 0.0909
+    },
+    {
+      "tau": 0.65,
+      "review_flag_f1": 0.3185,
+      "review_precision": 1.0,
+      "review_recall": 0.1894
+    },
+    {
+      "tau": 0.7,
+      "review_flag_f1": 0.4828,
+      "review_precision": 1.0,
+      "review_recall": 0.3182
+    },
+    {
+      "tau": 0.75,
+      "review_flag_f1": 0.6734,
+      "review_precision": 1.0,
+      "review_recall": 0.5076
+    },
+    {
+      "tau": 0.8,
+      "review_flag_f1": 0.7606,
+      "review_precision": 1.0,
+      "review_recall": 0.6136
+    },
+    {
+      "tau": 0.85,
+      "review_flag_f1": 0.9046,
+      "review_precision": 1.0,
+      "review_recall": 0.8258
+    },
+    {
+      "tau": 0.9,
+      "review_flag_f1": 0.9606,
+      "review_precision": 1.0,
+      "review_recall": 0.9242
+    }
+  ],
+  "chosen_config": {
+    "deskew": false,
+    "binarise": "none",
+    "remove_rules": true,
+    "conf_flag": 0.9
+  },
+  "test_chosen_config": {
+    "cer": 0.4634,
+    "wer": 1.1551,
+    "line_recall": 0.9962,
+    "spurious_segments": 0,
+    "review_flag_f1": 0.9543,
+    "review_precision": 1.0,
+    "review_recall": 0.9125,
+    "sec_per_page": 0.085
+  },
+  "test_int8": {
+    "cer": 0.4618,
+    "wer": 1.1511,
+    "line_recall": 0.9962,
+    "spurious_segments": 0,
+    "review_flag_f1": 0.9563,
+    "review_precision": 1.0,
+    "review_recall": 0.9163,
+    "sec_per_page": 0.105
+  },
+  "test_per_copy": [
+    {
+      "copy": "test_copy_00.jpg",
+      "cer": 0.4597,
+      "wer": 1.1774,
+      "line_recall": 1.0,
+      "flagged_lines": 18,
+      "skew_deg": 0.0
+    },
+    {
+      "copy": "test_copy_01.jpg",
+      "cer": 0.4615,
+      "wer": 1.339,
+      "line_recall": 1.0,
+      "flagged_lines": 22,
+      "skew_deg": 0.0
+    },
+    {
+      "copy": "test_copy_02.jpg",
+      "cer": 0.4118,
+      "wer": 0.9552,
+      "line_recall": 1.0,
+      "flagged_lines": 18,
+      "skew_deg": 0.0
+    },
+    {
+      "copy": "test_copy_03.jpg",
+      "cer": 0.5056,
+      "wer": 1.2698,
+      "line_recall": 0.9545,
+      "flagged_lines": 22,
+      "skew_deg": 0.0
+    },
+    {
+      "copy": "test_copy_04.jpg",
+      "cer": 0.4805,
+      "wer": 1.15,
+      "line_recall": 1.0,
+      "flagged_lines": 21,
+      "skew_deg": 0.0
+    },
+    {
+      "copy": "test_copy_05.jpg",
+      "cer": 0.5296,
+      "wer": 1.25,
+      "line_recall": 1.0,
+      "flagged_lines": 20,
+      "skew_deg": 0.0
+    },
+    {
+      "copy": "test_copy_06.jpg",
+      "cer": 0.3787,
+      "wer": 1.1224,
+      "line_recall": 1.0,
+      "flagged_lines": 18,
+      "skew_deg": 0.0
+    },
+    {
+      "copy": "test_copy_07.jpg",
+      "cer": 0.3528,
+      "wer": 0.9383,
+      "line_recall": 1.0,
+      "flagged_lines": 20,
+      "skew_deg": 0.0
+    },
+    {
+      "copy": "test_copy_08.jpg",
+      "cer": 0.5799,
+      "wer": 1.4561,
+      "line_recall": 1.0,
+      "flagged_lines": 21,
+      "skew_deg": 0.0
+    },
+    {
+      "copy": "test_copy_09.jpg",
+      "cer": 0.5254,
+      "wer": 1.0294,
+      "line_recall": 1.0,
+      "flagged_lines": 21,
+      "skew_deg": 0.0
+    },
+    {
+      "copy": "test_copy_10.jpg",
+      "cer": 0.5323,
+      "wer": 1.2759,
+      "line_recall": 1.0,
+      "flagged_lines": 20,
+      "skew_deg": 0.0
+    },
+    {
+      "copy": "test_copy_11.jpg",
+      "cer": 0.3692,
+      "wer": 1.0167,
+      "line_recall": 1.0,
+      "flagged_lines": 19,
+      "skew_deg": 0.0
+    }
+  ]
+}

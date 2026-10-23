@@ -1,0 +1,2331 @@
+{
+ "val": [
+  {
+   "file": "val_copy_00.jpg",
+   "strength": 0.8,
+   "skew_deg": 0.97,
+   "questions": [
+    "Hindi-Mock16-3",
+    "Hindi-Mock16-5",
+    "Mock 17-04",
+    "Mock 17-05",
+    "Mock 17-06",
+    "Mock 17-17",
+    "Mock 17-24",
+    "Mock 17-27"
+   ],
+   "gt_lines": [
+    [
+     "nutrient",
+     239,
+     291
+    ],
+    [
+     "Architecture",
+     290,
+     344
+    ],
+    [
+     "Exceptional unitary",
+     347,
+     410
+    ],
+    [
+     "asset monetisation,",
+     403,
+     463
+    ],
+    [
+     "granite/gneiss rocks,",
+     463,
+     527
+    ],
+    [
+     "context",
+     528,
+     578
+    ],
+    [
+     "encroachment, and",
+     584,
+     644
+    ],
+    [
+     "pastoral communities",
+     636,
+     699
+    ],
+    [
+     "example within the 25-word",
+     696,
+     762
+    ],
+    [
+     "शक्तियों के वितरण की प्रमुख",
+     752,
+     822
+    ],
+    [
+     "marks): (a) Explain the major",
+     813,
+     878
+    ],
+    [
+     "and groundwater",
+     875,
+     937
+    ],
+    [
+     "juliflora",
+     934,
+     993
+    ],
+    [
+     "Explain the meaning of",
+     988,
+     1052
+    ],
+    [
+     "fragmentation:",
+     1049,
+     1111
+    ],
+    [
+     "write the root word (मूल शब्द)",
+     1101,
+     1170
+    ],
+    [
+     "for: 1. मानवता, 2.",
+     1159,
+     1218
+    ],
+    [
+     "policy significance of",
+     1215,
+     1278
+    ],
+    [
+     "ही व्यय या कार्य करना चाहिए",
+     1272,
+     1338
+    ],
+    [
+     "President's Rule (Art",
+     1332,
+     1392
+    ],
+    [
+     "India.",
+     1398,
+     1450
+    ],
+    [
+     "भारत में कुपोषण के दो",
+     1449,
+     1518
+    ]
+   ]
+  },
+  {
+   "file": "val_copy_01.jpg",
+   "strength": 1.0,
+   "skew_deg": -1.44,
+   "questions": [
+    "Hindi-Mock16-3",
+    "Hindi-Mock16-5",
+    "Mock 17-04",
+    "Mock 17-05",
+    "Mock 17-06",
+    "Mock 17-17",
+    "Mock 17-24",
+    "Mock 17-35"
+   ],
+   "gt_lines": [
+    [
+     "in non-strategic CPSEs,",
+     221,
+     288
+    ],
+    [
+     "(Articles 245–255) dividing",
+     273,
+     342
+    ],
+    [
+     "definition).",
+     337,
+     396
+    ],
+    [
+     "25-word limit",
+     395,
+     451
+    ],
+    [
+     "threatening endemic fauna",
+     454,
+     523
+    ],
+    [
+     "Vittala temples).",
+     507,
+     572
+    ],
+    [
+     "मरुस्थलीकरण",
+     563,
+     623
+    ],
+    [
+     "railways, steel),",
+     623,
+     687
+    ],
+    [
+     "विकल्प (क): अर्थ के",
+     680,
+     745
+    ],
+    [
+     "xerophytic flora and",
+     736,
+     802
+    ],
+    [
+     "3. हवा में उड़ना —",
+     801,
+     869
+    ],
+    [
+     "विधानवाचक, 2. निषेधवाचक, 3.",
+     860,
+     930
+    ],
+    [
+     "आस; 5. बचपन =",
+     917,
+     979
+    ],
+    [
+     "संदेहवाचक, 7. संकेतवाचक, 8.",
+     974,
+     1043
+    ],
+    [
+     "356)",
+     1026,
+     1082
+    ],
+    [
+     "irrigation (e.g., Indira Gandhi",
+     1090,
+     1160
+    ],
+    [
+     "में केंद्र एवं",
+     1150,
+     1214
+    ],
+    [
+     "Poor sanitation, unsafe",
+     1202,
+     1267
+    ],
+    [
+     "Rajya Sabha resolution (Art",
+     1265,
+     1334
+    ],
+    [
+     "उड़ना 4. तेते पाँव",
+     1321,
+     1385
+    ],
+    [
+     "Parliamentary power on",
+     1379,
+     1447
+    ],
+    [
+     "(ख) निम्नलिखित",
+     1436,
+     1501
+    ]
+   ]
+  },
+  {
+   "file": "val_copy_02.jpg",
+   "strength": 1.2,
+   "skew_deg": 1.17,
+   "questions": [
+    "Hindi-Mock16-3",
+    "Hindi-Mock16-5",
+    "Mock 17-04",
+    "Mock 17-05",
+    "Mock 17-06",
+    "Mock 17-17",
+    "Mock 17-24",
+    "Mock 17-35"
+   ],
+   "gt_lines": [
+    [
+     "international",
+     233,
+     288
+    ],
+    [
+     "historical, or",
+     291,
+     350
+    ],
+    [
+     "pressure: overgrazing of",
+     343,
+     409
+    ],
+    [
+     "Anthropogenic livestock &",
+     402,
+     469
+    ],
+    [
+     "Mandapams with",
+     461,
+     525
+    ],
+    [
+     "suffix (प्रत्यय) and",
+     523,
+     588
+    ],
+    [
+     "सिर आँखों पर रखना 2. मुँह की बात",
+     575,
+     647
+    ],
+    [
+     "employment generation, and",
+     631,
+     699
+    ],
+    [
+     "249), National Emergency",
+     696,
+     763
+    ],
+    [
+     "Persistent land",
+     759,
+     814
+    ],
+    [
+     "carved horse/mythical",
+     815,
+     880
+    ],
+    [
+     "the basis of meaning with",
+     870,
+     937
+    ],
+    [
+     "absorption",
+     932,
+     993
+    ],
+    [
+     "recurrent",
+     990,
+     1042
+    ],
+    [
+     "Vijayanagara Architecture in",
+     1038,
+     1105
+    ],
+    [
+     "Seventh Schedule)",
+     1101,
+     1162
+    ],
+    [
+     "(Orans/Gauchars) and fuelwood",
+     1158,
+     1224
+    ],
+    [
+     "भारतीय संविधान",
+     1219,
+     1279
+    ],
+    [
+     "प्रत्येक का वाक्य में",
+     1279,
+     1339
+    ],
+    [
+     "= समाज + इक; 3. लिखावट =",
+     1332,
+     1398
+    ],
+    [
+     "1. मानवता 2. सामाजिक 3. लिखावट",
+     1394,
+     1459
+    ],
+    [
+     "List (exclusive",
+     1448,
+     1508
+    ]
+   ]
+  },
+  {
+   "file": "val_copy_03.jpg",
+   "strength": 0.8,
+   "skew_deg": -0.19,
+   "questions": [
+    "Hindi-Mock16-3",
+    "Hindi-Mock16-5",
+    "Mock 17-04",
+    "Mock 17-05",
+    "Mock 17-06",
+    "Mock 17-17",
+    "Mock 17-24",
+    "Mock 17-27",
+    "Mock 17-35"
+   ],
+   "gt_lines": [
+    [
+     "2. मुँह की बात छीन",
+     224,
+     288
+    ],
+    [
+     "Vijayanagara",
+     284,
+     342
+    ],
+    [
+     "Maharatna/Navratna autonomy,",
+     346,
+     405
+    ],
+    [
+     "semi-arid regions of",
+     404,
+     463
+    ],
+    [
+     "Desertification in the",
+     462,
+     514
+    ],
+    [
+     "shrines, and secular",
+     522,
+     578
+    ],
+    [
+     "जेती लंबी सौर — अपनी",
+     573,
+     630
+    ],
+    [
+     "demographic",
+     634,
+     692
+    ],
+    [
+     "sand dunes",
+     691,
+     742
+    ],
+    [
+     "पसारिए जेती लंबी सौर",
+     752,
+     815
+    ],
+    [
+     "between the Union and the",
+     809,
+     861
+    ],
+    [
+     "example within the",
+     870,
+     929
+    ],
+    [
+     "Bundelkhand Plateau of Uttar",
+     928,
+     980
+    ],
+    [
+     "birth weight, and",
+     982,
+     1040
+    ],
+    [
+     "Southern upland",
+     1037,
+     1095
+    ],
+    [
+     "or policy significance of",
+     1094,
+     1153
+    ],
+    [
+     "region of UP (comprising Jhansi,",
+     1152,
+     1211
+    ],
+    [
+     "case of repugnancy on Concurrent",
+     1210,
+     1269
+    ],
+    [
+     "of ancient Archaean",
+     1276,
+     1328
+    ],
+    [
+     "nutrition, early marriage, low",
+     1334,
+     1393
+    ],
+    [
+     "Reform trajectory:",
+     1392,
+     1450
+    ],
+    [
+     "4. मिठास, 5. बचपन.",
+     1446,
+     1507
+    ]
+   ]
+  },
+  {
+   "file": "val_copy_04.jpg",
+   "strength": 1.0,
+   "skew_deg": 1.26,
+   "questions": [
+    "Hindi-Mock16-3",
+    "Hindi-Mock16-5",
+    "Mock 17-04",
+    "Mock 17-05",
+    "Mock 17-06",
+    "Mock 17-17",
+    "Mock 17-27",
+    "Mock 17-35"
+   ],
+   "gt_lines": [
+    [
+     "enterprises in the Indian",
+     227,
+     294
+    ],
+    [
+     "को अलग कीजिए और",
+     295,
+     363
+    ],
+    [
+     "विस्मयादिबोधक (प्रत्येक",
+     348,
+     414
+    ],
+    [
+     "पारिस्थितिक संरक्षण की प्रमुख",
+     410,
+     481
+    ],
+    [
+     "following (10",
+     468,
+     531
+    ],
+    [
+     "Severe climatic stress: erratic",
+     523,
+     585
+    ],
+    [
+     "red-black soils (Rakar,",
+     577,
+     640
+    ],
+    [
+     "Parwa, Mar, Kabar),",
+     635,
+     697
+    ],
+    [
+     "Concise illustration or",
+     696,
+     755
+    ],
+    [
+     "Pradesh context",
+     755,
+     812
+    ],
+    [
+     "प्रमुख कारण",
+     819,
+     877
+    ],
+    [
+     "आधार पर 8 वाक्य भेद— 1.",
+     870,
+     935
+    ],
+    [
+     "types of sentences in Hindi on",
+     921,
+     990
+    ],
+    [
+     "विशेषताएँ बताइए।",
+     986,
+     1051
+    ],
+    [
+     "के उपक्रमों की भूमिका",
+     1044,
+     1115
+    ],
+    [
+     "and New Public Sector",
+     1105,
+     1164
+    ],
+    [
+     "प्रश्नवाचक, 4.",
+     1163,
+     1222
+    ],
+    [
+     "bureaucratic interference,",
+     1213,
+     1278
+    ],
+    [
+     "का स्पष्ट उदाहरण)",
+     1279,
+     1343
+    ],
+    [
+     "विचार को पहले ही कह",
+     1334,
+     1401
+    ],
+    [
+     "productivity (UNCCD",
+     1391,
+     1457
+    ],
+    [
+     "भारतीय",
+     1453,
+     1511
+    ]
+   ]
+  },
+  {
+   "file": "val_copy_05.jpg",
+   "strength": 1.2,
+   "skew_deg": -0.24,
+   "questions": [
+    "Hindi-Mock16-3",
+    "Hindi-Mock16-5",
+    "Mock 17-04",
+    "Mock 17-05",
+    "Mock 17-06",
+    "Mock 17-17",
+    "Mock 17-27",
+    "Mock 17-35"
+   ],
+   "gt_lines": [
+    [
+     "बताइए।",
+     224,
+     276
+    ],
+    [
+     "decision-making,",
+     287,
+     345
+    ],
+    [
+     "states (Art 252),",
+     345,
+     400
+    ],
+    [
+     "(dividends/taxes)",
+     405,
+     460
+    ],
+    [
+     "कीजिए।",
+     461,
+     522
+    ],
+    [
+     "(low intake of proteins,",
+     515,
+     574
+    ],
+    [
+     "Threefold list system: Union",
+     579,
+     638
+    ],
+    [
+     "रखना — आदरपूर्वक स्वीकार करना",
+     630,
+     695
+    ],
+    [
+     "मूल शब्द लिखिए—",
+     692,
+     757
+    ],
+    [
+     "सार्वजनिक क्षेत्र",
+     750,
+     809
+    ],
+    [
+     "मानवता = मानव",
+     811,
+     858
+    ],
+    [
+     "Lalitpur, Banda,",
+     869,
+     927
+    ],
+    [
+     "balanced regional development,",
+     924,
+     983
+    ],
+    [
+     "State the major features of the",
+     978,
+     1037
+    ],
+    [
+     "national",
+     1037,
+     1088
+    ],
+    [
+     "Analyse the role of",
+     1098,
+     1156
+    ],
+    [
+     "reducing biological",
+     1153,
+     1211
+    ],
+    [
+     "विश्लेषण कीजिए।",
+     1211,
+     1272
+    ],
+    [
+     "depletion",
+     1268,
+     1326
+    ],
+    [
+     "State two major causes",
+     1333,
+     1392
+    ],
+    [
+     "socio-economic",
+     1391,
+     1442
+    ],
+    [
+     "and recurrent",
+     1443,
+     1494
+    ]
+   ]
+  }
+ ],
+ "test": [
+  {
+   "file": "test_copy_00.jpg",
+   "strength": 0.8,
+   "skew_deg": 0.81,
+   "questions": [
+    "Hindi-Mock16-1(b)",
+    "Hindi-Mock16-1(d)",
+    "Hindi-Mock16-4b",
+    "Mock 17-07",
+    "Mock 17-08",
+    "Mock 17-10",
+    "Mock 17-14",
+    "Mock 17-18",
+    "Mock 17-21",
+    "Mock 17-28",
+    "Mock 17-29",
+    "Mock 17-39"
+   ],
+   "gt_lines": [
+    [
+     "होते हैं",
+     237,
+     297
+    ],
+    [
+     "values, and ethics",
+     287,
+     346
+    ],
+    [
+     "legislates for all or part of",
+     346,
+     410
+    ],
+    [
+     "entries) on which Parliament",
+     408,
+     469
+    ],
+    [
+     "(ख) संबंधों में विश्वास और",
+     466,
+     532
+    ],
+    [
+     "of different modes of",
+     521,
+     576
+    ],
+    [
+     "distribution",
+     582,
+     635
+    ],
+    [
+     "students.",
+     639,
+     692
+    ],
+    [
+     "has exclusive power to",
+     699,
+     762
+    ],
+    [
+     "goals.",
+     760,
+     819
+    ],
+    [
+     "Councils, house systems,",
+     807,
+     871
+    ],
+    [
+     "constitutional",
+     870,
+     924
+    ],
+    [
+     "महाजनपद",
+     932,
+     983
+    ],
+    [
+     "Concurrent List (List III,",
+     989,
+     1049
+    ],
+    [
+     "policy significance of",
+     1044,
+     1106
+    ],
+    [
+     "(One District One",
+     1100,
+     1159
+    ],
+    [
+     "ईमानदारी, निरंतरता और",
+     1158,
+     1222
+    ],
+    [
+     "Abhiyaan",
+     1218,
+     1278
+    ],
+    [
+     "सार्थक बन जाता है।",
+     1280,
+     1344
+    ],
+    [
+     "Civil aviation &",
+     1338,
+     1392
+    ],
+    [
+     "अनुवाद कीजिए— (10",
+     1397,
+     1464
+    ],
+    [
+     "(Mission Saksham",
+     1448,
+     1507
+    ]
+   ]
+  },
+  {
+   "file": "test_copy_01.jpg",
+   "strength": 1.0,
+   "skew_deg": 0.62,
+   "questions": [
+    "Hindi-Mock16-1(b)",
+    "Hindi-Mock16-1(d)",
+    "Hindi-Mock16-4b",
+    "Mock 17-07",
+    "Mock 17-08",
+    "Mock 17-10",
+    "Mock 17-13",
+    "Mock 17-14",
+    "Mock 17-21",
+    "Mock 17-28",
+    "Mock 17-29"
+   ],
+   "gt_lines": [
+    [
+     "What is the importance of trust",
+     231,
+     294
+    ],
+    [
+     "Agra-Lucknow, Ganga",
+     288,
+     349
+    ],
+    [
+     "Strong institutional &",
+     348,
+     409
+    ],
+    [
+     "के साथ-साथ ईमानदार",
+     409,
+     471
+    ],
+    [
+     "चाहिए।",
+     467,
+     529
+    ],
+    [
+     "Ganga) boosting tourism,",
+     524,
+     586
+    ],
+    [
+     "sanitation,",
+     578,
+     634
+    ],
+    [
+     "units",
+     637,
+     688
+    ],
+    [
+     "the States?",
+     694,
+     746
+    ],
+    [
+     "banking, atomic",
+     751,
+     811
+    ],
+    [
+     "भी प्रत्यक्ष संवाद,",
+     813,
+     875
+    ],
+    [
+     "marks)",
+     872,
+     927
+    ],
+    [
+     "Seventh Schedule) in the Indian",
+     929,
+     989
+    ],
+    [
+     "Development Societies,",
+     982,
+     1043
+    ],
+    [
+     "6th century BCE (e.g.,",
+     1040,
+     1101
+    ],
+    [
+     "energy, railways,",
+     1101,
+     1161
+    ],
+    [
+     "Community bridge &",
+     1157,
+     1218
+    ],
+    [
+     "(fortified",
+     1221,
+     1277
+    ],
+    [
+     "(Article 246 &",
+     1273,
+     1330
+    ],
+    [
+     "suboptimal infant feeding",
+     1335,
+     1397
+    ],
+    [
+     "धैर्यपूर्वक सुनना और",
+     1396,
+     1464
+    ],
+    [
+     "और परस्पर सम्मान पर टिके",
+     1450,
+     1510
+    ]
+   ]
+  },
+  {
+   "file": "test_copy_02.jpg",
+   "strength": 1.2,
+   "skew_deg": 0.34,
+   "questions": [
+    "Hindi-Mock16-4b",
+    "Mock 17-07",
+    "Mock 17-10",
+    "Mock 17-13",
+    "Mock 17-14",
+    "Mock 17-18",
+    "Mock 17-21",
+    "Mock 17-29",
+    "Mock 17-31",
+    "Mock 17-39"
+   ],
+   "gt_lines": [
+    [
+     "विभिन्न साधनों के विकास तथा",
+     234,
+     292
+    ],
+    [
+     "High availability of",
+     285,
+     344
+    ],
+    [
+     "or example",
+     347,
+     405
+    ],
+    [
+     "Concise illustration",
+     406,
+     458
+    ],
+    [
+     "Key constitutional,",
+     466,
+     525
+    ],
+    [
+     "in the Indian / Uttar",
+     520,
+     575
+    ],
+    [
+     "(सतत/समान) व्यवहार से होता",
+     580,
+     643
+    ],
+    [
+     "Favourable",
+     642,
+     693
+    ],
+    [
+     "विधायी शक्तियों का विभाजन किस",
+     695,
+     753
+    ],
+    [
+     "operating in strategic",
+     752,
+     811
+    ],
+    [
+     "fortification",
+     811,
+     862
+    ],
+    [
+     "Navratna,",
+     867,
+     921
+    ],
+    [
+     "ethical decisions, resolve",
+     923,
+     980
+    ],
+    [
+     "उपायों की चर्चा",
+     988,
+     1043
+    ],
+    [
+     "Public Sector",
+     1041,
+     1093
+    ],
+    [
+     "/ Uttar Pradesh context",
+     1103,
+     1159
+    ],
+    [
+     "and state SAP/MSP",
+     1160,
+     1215
+    ],
+    [
+     "Mahajanapadas in the Indian",
+     1214,
+     1274
+    ],
+    [
+     "PM POSHAN (Mid-Day Meal),",
+     1277,
+     1337
+    ],
+    [
+     "regional economic",
+     1332,
+     1391
+    ],
+    [
+     "service (NSS/Scouts), sports, and",
+     1390,
+     1451
+    ],
+    [
+     "and friends gives us",
+     1452,
+     1511
+    ]
+   ]
+  },
+  {
+   "file": "test_copy_03.jpg",
+   "strength": 0.8,
+   "skew_deg": 1.46,
+   "questions": [
+    "Hindi-Mock16-1(b)",
+    "Hindi-Mock16-1(d)",
+    "Hindi-Mock16-4b",
+    "Mock 17-07",
+    "Mock 17-08",
+    "Mock 17-14",
+    "Mock 17-18",
+    "Mock 17-28",
+    "Mock 17-29",
+    "Mock 17-31"
+   ],
+   "gt_lines": [
+    [
+     "हैं",
+     245,
+     305
+    ],
+    [
+     "स्पष्ट संवाद और",
+     294,
+     357
+    ],
+    [
+     "understanding and mutual",
+     350,
+     420
+    ],
+    [
+     "Public Sector Enterprises",
+     404,
+     473
+    ],
+    [
+     "कीजिए।",
+     471,
+     535
+    ],
+    [
+     "Miniratna)",
+     528,
+     587
+    ],
+    [
+     "competency-based",
+     578,
+     644
+    ],
+    [
+     "और निरंतर व्यवहार से",
+     641,
+     709
+    ],
+    [
+     "Encouraging participatory",
+     691,
+     760
+    ],
+    [
+     "Key constitutional,",
+     755,
+     821
+    ],
+    [
+     "legislate.",
+     817,
+     879
+    ],
+    [
+     "Commercial enterprises in which",
+     867,
+     939
+    ],
+    [
+     "illustration or example",
+     926,
+     994
+    ],
+    [
+     "नेतृत्व क्षमता विकसित",
+     992,
+     1064
+    ],
+    [
+     "(घ) गद्यांश का सारांश लगभग",
+     1042,
+     1110
+    ],
+    [
+     "शिक्षक की बदलती भूमिका स्पष्ट",
+     1099,
+     1173
+    ],
+    [
+     "divided between the Union and",
+     1152,
+     1217
+    ],
+    [
+     "insecurity,",
+     1227,
+     1289
+    ],
+    [
+     "और संबंधों में स्थायित्व",
+     1275,
+     1339
+    ],
+    [
+     "Communication becomes meaningful",
+     1328,
+     1401
+    ],
+    [
+     "प्रदान करने तक सीमित नहीं",
+     1392,
+     1461
+    ],
+    [
+     "Concise illustration or",
+     1453,
+     1513
+    ]
+   ]
+  },
+  {
+   "file": "test_copy_04.jpg",
+   "strength": 1.0,
+   "skew_deg": 0.8,
+   "questions": [
+    "Hindi-Mock16-1(b)",
+    "Hindi-Mock16-1(d)",
+    "Hindi-Mock16-4b",
+    "Mock 17-07",
+    "Mock 17-10",
+    "Mock 17-13",
+    "Mock 17-14",
+    "Mock 17-18",
+    "Mock 17-21",
+    "Mock 17-28",
+    "Mock 17-29",
+    "Mock 17-39"
+   ],
+   "gt_lines": [
+    [
+     "बीच संबंध स्पष्ट कीजिए।",
+     230,
+     296
+    ],
+    [
+     "Subject-matter",
+     295,
+     356
+    ],
+    [
+     "and communication in",
+     347,
+     403
+    ],
+    [
+     "क्षेत्रीय आर्थिक गतिविधियों के",
+     408,
+     472
+    ],
+    [
+     "State the favourable",
+     463,
+     518
+    ],
+    [
+     "agro-climatic",
+     520,
+     581
+    ],
+    [
+     "residuary power",
+     583,
+     644
+    ],
+    [
+     "सुदृढ़ समाज का",
+     636,
+     694
+    ],
+    [
+     "स्वस्थ व सहयोगी संबंध",
+     695,
+     757
+    ],
+    [
+     "co-curricular",
+     751,
+     805
+    ],
+    [
+     "उनके समाधान के लिए आवश्यक",
+     813,
+     879
+    ],
+    [
+     "25-word limit",
+     874,
+     928
+    ],
+    [
+     "आती है",
+     933,
+     994
+    ],
+    [
+     "extraterritorially;",
+     983,
+     1045
+    ],
+    [
+     "significance of",
+     1044,
+     1105
+    ],
+    [
+     "carefully. 5.",
+     1108,
+     1168
+    ],
+    [
+     "leadership skills among",
+     1159,
+     1222
+    ],
+    [
+     "Concise illustration or example",
+     1213,
+     1278
+    ],
+    [
+     "historical, or policy",
+     1276,
+     1338
+    ],
+    [
+     "entries, 42nd",
+     1332,
+     1390
+    ],
+    [
+     "(Anemia Mukt Bharat), and women's",
+     1387,
+     1450
+    ],
+    [
+     "(List I), State",
+     1448,
+     1506
+    ]
+   ]
+  },
+  {
+   "file": "test_copy_05.jpg",
+   "strength": 1.2,
+   "skew_deg": -0.9,
+   "questions": [
+    "Hindi-Mock16-1(b)",
+    "Hindi-Mock16-4b",
+    "Mock 17-07",
+    "Mock 17-10",
+    "Mock 17-13",
+    "Mock 17-14",
+    "Mock 17-18",
+    "Mock 17-21",
+    "Mock 17-28",
+    "Mock 17-29",
+    "Mock 17-31",
+    "Mock 17-39"
+   ],
+   "gt_lines": [
+    [
+     "प्रदान करता है।",
+     220,
+     282
+    ],
+    [
+     "projects, community",
+     280,
+     343
+    ],
+    [
+     "maternal undernutrition, early",
+     342,
+     408
+    ],
+    [
+     "अंक)",
+     395,
+     456
+    ],
+    [
+     "व्यवहार से निर्मित",
+     458,
+     522
+    ],
+    [
+     "majority equity (51% or more) is",
+     513,
+     579
+    ],
+    [
+     "Avanti) mentioned in",
+     566,
+     626
+    ],
+    [
+     "Union List (List I,",
+     627,
+     686
+    ],
+    [
+     "परिस्थितियाँ बताइए।",
+     690,
+     756
+    ],
+    [
+     "and the measures",
+     743,
+     799
+    ],
+    [
+     "legislates for the State",
+     799,
+     863
+    ],
+    [
+     "irrigation",
+     856,
+     916
+    ],
+    [
+     "dietary diversity",
+     920,
+     982
+    ],
+    [
+     "Indian / Uttar Pradesh context",
+     975,
+     1037
+    ],
+    [
+     "education",
+     1032,
+     1085
+    ],
+    [
+     "significance of",
+     1094,
+     1156
+    ],
+    [
+     "Explain the relationship",
+     1150,
+     1214
+    ],
+    [
+     "mills in Western & Terai UP, Cane",
+     1206,
+     1270
+    ],
+    [
+     "climate (20°C–30°C),",
+     1265,
+     1325
+    ],
+    [
+     "subjects) where",
+     1325,
+     1387
+    ],
+    [
+     "communicate",
+     1382,
+     1436
+    ],
+    [
+     "held by Central, State,",
+     1436,
+     1500
+    ]
+   ]
+  },
+  {
+   "file": "test_copy_06.jpg",
+   "strength": 0.8,
+   "skew_deg": 0.11,
+   "questions": [
+    "Hindi-Mock16-4b",
+    "Mock 17-08",
+    "Mock 17-13",
+    "Mock 17-14",
+    "Mock 17-21",
+    "Mock 17-28",
+    "Mock 17-29",
+    "Mock 17-31",
+    "Mock 17-39"
+   ],
+   "gt_lines": [
+    [
+     "individual to articulate",
+     227,
+     278
+    ],
+    [
+     "inquiry-driven, and",
+     285,
+     343
+    ],
+    [
+     "Key",
+     350,
+     406
+    ],
+    [
+     "relationships require",
+     408,
+     466
+    ],
+    [
+     "limit",
+     460,
+     510
+    ],
+    [
+     "and",
+     525,
+     575
+    ],
+    [
+     "significance of",
+     580,
+     638
+    ],
+    [
+     "fertile Gangetic",
+     633,
+     691
+    ],
+    [
+     "Gana-Sanghas)",
+     693,
+     751
+    ],
+    [
+     "Territorial jurisdiction",
+     751,
+     809
+    ],
+    [
+     "है।",
+     807,
+     866
+    ],
+    [
+     "Key constitutional,",
+     869,
+     927
+    ],
+    [
+     "Enterprises (PSEs)",
+     925,
+     983
+    ],
+    [
+     "25-word limit",
+     986,
+     1037
+    ],
+    [
+     "Leadership Skills in the",
+     1039,
+     1097
+    ],
+    [
+     "farms to crushing",
+     1102,
+     1160
+    ],
+    [
+     "vision, inspire collaboration,",
+     1155,
+     1213
+    ],
+    [
+     "formative assessment (NEP",
+     1212,
+     1267
+    ],
+    [
+     "historical, or policy",
+     1276,
+     1334
+    ],
+    [
+     "Union List",
+     1329,
+     1379
+    ],
+    [
+     "Indian / Uttar Pradesh context",
+     1390,
+     1444
+    ],
+    [
+     "development: nurturing",
+     1452,
+     1510
+    ]
+   ]
+  },
+  {
+   "file": "test_copy_07.jpg",
+   "strength": 1.0,
+   "skew_deg": 0.58,
+   "questions": [
+    "Hindi-Mock16-1(d)",
+    "Hindi-Mock16-4b",
+    "Mock 17-07",
+    "Mock 17-08",
+    "Mock 17-13",
+    "Mock 17-14",
+    "Mock 17-18",
+    "Mock 17-21",
+    "Mock 17-28",
+    "Mock 17-29",
+    "Mock 17-31"
+   ],
+   "gt_lines": [
+    [
+     "4. (ख) अंग्रेजी से हिंदी में",
+     228,
+     292
+    ],
+    [
+     "significance of",
+     289,
+     349
+    ],
+    [
+     "originally 97, currently",
+     350,
+     411
+    ],
+    [
+     "व्यक्ति को भावनात्मक सुरक्षा एवं",
+     403,
+     470
+    ],
+    [
+     "Union predominance in",
+     466,
+     527
+    ],
+    [
+     "सुनते हैं, तब संवाद",
+     526,
+     592
+    ],
+    [
+     "English to Hindi (5 × 2 =",
+     579,
+     641
+    ],
+    [
+     "in approximately",
+     638,
+     698
+    ],
+    [
+     "forests, criminal law, marriage,",
+     691,
+     754
+    ],
+    [
+     "भारत में पोषण संबंधी",
+     752,
+     810
+    ],
+    [
+     "समस्याओं के प्रमुख कारणों तथा",
+     813,
+     880
+    ],
+    [
+     "सार्वजनिक क्षेत्र",
+     875,
+     935
+    ],
+    [
+     "246(1)) comprising subjects of",
+     925,
+     988
+    ],
+    [
+     "rice), anemia control",
+     982,
+     1040
+    ],
+    [
+     "उत्पादन के लिए अनुकूल",
+     1047,
+     1114
+    ],
+    [
+     "Social & lifecycle factors:",
+     1099,
+     1161
+    ],
+    [
+     "problem-solving",
+     1157,
+     1217
+    ],
+    [
+     "one-third of its",
+     1221,
+     1274
+    ],
+    [
+     "कीजिए।",
+     1276,
+     1337
+    ],
+    [
+     "List (List II), and Concurrent",
+     1331,
+     1390
+    ],
+    [
+     "2. अच्छे संबंधों के लिए",
+     1393,
+     1458
+    ],
+    [
+     "Seventh Schedule): Union List",
+     1452,
+     1511
+    ]
+   ]
+  },
+  {
+   "file": "test_copy_08.jpg",
+   "strength": 1.2,
+   "skew_deg": 0.1,
+   "questions": [
+    "Hindi-Mock16-4b",
+    "Mock 17-07",
+    "Mock 17-08",
+    "Mock 17-10",
+    "Mock 17-13",
+    "Mock 17-14",
+    "Mock 17-18",
+    "Mock 17-21",
+    "Mock 17-28",
+    "Mock 17-29",
+    "Mock 17-31",
+    "Mock 17-39"
+   ],
+   "gt_lines": [
+    [
+     "handicrafts, and export logistics",
+     234,
+     292
+    ],
+    [
+     "cultivation in Uttar Pradesh.",
+     284,
+     335
+    ],
+    [
+     "उत्तर प्रदेश में गन्ना",
+     342,
+     400
+    ],
+    [
+     "254)",
+     406,
+     460
+    ],
+    [
+     "India and",
+     460,
+     510
+    ],
+    [
+     "historical, or",
+     524,
+     579
+    ],
+    [
+     "5. कठिन समय में",
+     575,
+     631
+    ],
+    [
+     "experiential,",
+     640,
+     698
+    ],
+    [
+     "diarrhoeal",
+     697,
+     747
+    ],
+    [
+     "Amendment moved 5",
+     749,
+     800
+    ],
+    [
+     "times.",
+     815,
+     865
+    ],
+    [
+     "school-community",
+     869,
+     927
+    ],
+    [
+     "constitutional,",
+     930,
+     985
+    ],
+    [
+     "2020)",
+     989,
+     1043
+    ],
+    [
+     "the stage') to facilitator of",
+     1041,
+     1099
+    ],
+    [
+     "नेतृत्व कौशल",
+     1103,
+     1167
+    ],
+    [
+     "Leadership Skills",
+     1155,
+     1213
+    ],
+    [
+     "करने के दो उपाय बताइए।",
+     1213,
+     1276
+    ],
+    [
+     "Union law prevails",
+     1270,
+     1328
+    ],
+    [
+     "(Haldia–Varanasi on",
+     1336,
+     1391
+    ],
+    [
+     "that emerged in",
+     1393,
+     1451
+    ],
+    [
+     "or example within the 25-word",
+     1448,
+     1506
+    ]
+   ]
+  },
+  {
+   "file": "test_copy_09.jpg",
+   "strength": 0.8,
+   "skew_deg": 0.67,
+   "questions": [
+    "Hindi-Mock16-1(b)",
+    "Hindi-Mock16-1(d)",
+    "Mock 17-07",
+    "Mock 17-08",
+    "Mock 17-10",
+    "Mock 17-13",
+    "Mock 17-18",
+    "Mock 17-21",
+    "Mock 17-28",
+    "Mock 17-31",
+    "Mock 17-39"
+   ],
+   "gt_lines": [
+    [
+     "मानवीय जीवन के सामाजिक संबंध",
+     227,
+     287
+    ],
+    [
+     "Expressway & road",
+     294,
+     355
+    ],
+    [
+     "विद्यार्थियों में",
+     351,
+     407
+    ],
+    [
+     "length (~80 words). (10",
+     407,
+     469
+    ],
+    [
+     "this context.",
+     466,
+     519
+    ],
+    [
+     "Competencies",
+     520,
+     580
+    ],
+    [
+     "Digital & inclusive pedagogue:",
+     580,
+     644
+    ],
+    [
+     "घटाने के लिए अनिवार्य",
+     637,
+     701
+    ],
+    [
+     "and core",
+     694,
+     746
+    ],
+    [
+     "Corridor, food parks, and",
+     756,
+     818
+    ],
+    [
+     "required to address them.",
+     812,
+     875
+    ],
+    [
+     "Multidimensional",
+     869,
+     923
+    ],
+    [
+     "Write a summary of the passage",
+     928,
+     992
+    ],
+    [
+     "होता है",
+     991,
+     1052
+    ],
+    [
+     "decision-making, ethical",
+     1046,
+     1108
+    ],
+    [
+     "संघ सूची",
+     1105,
+     1170
+    ],
+    [
+     "सहायक होता है",
+     1161,
+     1223
+    ],
+    [
+     "network of sugar",
+     1215,
+     1276
+    ],
+    [
+     "within the 25-word",
+     1278,
+     1332
+    ],
+    [
+     "आधुनिक संचार साधनों के युग में",
+     1330,
+     1399
+    ],
+    [
+     "Schedule (Article",
+     1396,
+     1454
+    ],
+    [
+     "Shift from rote",
+     1451,
+     1504
+    ]
+   ]
+  },
+  {
+   "file": "test_copy_10.jpg",
+   "strength": 1.0,
+   "skew_deg": 0.73,
+   "questions": [
+    "Hindi-Mock16-1(d)",
+    "Hindi-Mock16-4b",
+    "Mock 17-07",
+    "Mock 17-08",
+    "Mock 17-10",
+    "Mock 17-13",
+    "Mock 17-14",
+    "Mock 17-18",
+    "Mock 17-21",
+    "Mock 17-28",
+    "Mock 17-29",
+    "Mock 17-31",
+    "Mock 17-39"
+   ],
+   "gt_lines": [
+    [
+     "Concurrent List",
+     236,
+     289
+    ],
+    [
+     "98 numbered/100",
+     287,
+     344
+    ],
+    [
+     "socio-emotional",
+     346,
+     399
+    ],
+    [
+     "ICDS, NFSA food",
+     403,
+     460
+    ],
+    [
+     "transmitter ('sage on",
+     467,
+     529
+    ],
+    [
+     "logistics, and MSME",
+     525,
+     586
+    ],
+    [
+     "responsibilities",
+     578,
+     638
+    ],
+    [
+     "सहानुभूति तनाव",
+     643,
+     709
+    ],
+    [
+     "Concise illustration",
+     698,
+     752
+    ],
+    [
+     "/ Uttar Pradesh context",
+     754,
+     812
+    ],
+    [
+     "should not judge others without",
+     807,
+     871
+    ],
+    [
+     "शिक्षक की भूमिका केवल ज्ञान",
+     867,
+     936
+    ],
+    [
+     "debates",
+     932,
+     984
+    ],
+    [
+     "केंद्र एवं राज्यों के बीच",
+     989,
+     1055
+    ],
+    [
+     "Expressways):",
+     1041,
+     1101
+    ],
+    [
+     "Concurrent List repugnancy (Art.",
+     1100,
+     1164
+    ],
+    [
+     "educational leader:",
+     1157,
+     1211
+    ],
+    [
+     "of common",
+     1220,
+     1273
+    ],
+    [
+     "economic sectors.",
+     1276,
+     1330
+    ],
+    [
+     "limit",
+     1341,
+     1392
+    ],
+    [
+     "अंक) 1. Trust is built through",
+     1392,
+     1457
+    ],
+    [
+     "loamy/alluvial",
+     1447,
+     1507
+    ]
+   ]
+  },
+  {
+   "file": "test_copy_11.jpg",
+   "strength": 1.2,
+   "skew_deg": 0.1,
+   "questions": [
+    "Hindi-Mock16-1(b)",
+    "Hindi-Mock16-1(d)",
+    "Hindi-Mock16-4b",
+    "Mock 17-07",
+    "Mock 17-08",
+    "Mock 17-10",
+    "Mock 17-14",
+    "Mock 17-18",
+    "Mock 17-21",
+    "Mock 17-29",
+    "Mock 17-39"
+   ],
+   "gt_lines": [
+    [
+     "10 marks).",
+     234,
+     289
+    ],
+    [
+     "Bundelkhand,",
+     284,
+     339
+    ],
+    [
+     "Anganwadi & Poshan 2.0),",
+     344,
+     402
+    ],
+    [
+     "धैर्यपूर्वक सुनना अपेक्षाओं व",
+     403,
+     468
+    ],
+    [
+     "Industrial",
+     466,
+     516
+    ],
+    [
+     "northern India during the",
+     518,
+     576
+    ],
+    [
+     "containing subjects",
+     577,
+     635
+    ],
+    [
+     "development (CPD),",
+     639,
+     697
+    ],
+    [
+     "Translate from",
+     692,
+     743
+    ],
+    [
+     "Parliament",
+     754,
+     805
+    ],
+    [
+     "which a teacher can develop",
+     808,
+     866
+    ],
+    [
+     "विश्वास, संवाद",
+     866,
+     926
+    ],
+    [
+     "तनाव/गलतफहमियाँ दूर होती हैं",
+     927,
+     993
+    ],
+    [
+     "Synergy with ODOP",
+     988,
+     1046
+    ],
+    [
+     "16 major territorial",
+     1045,
+     1103
+    ],
+    [
+     "weights & measures; 52",
+     1096,
+     1154
+    ],
+    [
+     "a team or educational",
+     1161,
+     1212
+    ],
+    [
+     "network (Purvanchal,",
+     1212,
+     1267
+    ],
+    [
+     "legislative powers",
+     1273,
+     1331
+    ],
+    [
+     "within the 25-word",
+     1332,
+     1383
+    ],
+    [
+     "behaviour. 2. Good",
+     1389,
+     1440
+    ],
+    [
+     "unsafe drinking",
+     1450,
+     1508
+    ]
+   ]
+  }
+ ]
+}

@@ -1,0 +1,72 @@
+{
+ "epochs": [
+  {
+   "epoch": 1,
+   "train_ctc": 5.9554,
+   "val_cer": 1.0,
+   "seconds": 138.1
+  },
+  {
+   "epoch": 2,
+   "train_ctc": 2.5761,
+   "val_cer": 0.5864,
+   "seconds": 276.2
+  },
+  {
+   "epoch": 3,
+   "train_ctc": 0.6172,
+   "val_cer": 0.0988,
+   "seconds": 417.8
+  },
+  {
+   "epoch": 4,
+   "train_ctc": 0.2617,
+   "val_cer": 0.1574,
+   "seconds": 559.5
+  },
+  {
+   "epoch": 5,
+   "train_ctc": 0.1346,
+   "val_cer": 0.0438,
+   "seconds": 696.8
+  },
+  {
+   "epoch": 6,
+   "train_ctc": 0.0778,
+   "val_cer": 0.0382,
+   "seconds": 832.8
+  },
+  {
+   "epoch": 7,
+   "train_ctc": 0.0498,
+   "val_cer": 0.033,
+   "seconds": 968.7
+  },
+  {
+   "epoch": 8,
+   "train_ctc": 0.0348,
+   "val_cer": 0.0296,
+   "seconds": 1112.4
+  },
+  {
+   "epoch": 9,
+   "train_ctc": 0.0277,
+   "val_cer": 0.0291,
+   "seconds": 1249.9
+  },
+  {
+   "epoch": 10,
+   "train_ctc": 0.0254,
+   "val_cer": 0.0288,
+   "seconds": 1387.6
+  }
+ ],
+ "best_val_cer": 0.0288,
+ "charset_size": 139,
+ "n_train_lines": 14000,
+ "n_val_lines": 311,
+ "batch": 48,
+ "lr": 0.002,
+ "augmentation": "page_like (rotation, lighting, noise, JPEG, margins)",
+ "note": "Reconstructed from the training process log after an accidental overwrite; values are identical to the run output."
+}

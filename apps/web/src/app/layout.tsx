@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "UPPSC BEO Mains — Answer-sheet grading",
+  title: "UPPSC BEO Mains — Answer sheet check",
   description:
-    "Answer-sheet grading workspace for UPPSC BEO Mains examiners: papers, scans, handwriting review and marks.",
+    "Check a UPPSC BEO Mains answer sheet against the model answer and see what is missing.",
 };
 
 export default function RootLayout({

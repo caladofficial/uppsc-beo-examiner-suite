@@ -1,0 +1,112 @@
+{
+  "v3_promoted": {
+    "real_word_cer": 1.1928,
+    "real_word_exact": 0.0,
+    "real_line_cer": 0.9707,
+    "synthetic_line_cer": 0.0228
+  },
+  "v4_mixed": {
+    "real_word_cer": 0.2119,
+    "real_word_exact": 0.316,
+    "real_line_cer": 0.2887,
+    "synthetic_line_cer": 0.0293
+  },
+  "tested_checkpoint": "crnn_last.pt",
+  "best_step": 0,
+  "total_steps": 8133,
+  "budget_s": 3600.0,
+  "lr": 0.0001,
+  "batch": 32,
+  "syn_guard_abs": 0.024875,
+  "syn_guard_rel": 1.25,
+  "real_frac": 0.4,
+  "init": "/home/user/ml/htr/results_mixed_v4/crnn_best.pt",
+  "history": [
+    {
+      "step": 500,
+      "synthetic_val_cer": 0.0308,
+      "real_line_val_cer": 0.2326
+    },
+    {
+      "step": 1000,
+      "synthetic_val_cer": 0.0326,
+      "real_line_val_cer": 0.2313
+    },
+    {
+      "step": 1500,
+      "synthetic_val_cer": 0.0323,
+      "real_line_val_cer": 0.2246
+    },
+    {
+      "step": 2000,
+      "synthetic_val_cer": 0.0296,
+      "real_line_val_cer": 0.2268
+    },
+    {
+      "step": 2500,
+      "synthetic_val_cer": 0.0305,
+      "real_line_val_cer": 0.2255
+    },
+    {
+      "step": 3000,
+      "synthetic_val_cer": 0.0296,
+      "real_line_val_cer": 0.2169
+    },
+    {
+      "step": 3500,
+      "synthetic_val_cer": 0.0277,
+      "real_line_val_cer": 0.2167
+    },
+    {
+      "step": 4000,
+      "synthetic_val_cer": 0.0277,
+      "real_line_val_cer": 0.2102
+    },
+    {
+      "step": 4500,
+      "synthetic_val_cer": 0.0273,
+      "real_line_val_cer": 0.2169
+    },
+    {
+      "step": 5000,
+      "synthetic_val_cer": 0.027,
+      "real_line_val_cer": 0.2115
+    },
+    {
+      "step": 5500,
+      "synthetic_val_cer": 0.0284,
+      "real_line_val_cer": 0.2055
+    },
+    {
+      "step": 6000,
+      "synthetic_val_cer": 0.0282,
+      "real_line_val_cer": 0.2012
+    },
+    {
+      "step": 6500,
+      "synthetic_val_cer": 0.0284,
+      "real_line_val_cer": 0.2042
+    },
+    {
+      "step": 7000,
+      "synthetic_val_cer": 0.0278,
+      "real_line_val_cer": 0.2055
+    },
+    {
+      "step": 7500,
+      "synthetic_val_cer": 0.0282,
+      "real_line_val_cer": 0.2074
+    },
+    {
+      "step": 8000,
+      "synthetic_val_cer": 0.0277,
+      "real_line_val_cer": 0.2057
+    },
+    {
+      "step": 8133,
+      "final": true,
+      "synthetic_val_cer": 0.0282,
+      "real_line_val_cer": 0.205
+    }
+  ]
+}

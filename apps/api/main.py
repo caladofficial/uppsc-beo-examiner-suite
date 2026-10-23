@@ -50,6 +50,12 @@ def _load_mod(name: str, rel_path: str):
 ocr_mod = _load_mod("ocr_adapters", "packages/model-adapters/ocr_adapters.py")
 grader_mod = _load_mod("grader_adapter", "packages/model-adapters/grader_adapter.py")
 img_pipe_mod = _load_mod("image_pipeline", "apps/worker/image_pipeline.py")
+try:
+    # Local handwriting reader (CRNN-CTC). If it cannot load, uploads fall back to the visual OCR reader.
+    htr_mod = _load_mod("htr_pipeline", "packages/model-adapters/htr_pipeline.py")
+except Exception as _htr_err:  # noqa: BLE001
+    print(f"[startup] local handwriting reader unavailable: {_htr_err}")
+    htr_mod = None
 
 app = FastAPI(
     title="UPPSC BEO Answer Sheet Grading API",
@@ -1126,9 +1132,23 @@ async def upload_and_quarantine_scan(
         img_input = saved_raw
 
     derivs = img_pipe_mod.generate_reversible_derivatives(img_input, SCANS_DIR, page_id)
-    vlm_ocr = ocr_mod.run_visual_ocr_without_rubric_context(
-        derivs["variants"]["clahe_contrast"]["file_path"]
-    )
+    # Primary reader: local handwriting pipeline on the original page. Its output is provisional and
+    # must be confirmed by a human before grading. Fallback: the visual OCR reader on the CLAHE variant.
+    vlm_ocr = None
+    if htr_mod is not None:
+        try:
+            vlm_ocr = htr_mod.transcribe_page(img_input)
+            if not vlm_ocr.get("full_transcript", "").strip():
+                vlm_ocr = None
+        except Exception as _htr_run_err:  # noqa: BLE001
+            print(f"[upload] handwriting reader failed, using fallback: {_htr_run_err}")
+            vlm_ocr = None
+    if vlm_ocr is None:
+        vlm_ocr = ocr_mod.run_visual_ocr_without_rubric_context(
+            derivs["variants"]["clahe_contrast"]["file_path"]
+        )
+    reader_label = ("Handwriting reader (local)" if vlm_ocr.get("adapter_used") == "handwriting_reader_v3"
+                    else f"Zero-Context OCR ({vlm_ocr.get('adapter_used', 'Reader A')})")
 
     new_page_num = len(sess["pages"]) + 1
     new_page = {
@@ -1163,7 +1183,7 @@ async def upload_and_quarantine_scan(
         "ocr_candidates": [
             {
                 "adapter_id": vlm_ocr.get("adapter_used", "indic_ocr_bodhan"),
-                "adapter_name": f"Zero-Context OCR ({vlm_ocr.get('adapter_used', 'Reader A')})",
+                "adapter_name": reader_label,
                 "calibrated_confidence": conf_val,
                 "transcript": transcript_str
             }

@@ -1,0 +1,105 @@
+[05:38:19] starting from /home/user/ml/htr/results_mixed_v4/crnn_best.pt
+[05:38:49] synthetic bank: train 12000 val 300 in 30s
+[05:38:49] real words: train 68944 val 12547 test 12702; budget 3600.0s lr 0.0001 batch 32
+[05:38:59] baseline v3 on validation: {'synthetic_val_cer': 0.0199, 'real_line_val_cer': 0.9434}
+[05:38:59] synthetic guard: <= 0.0249 (v3 0.0199 x 1.25)
+[05:39:46] step 100 loss 0.414 lr 1.00e-04 elapsed 44s
+[05:40:29] step 200 loss 0.491 lr 9.99e-05 elapsed 87s
+[05:41:15] step 300 loss 0.256 lr 9.97e-05 elapsed 133s
+[05:42:00] step 400 loss 0.240 lr 9.94e-05 elapsed 179s
+[05:42:47] step 500 loss 0.413 lr 9.90e-05 elapsed 226s
+[05:42:50] VAL step 500: {'synthetic_val_cer': 0.0308, 'real_line_val_cer': 0.2326} score 0.1317 guard_ok False
+[05:43:35] step 600 loss 0.372 lr 9.86e-05 elapsed 273s
+[05:44:19] step 700 loss 0.447 lr 9.81e-05 elapsed 318s
+[05:45:04] step 800 loss 0.330 lr 9.75e-05 elapsed 362s
+[05:45:47] step 900 loss 0.411 lr 9.69e-05 elapsed 405s
+[05:46:32] step 1000 loss 0.343 lr 9.62e-05 elapsed 450s
+[05:46:34] VAL step 1000: {'synthetic_val_cer': 0.0326, 'real_line_val_cer': 0.2313} score 0.1320 guard_ok False
+[05:47:22] step 1100 loss 0.382 lr 9.53e-05 elapsed 501s
+[05:48:07] step 1200 loss 0.436 lr 9.44e-05 elapsed 546s
+[05:48:52] step 1300 loss 0.397 lr 9.35e-05 elapsed 590s
+[05:49:36] step 1400 loss 0.219 lr 9.25e-05 elapsed 635s
+[05:50:20] step 1500 loss 0.260 lr 9.15e-05 elapsed 679s
+[05:50:23] VAL step 1500: {'synthetic_val_cer': 0.0323, 'real_line_val_cer': 0.2246} score 0.1285 guard_ok False
+[05:51:06] step 1600 loss 0.301 lr 9.03e-05 elapsed 725s
+[05:51:51] step 1700 loss 0.276 lr 8.91e-05 elapsed 769s
+[05:52:36] step 1800 loss 0.284 lr 8.79e-05 elapsed 814s
+[05:53:19] step 1900 loss 0.310 lr 8.66e-05 elapsed 857s
+[05:54:01] step 2000 loss 0.402 lr 8.54e-05 elapsed 899s
+[05:54:04] VAL step 2000: {'synthetic_val_cer': 0.0296, 'real_line_val_cer': 0.2268} score 0.1282 guard_ok False
+[05:54:46] step 2100 loss 0.372 lr 8.39e-05 elapsed 944s
+[05:55:32] step 2200 loss 0.455 lr 8.24e-05 elapsed 990s
+[05:56:16] step 2300 loss 0.243 lr 8.09e-05 elapsed 1035s
+[05:56:58] step 2400 loss 0.121 lr 7.95e-05 elapsed 1076s
+[05:57:41] step 2500 loss 0.362 lr 7.79e-05 elapsed 1120s
+[05:57:44] VAL step 2500: {'synthetic_val_cer': 0.0305, 'real_line_val_cer': 0.2255} score 0.1280 guard_ok False
+[05:58:29] step 2600 loss 0.216 lr 7.62e-05 elapsed 1167s
+[05:59:12] step 2700 loss 0.333 lr 7.46e-05 elapsed 1210s
+[05:59:56] step 2800 loss 0.365 lr 7.29e-05 elapsed 1254s
+[06:00:38] step 2900 loss 0.374 lr 7.12e-05 elapsed 1297s
+[06:01:23] step 3000 loss 0.350 lr 6.94e-05 elapsed 1342s
+[06:01:26] VAL step 3000: {'synthetic_val_cer': 0.0296, 'real_line_val_cer': 0.2169} score 0.1232 guard_ok False
+[06:02:09] step 3100 loss 0.326 lr 6.76e-05 elapsed 1388s
+[06:02:52] step 3200 loss 0.267 lr 6.58e-05 elapsed 1430s
+[06:03:34] step 3300 loss 0.290 lr 6.41e-05 elapsed 1472s
+[06:04:16] step 3400 loss 0.323 lr 6.23e-05 elapsed 1514s
+[06:04:57] step 3500 loss 0.432 lr 6.06e-05 elapsed 1556s
+[06:05:01] VAL step 3500: {'synthetic_val_cer': 0.0277, 'real_line_val_cer': 0.2167} score 0.1222 guard_ok False
+[06:05:43] step 3600 loss 0.301 lr 5.86e-05 elapsed 1602s
+[06:06:27] step 3700 loss 0.197 lr 5.67e-05 elapsed 1645s
+[06:07:10] step 3800 loss 0.314 lr 5.48e-05 elapsed 1688s
+[06:07:54] step 3900 loss 0.284 lr 5.29e-05 elapsed 1732s
+[06:08:36] step 4000 loss 0.279 lr 5.11e-05 elapsed 1775s
+[06:08:39] VAL step 4000: {'synthetic_val_cer': 0.0277, 'real_line_val_cer': 0.2102} score 0.1190 guard_ok False
+[06:09:22] step 4100 loss 0.340 lr 4.91e-05 elapsed 1821s
+[06:10:03] step 4200 loss 0.349 lr 4.73e-05 elapsed 1862s
+[06:10:46] step 4300 loss 0.391 lr 4.54e-05 elapsed 1904s
+[06:11:28] step 4400 loss 0.384 lr 4.36e-05 elapsed 1946s
+[06:12:08] step 4500 loss 0.439 lr 4.19e-05 elapsed 1986s
+[06:12:11] VAL step 4500: {'synthetic_val_cer': 0.0273, 'real_line_val_cer': 0.2169} score 0.1221 guard_ok False
+[06:12:54] step 4600 loss 0.203 lr 3.99e-05 elapsed 2032s
+[06:13:35] step 4700 loss 0.225 lr 3.81e-05 elapsed 2074s
+[06:14:18] step 4800 loss 0.320 lr 3.64e-05 elapsed 2116s
+[06:15:01] step 4900 loss 0.406 lr 3.45e-05 elapsed 2160s
+[06:15:45] step 5000 loss 0.182 lr 3.27e-05 elapsed 2203s
+[06:15:48] VAL step 5000: {'synthetic_val_cer': 0.027, 'real_line_val_cer': 0.2115} score 0.1192 guard_ok False
+[06:16:32] step 5100 loss 0.276 lr 3.08e-05 elapsed 2250s
+[06:17:16] step 5200 loss 0.280 lr 2.91e-05 elapsed 2294s
+[06:17:58] step 5300 loss 0.298 lr 2.74e-05 elapsed 2336s
+[06:18:42] step 5400 loss 0.262 lr 2.57e-05 elapsed 2380s
+[06:19:27] step 5500 loss 0.207 lr 2.40e-05 elapsed 2425s
+[06:19:30] VAL step 5500: {'synthetic_val_cer': 0.0284, 'real_line_val_cer': 0.2055} score 0.1169 guard_ok False
+[06:20:13] step 5600 loss 0.311 lr 2.23e-05 elapsed 2471s
+[06:20:58] step 5700 loss 0.335 lr 2.07e-05 elapsed 2517s
+[06:21:42] step 5800 loss 0.297 lr 1.92e-05 elapsed 2561s
+[06:22:27] step 5900 loss 0.204 lr 1.77e-05 elapsed 2605s
+[06:23:09] step 6000 loss 0.622 lr 1.63e-05 elapsed 2648s
+[06:23:12] VAL step 6000: {'synthetic_val_cer': 0.0282, 'real_line_val_cer': 0.2012} score 0.1147 guard_ok False
+[06:23:55] step 6100 loss 0.293 lr 1.48e-05 elapsed 2693s
+[06:24:39] step 6200 loss 0.323 lr 1.35e-05 elapsed 2737s
+[06:25:21] step 6300 loss 0.479 lr 1.23e-05 elapsed 2780s
+[06:26:04] step 6400 loss 0.309 lr 1.11e-05 elapsed 2822s
+[06:26:45] step 6500 loss 0.301 lr 9.96e-06 elapsed 2864s
+[06:26:48] VAL step 6500: {'synthetic_val_cer': 0.0284, 'real_line_val_cer': 0.2042} score 0.1163 guard_ok False
+[06:27:30] step 6600 loss 0.283 lr 8.82e-06 elapsed 2909s
+[06:28:15] step 6700 loss 0.322 lr 7.73e-06 elapsed 2954s
+[06:28:59] step 6800 loss 0.351 lr 6.74e-06 elapsed 2998s
+[06:29:45] step 6900 loss 0.149 lr 5.76e-06 elapsed 3044s
+[06:30:30] step 7000 loss 0.331 lr 4.89e-06 elapsed 3088s
+[06:30:33] VAL step 7000: {'synthetic_val_cer': 0.0278, 'real_line_val_cer': 0.2055} score 0.1166 guard_ok False
+[06:31:21] step 7100 loss 0.232 lr 3.98e-06 elapsed 3139s
+[06:32:04] step 7200 loss 0.379 lr 3.28e-06 elapsed 3182s
+[06:32:48] step 7300 loss 0.330 lr 2.63e-06 elapsed 3226s
+[06:33:33] step 7400 loss 0.321 lr 2.03e-06 elapsed 3272s
+[06:34:19] step 7500 loss 0.286 lr 1.51e-06 elapsed 3317s
+[06:34:21] VAL step 7500: {'synthetic_val_cer': 0.0282, 'real_line_val_cer': 0.2074} score 0.1178 guard_ok False
+[06:35:04] step 7600 loss 0.248 lr 1.06e-06 elapsed 3363s
+[06:35:46] step 7700 loss 0.302 lr 7.20e-07 elapsed 3405s
+[06:36:30] step 7800 loss 0.253 lr 4.35e-07 elapsed 3448s
+[06:37:14] step 7900 loss 0.529 lr 2.19e-07 elapsed 3492s
+[06:37:59] step 8000 loss 0.304 lr 7.24e-08 elapsed 3538s
+[06:38:03] VAL step 8000: {'synthetic_val_cer': 0.0277, 'real_line_val_cer': 0.2057} score 0.1167 guard_ok False
+[06:38:46] step 8100 loss 0.265 lr 4.14e-09 elapsed 3585s
+[06:39:04] VAL final step 8133: {'synthetic_val_cer': 0.0282, 'real_line_val_cer': 0.205} score 0.1166
+[06:39:04] testing crnn_last.pt
+[06:41:18] REPORT {"v3_promoted": {"real_word_cer": 1.1928, "real_word_exact": 0.0, "real_line_cer": 0.9707, "synthetic_line_cer": 0.0228}, "v4_mixed": {"real_word_cer": 0.2119, "real_word_exact": 0.316, "real_line_cer": 0.2887, "synthetic_line_cer": 0.0293}}

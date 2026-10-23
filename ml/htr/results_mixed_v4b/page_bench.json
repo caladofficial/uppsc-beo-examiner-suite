@@ -1,0 +1,23 @@
+{
+ "v3": {
+  "cer": 0.02,
+  "wer": 0.0909,
+  "line_recall": 0.9962,
+  "flagged_per_page": 2.92,
+  "spurious": 0
+ },
+ "v4": {
+  "cer": 0.0429,
+  "wer": 0.1872,
+  "line_recall": 0.9962,
+  "flagged_per_page": 6.17,
+  "spurious": 0
+ },
+ "v4b_last": {
+  "cer": 0.0327,
+  "wer": 0.1511,
+  "line_recall": 0.9962,
+  "flagged_per_page": 5.5,
+  "spurious": 0
+ }
+}

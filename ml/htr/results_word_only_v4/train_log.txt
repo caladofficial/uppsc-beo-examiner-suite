@@ -1,0 +1,115 @@
+[06:35:36] train 68944 validation 12547 test 12702 words; budget 3300.0s lr 0.0003 batch 32
+[06:36:42] baseline v3 test: {'cer': 1.1928, 'word_error_rate': 1.0, 'exact_match': 0.0, 'words': 12702}
+[06:37:27] epoch 1 step 100 loss 2.157 lr 3.00e-04 elapsed 43s
+[06:38:10] epoch 1 step 200 loss 1.791 lr 2.99e-04 elapsed 86s
+[06:38:52] epoch 1 step 300 loss 1.494 lr 2.99e-04 elapsed 128s
+[06:39:33] epoch 1 step 400 loss 1.320 lr 2.98e-04 elapsed 169s
+[06:40:14] epoch 1 step 500 loss 1.150 lr 2.97e-04 elapsed 210s
+[06:40:56] epoch 1 step 600 loss 0.970 lr 2.96e-04 elapsed 251s
+[06:41:04] VAL step 600: {'cer': 0.3156, 'word_error_rate': 0.7987, 'exact_match': 0.2013, 'words': 1500}
+[06:41:05] saved best (val CER 0.3156)
+[06:41:43] epoch 1 step 700 loss 0.605 lr 2.94e-04 elapsed 299s
+[06:42:20] epoch 1 step 800 loss 0.643 lr 2.92e-04 elapsed 336s
+[06:42:58] epoch 1 step 900 loss 0.668 lr 2.91e-04 elapsed 374s
+[06:43:34] epoch 1 step 1000 loss 0.871 lr 2.89e-04 elapsed 410s
+[06:44:11] epoch 1 step 1100 loss 0.565 lr 2.87e-04 elapsed 446s
+[06:44:47] epoch 1 step 1200 loss 0.645 lr 2.84e-04 elapsed 483s
+[06:44:55] VAL step 1200: {'cer': 0.2494, 'word_error_rate': 0.7307, 'exact_match': 0.2693, 'words': 1500}
+[06:44:55] saved best (val CER 0.2494)
+[06:45:32] epoch 1 step 1300 loss 0.456 lr 2.81e-04 elapsed 527s
+[06:46:09] epoch 1 step 1400 loss 0.502 lr 2.79e-04 elapsed 565s
+[06:46:46] epoch 1 step 1500 loss 0.822 lr 2.76e-04 elapsed 601s
+[06:47:25] epoch 1 step 1600 loss 0.742 lr 2.73e-04 elapsed 641s
+[06:48:02] epoch 1 step 1700 loss 0.507 lr 2.70e-04 elapsed 677s
+[06:48:39] epoch 1 step 1800 loss 0.524 lr 2.67e-04 elapsed 715s
+[06:48:45] VAL step 1800: {'cer': 0.2374, 'word_error_rate': 0.698, 'exact_match': 0.302, 'words': 1500}
+[06:48:45] saved best (val CER 0.2374)
+[06:49:22] epoch 1 step 1900 loss 0.539 lr 2.63e-04 elapsed 758s
+[06:49:59] epoch 1 step 2000 loss 0.730 lr 2.59e-04 elapsed 795s
+[06:50:36] epoch 1 step 2100 loss 0.389 lr 2.55e-04 elapsed 832s
+[06:51:14] epoch 2 step 2200 loss 0.517 lr 2.51e-04 elapsed 870s
+[06:51:54] epoch 2 step 2300 loss 0.457 lr 2.47e-04 elapsed 910s
+[06:52:34] epoch 2 step 2400 loss 0.380 lr 2.43e-04 elapsed 950s
+[06:52:41] VAL step 2400: {'cer': 0.1956, 'word_error_rate': 0.6273, 'exact_match': 0.3727, 'words': 1500}
+[06:52:41] saved best (val CER 0.1956)
+[06:53:18] epoch 2 step 2500 loss 0.541 lr 2.38e-04 elapsed 993s
+[06:53:53] epoch 2 step 2600 loss 0.502 lr 2.34e-04 elapsed 1029s
+[06:54:31] epoch 2 step 2700 loss 0.439 lr 2.29e-04 elapsed 1067s
+[06:55:08] epoch 2 step 2800 loss 0.337 lr 2.24e-04 elapsed 1104s
+[06:55:45] epoch 2 step 2900 loss 0.339 lr 2.20e-04 elapsed 1141s
+[06:56:22] epoch 2 step 3000 loss 0.300 lr 2.15e-04 elapsed 1178s
+[06:56:29] VAL step 3000: {'cer': 0.1844, 'word_error_rate': 0.6113, 'exact_match': 0.3887, 'words': 1500}
+[06:56:29] saved best (val CER 0.1844)
+[06:57:06] epoch 2 step 3100 loss 0.238 lr 2.09e-04 elapsed 1222s
+[06:57:44] epoch 2 step 3200 loss 0.484 lr 2.04e-04 elapsed 1259s
+[06:58:20] epoch 2 step 3300 loss 0.464 lr 2.00e-04 elapsed 1296s
+[06:58:56] epoch 2 step 3400 loss 0.504 lr 1.95e-04 elapsed 1332s
+[06:59:32] epoch 2 step 3500 loss 0.326 lr 1.90e-04 elapsed 1368s
+[07:00:10] epoch 2 step 3600 loss 0.270 lr 1.85e-04 elapsed 1405s
+[07:00:17] VAL step 3600: {'cer': 0.164, 'word_error_rate': 0.5647, 'exact_match': 0.4353, 'words': 1500}
+[07:00:17] saved best (val CER 0.164)
+[07:00:58] epoch 2 step 3700 loss 0.281 lr 1.78e-04 elapsed 1454s
+[07:01:34] epoch 2 step 3800 loss 0.522 lr 1.73e-04 elapsed 1490s
+[07:02:11] epoch 2 step 3900 loss 0.399 lr 1.68e-04 elapsed 1526s
+[07:02:46] epoch 2 step 4000 loss 0.305 lr 1.62e-04 elapsed 1562s
+[07:03:24] epoch 2 step 4100 loss 0.277 lr 1.57e-04 elapsed 1600s
+[07:04:00] epoch 2 step 4200 loss 0.285 lr 1.52e-04 elapsed 1635s
+[07:04:07] VAL step 4200: {'cer': 0.1542, 'word_error_rate': 0.5353, 'exact_match': 0.4647, 'words': 1500}
+[07:04:07] saved best (val CER 0.1542)
+[07:04:43] epoch 2 step 4300 loss 0.299 lr 1.46e-04 elapsed 1679s
+[07:05:22] epoch 3 step 4400 loss 0.236 lr 1.40e-04 elapsed 1717s
+[07:06:01] epoch 3 step 4500 loss 0.423 lr 1.35e-04 elapsed 1757s
+[07:06:40] epoch 3 step 4600 loss 0.474 lr 1.29e-04 elapsed 1796s
+[07:07:20] epoch 3 step 4700 loss 0.292 lr 1.24e-04 elapsed 1835s
+[07:08:00] epoch 3 step 4800 loss 0.303 lr 1.18e-04 elapsed 1876s
+[07:08:07] VAL step 4800: {'cer': 0.1467, 'word_error_rate': 0.5133, 'exact_match': 0.4867, 'words': 1500}
+[07:08:07] saved best (val CER 0.1467)
+[07:08:45] epoch 3 step 4900 loss 0.272 lr 1.12e-04 elapsed 1921s
+[07:09:21] epoch 3 step 5000 loss 0.286 lr 1.07e-04 elapsed 1957s
+[07:09:57] epoch 3 step 5100 loss 0.165 lr 1.02e-04 elapsed 1993s
+[07:10:35] epoch 3 step 5200 loss 0.207 lr 9.67e-05 elapsed 2031s
+[07:11:12] epoch 3 step 5300 loss 0.238 lr 9.18e-05 elapsed 2068s
+[07:11:49] epoch 3 step 5400 loss 0.271 lr 8.70e-05 elapsed 2105s
+[07:11:56] VAL step 5400: {'cer': 0.146, 'word_error_rate': 0.5093, 'exact_match': 0.4907, 'words': 1500}
+[07:11:56] saved best (val CER 0.146)
+[07:12:32] epoch 3 step 5500 loss 0.339 lr 8.15e-05 elapsed 2148s
+[07:13:08] epoch 3 step 5600 loss 0.222 lr 7.70e-05 elapsed 2184s
+[07:13:45] epoch 3 step 5700 loss 0.239 lr 7.24e-05 elapsed 2220s
+[07:14:21] epoch 3 step 5800 loss 0.279 lr 6.81e-05 elapsed 2257s
+[07:14:57] epoch 3 step 5900 loss 0.155 lr 6.38e-05 elapsed 2293s
+[07:15:32] epoch 3 step 6000 loss 0.277 lr 5.97e-05 elapsed 2328s
+[07:15:39] VAL step 6000: {'cer': 0.1499, 'word_error_rate': 0.5227, 'exact_match': 0.4773, 'words': 1500}
+[07:16:15] epoch 3 step 6100 loss 0.233 lr 5.49e-05 elapsed 2370s
+[07:16:51] epoch 3 step 6200 loss 0.296 lr 5.10e-05 elapsed 2406s
+[07:17:27] epoch 3 step 6300 loss 0.121 lr 4.72e-05 elapsed 2443s
+[07:18:03] epoch 3 step 6400 loss 0.162 lr 4.35e-05 elapsed 2479s
+[07:18:40] epoch 4 step 6500 loss 0.183 lr 3.99e-05 elapsed 2515s
+[07:19:19] epoch 4 step 6600 loss 0.215 lr 3.61e-05 elapsed 2555s
+[07:19:26] VAL step 6600: {'cer': 0.1407, 'word_error_rate': 0.4893, 'exact_match': 0.5107, 'words': 1500}
+[07:19:26] saved best (val CER 0.1407)
+[07:20:02] epoch 4 step 6700 loss 0.146 lr 3.22e-05 elapsed 2598s
+[07:20:39] epoch 4 step 6800 loss 0.124 lr 2.91e-05 elapsed 2635s
+[07:21:16] epoch 4 step 6900 loss 0.173 lr 2.60e-05 elapsed 2672s
+[07:21:52] epoch 4 step 7000 loss 0.186 lr 2.32e-05 elapsed 2707s
+[07:22:30] epoch 4 step 7100 loss 0.220 lr 2.03e-05 elapsed 2746s
+[07:23:09] epoch 4 step 7200 loss 0.200 lr 1.77e-05 elapsed 2785s
+[07:23:17] VAL step 7200: {'cer': 0.1391, 'word_error_rate': 0.4853, 'exact_match': 0.5147, 'words': 1500}
+[07:23:17] saved best (val CER 0.1391)
+[07:23:55] epoch 4 step 7300 loss 0.134 lr 1.47e-05 elapsed 2831s
+[07:24:32] epoch 4 step 7400 loss 0.151 lr 1.25e-05 elapsed 2868s
+[07:25:09] epoch 4 step 7500 loss 0.338 lr 1.05e-05 elapsed 2905s
+[07:25:45] epoch 4 step 7600 loss 0.241 lr 8.65e-06 elapsed 2941s
+[07:26:22] epoch 4 step 7700 loss 0.142 lr 6.98e-06 elapsed 2978s
+[07:26:58] epoch 4 step 7800 loss 0.261 lr 5.52e-06 elapsed 3014s
+[07:27:05] VAL step 7800: {'cer': 0.1368, 'word_error_rate': 0.4807, 'exact_match': 0.5193, 'words': 1500}
+[07:27:05] saved best (val CER 0.1368)
+[07:27:42] epoch 4 step 7900 loss 0.121 lr 3.96e-06 elapsed 3058s
+[07:28:19] epoch 4 step 8000 loss 0.306 lr 2.83e-06 elapsed 3095s
+[07:28:56] epoch 4 step 8100 loss 0.217 lr 1.91e-06 elapsed 3132s
+[07:29:33] epoch 4 step 8200 loss 0.298 lr 1.16e-06 elapsed 3169s
+[07:30:12] epoch 4 step 8300 loss 0.162 lr 5.75e-07 elapsed 3208s
+[07:30:50] epoch 4 step 8400 loss 0.297 lr 1.96e-07 elapsed 3246s
+[07:30:57] VAL step 8400: {'cer': 0.1389, 'word_error_rate': 0.4887, 'exact_match': 0.5113, 'words': 1500}
+[07:31:36] epoch 4 step 8500 loss 0.095 lr 3.93e-09 elapsed 3292s
+[07:31:52] VAL final step 8520: {'cer': 0.137, 'word_error_rate': 0.4847, 'exact_match': 0.5153, 'words': 1500}
+[07:33:00] REPORT baseline {'cer': 1.1928, 'word_error_rate': 1.0, 'exact_match': 0.0, 'words': 12702} -> finetuned {'cer': 0.1457, 'word_error_rate': 0.4941, 'exact_match': 0.5059, 'words': 12702}

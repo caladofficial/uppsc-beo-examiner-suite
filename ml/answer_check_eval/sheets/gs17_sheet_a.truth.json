@@ -1,0 +1,428 @@
+{
+ "paper_id": "uppsc-beo-mains-gs-mock-17-v1",
+ "pdf": "gs17_sheet_a.pdf",
+ "truth": [
+  {
+   "question_id": "Mock 17-01",
+   "level": "strong",
+   "max_marks": 10.0
+  },
+  {
+   "question_id": "Mock 17-02",
+   "level": "weak",
+   "max_marks": 10.0
+  },
+  {
+   "question_id": "Mock 17-03",
+   "level": "off",
+   "max_marks": 10.0
+  },
+  {
+   "question_id": "Mock 17-04",
+   "level": "strong",
+   "max_marks": 10.0
+  },
+  {
+   "question_id": "Mock 17-05",
+   "level": "weak",
+   "max_marks": 10.0
+  },
+  {
+   "question_id": "Mock 17-06",
+   "level": "off",
+   "max_marks": 10.0
+  },
+  {
+   "question_id": "Mock 17-07",
+   "level": "strong",
+   "max_marks": 10.0
+  },
+  {
+   "question_id": "Mock 17-08",
+   "level": "weak",
+   "max_marks": 10.0
+  },
+  {
+   "question_id": "Mock 17-09",
+   "level": "off",
+   "max_marks": 10.0
+  },
+  {
+   "question_id": "Mock 17-10",
+   "level": "strong",
+   "max_marks": 10.0
+  },
+  {
+   "question_id": "Mock 17-11",
+   "level": "weak",
+   "max_marks": 6.0
+  },
+  {
+   "question_id": "Mock 17-12",
+   "level": "off",
+   "max_marks": 6.0
+  },
+  {
+   "question_id": "Mock 17-13",
+   "level": "strong",
+   "max_marks": 6.0
+  },
+  {
+   "question_id": "Mock 17-14",
+   "level": "weak",
+   "max_marks": 6.0
+  },
+  {
+   "question_id": "Mock 17-15",
+   "level": "off",
+   "max_marks": 6.0
+  },
+  {
+   "question_id": "Mock 17-16",
+   "level": "strong",
+   "max_marks": 6.0
+  },
+  {
+   "question_id": "Mock 17-17",
+   "level": "weak",
+   "max_marks": 6.0
+  },
+  {
+   "question_id": "Mock 17-18",
+   "level": "off",
+   "max_marks": 6.0
+  },
+  {
+   "question_id": "Mock 17-19",
+   "level": "strong",
+   "max_marks": 6.0
+  },
+  {
+   "question_id": "Mock 17-20",
+   "level": "weak",
+   "max_marks": 6.0
+  },
+  {
+   "question_id": "Mock 17-21",
+   "level": "off",
+   "max_marks": 2.0
+  },
+  {
+   "question_id": "Mock 17-22",
+   "level": "strong",
+   "max_marks": 2.0
+  },
+  {
+   "question_id": "Mock 17-23",
+   "level": "weak",
+   "max_marks": 2.0
+  },
+  {
+   "question_id": "Mock 17-24",
+   "level": "off",
+   "max_marks": 2.0
+  },
+  {
+   "question_id": "Mock 17-25",
+   "level": "strong",
+   "max_marks": 2.0
+  },
+  {
+   "question_id": "Mock 17-26",
+   "level": "weak",
+   "max_marks": 2.0
+  },
+  {
+   "question_id": "Mock 17-27",
+   "level": "off",
+   "max_marks": 2.0
+  },
+  {
+   "question_id": "Mock 17-28",
+   "level": "strong",
+   "max_marks": 2.0
+  },
+  {
+   "question_id": "Mock 17-29",
+   "level": "weak",
+   "max_marks": 2.0
+  },
+  {
+   "question_id": "Mock 17-30",
+   "level": "off",
+   "max_marks": 2.0
+  },
+  {
+   "question_id": "Mock 17-31",
+   "level": "strong",
+   "max_marks": 2.0
+  },
+  {
+   "question_id": "Mock 17-32",
+   "level": "weak",
+   "max_marks": 2.0
+  },
+  {
+   "question_id": "Mock 17-33",
+   "level": "off",
+   "max_marks": 2.0
+  },
+  {
+   "question_id": "Mock 17-34",
+   "level": "strong",
+   "max_marks": 2.0
+  },
+  {
+   "question_id": "Mock 17-35",
+   "level": "weak",
+   "max_marks": 2.0
+  },
+  {
+   "question_id": "Mock 17-36",
+   "level": "off",
+   "max_marks": 2.0
+  },
+  {
+   "question_id": "Mock 17-37",
+   "level": "strong",
+   "max_marks": 2.0
+  },
+  {
+   "question_id": "Mock 17-38",
+   "level": "weak",
+   "max_marks": 2.0
+  },
+  {
+   "question_id": "Mock 17-39",
+   "level": "off",
+   "max_marks": 2.0
+  },
+  {
+   "question_id": "Mock 17-40",
+   "level": "strong",
+   "max_marks": 2.0
+  }
+ ],
+ "gt_lines": [
+  "1. Transition from pastoral semi-nomadic tribal polity",
+  "(Jana) to territorial agrarian states",
+  "(Janapada/Mahajanapada) Shift from lineage-based",
+  "Sabha/Samiti assemblies to hereditary monarchies",
+  "and oligarchic republics (Gana-Sanghas like Vajji,",
+  "Malla) Rigidification of Varna system from",
+  "occupation-based (Early Vedic) to birth-based",
+  "hierarchy and emergence of Jatis",
+  "2. Radicalisation of nationalist goals: uncompromising",
+  "demand for complete independence (Purna Swaraj) at",
+  "Haripura (1938) & Tripuri (1939) and Forward Bloc",
+  "formation",
+  "3. Multidimensional causes: poverty and food",
+  "insecurity, cereal-heavy diets lacking dietary diversity",
+  "(hidden hunger/micronutrient deficiency of iron,",
+  "vitamin A, zinc)",
+  "4. Constitutional framework under Part XI (Articles",
+  "245–255) dividing powers territorially (Art 245) and by",
+  "subject matter (Art 246 & Seventh Schedule)",
+  "Threefold list system: Union List (exclusive",
+  "Parliamentary power on national importance), State",
+  "List (normal state competence), Concurrent List",
+  "(shared jurisdiction) Union supremacy in case of",
+  "repugnancy on Concurrent List subjects (Article 254)",
+  "and residuary powers vested in Parliament (Article",
+  "248)",
+  "5. Severe climatic stress: erratic rainfall (<250–500",
+  "mm), high evapotranspiration, recurrent droughts, and",
+  "shifting sand dunes",
+  "6. To undermine the loyalty of Indian soldiers serving",
+  "in the British Indian Army and catalyse mass domestic",
+  "revolt",
+  "7. Multidimensional causes: poverty and food",
+  "insecurity, cereal-heavy diets lacking dietary diversity",
+  "(hidden hunger/micronutrient deficiency of iron,",
+  "vitamin A, zinc) Social & lifecycle factors: maternal",
+  "undernutrition, early marriage/pregnancy, suboptimal",
+  "infant feeding practices, gender intra-household bias",
+  "WASH & health deficits: unsafe drinking water, poor",
+  "sanitation, diarrhoeal infections reducing nutrient",
+  "absorption",
+  "8. Shift from rote transmitter ('sage on the stage') to",
+  "facilitator of experiential, inquiry-driven, and",
+  "constructivist learning",
+  "9. Rapid deforestation and encroachment along",
+  "floodplains (e.g., Alaknanda, Mandakini, Bhagirathi",
+  "basins)",
+  "10. Expressway & road network (Purvanchal,",
+  "Bundelkhand, Agra-Lucknow, Ganga Expressways):",
+  "integrating lagging regions (Bundelkhand/Purvanchal)",
+  "with NCR/national markets Rail & Dedicated Freight",
+  "Corridors (EDFC & WDFC junction at Dadri):",
+  "accelerating industrial corridors, coal/agro-freight",
+  "logistics, and MSME clusters Civil aviation & inland",
+  "waterways: 5 international airports and NW-1",
+  "(Haldia–Varanasi on Ganga) boosting tourism,",
+  "handicrafts, and export logistics",
+  "11. Widespread use of iron-tipped ploughshares (ayas)",
+  "in the fertile middle Gangetic alluvial plains generating",
+  "substantial paddy surplus",
+  "12. Additive manufacturing process that constructs",
+  "three-dimensional physical objects layer-by-layer from",
+  "a digital CAD model using polymers, metals, or",
+  "bio-inks, enabling rapid prototyping, custom",
+  "prosthetics, and aerospace components.",
+  "13. Favourable agro-climatic conditions: warm",
+  "sub-tropical climate (20°C–30°C), fertile Gangetic",
+  "loamy/alluvial soil, and abundant canal/tubewell",
+  "irrigation Strong institutional & industrial ecosystem:",
+  "dense network of sugar mills in Western & Terai UP,",
+  "Cane Development Societies, and state SAP/MSP",
+  "procurement High availability of agricultural labour",
+  "and road/rail connectivity from farms to crushing units",
+  "14. Territorial jurisdiction (Article 245): Parliament",
+  "legislates for all or part of India and extraterritorially;",
+  "State Legislature legislates for the State",
+  "15. Severe climatic stress: erratic rainfall (<250–500",
+  "mm), high evapotranspiration, recurrent droughts, and",
+  "shifting sand dunes",
+  "16. Establishing heavy capital-intensive industries,",
+  "core energy/transport infrastructure, and strategic",
+  "defence/atomic sectors post-independence Promoting",
+  "balanced regional development by setting up",
+  "industrial plants in backward regions and generating",
+  "formal employment Mobilising public savings, import",
+  "substitution, and research & development capacity",
+  "17. Household poverty, food insecurity, and lack of",
+  "dietary diversity (low intake of proteins, iron, and",
+  "micronutrients)",
+  "18. Expressway & road network (Purvanchal,",
+  "Bundelkhand, Agra-Lucknow, Ganga Expressways):",
+  "integrating lagging regions (Bundelkhand/Purvanchal)",
+  "with NCR/national markets",
+  "19. Extreme localised cloudbursts and intense",
+  "monsoonal downpours triggering flash floods in steep",
+  "Himalayan river valleys Glacial Lake Outburst Floods",
+  "(GLOFs), seismic slope instability, and unscientific",
+  "road-cutting/hydropower construction in fragile zones",
+  "Rapid deforestation and encroachment along",
+  "floodplains (e.g., Alaknanda, Mandakini, Bhagirathi",
+  "basins)",
+  "20. All-weather last-mile connectivity (PMGSY & state",
+  "rural roads) linking villages to agricultural mandis,",
+  "reducing post-harvest transit losses",
+  "21. Mobilising public savings, import substitution, and",
+  "research & development capacity",
+  "22. Four historic assemblies convened after Buddha's",
+  "Mahaparinirvana at Rajagriha (483 BCE), Vaishali (383",
+  "BCE), Pataliputra (c. 250 BCE under Ashoka), and",
+  "Kundalvana, Kashmir (1st c. CE under Kanishka) to",
+  "codify Tripitaka texts and resolve monastic schisms.",
+  "Key constitutional, historical, or policy significance of",
+  "Buddhist Councils in the Indian / Uttar Pradesh context",
+  "Concise illustration or example within the 25-word",
+  "limit",
+  "23. Major post-Mauryan Deccan dynasty (c. 1st",
+  "century BCE–2nd century CE, capitals",
+  "Pratishthana/Amaravati), founded by Simuka;",
+  "renowned for Gautamiputra Satakarni, matronymics,",
+  "lead/potin coins, land grants to Brahmanas/Buddhist",
+  "monks, and maritime trade.",
+  "24. List III of the Seventh Schedule (Article 246(2))",
+  "containing subjects of common Union-State interest",
+  "(education, forests, criminal law, marriage, weights &",
+  "measures; 52 entries, 42nd Amendment moved 5",
+  "subjects) where Union law prevails in case of conflict",
+  "(Art 254).",
+  "25. Mass anti-colonial civil disobedience movement",
+  "launched on 8 August 1942 at Gowalia Tank, Bombay",
+  "with Gandhi's call of 'Do or Die', marked by",
+  "spontaneous youth/peasant uprisings and parallel",
+  "governments (Ballia, Tamluk, Satara). Key",
+  "constitutional, historical, or policy significance of",
+  "August Revolution (Quit India Movement 1942) in the",
+  "Indian / Uttar Pradesh context Concise illustration or",
+  "example within the 25-word limit",
+  "26. Anti-British revolt launched on 18 February 1946",
+  "by Indian naval ratings aboard HMIS Talwar in Bombay",
+  "over racial discrimination, poor food, and INA trials,",
+  "rapidly spreading to 78 ships and shore",
+  "establishments.",
+  "27. Catalytic psychological impact: 1945–46 Red Fort",
+  "INA Trials sparked nationwide mass upsurge and",
+  "eroded British loyalty within the Indian Armed Forces",
+  "(RIN Mutiny 1946)",
+  "28. List I of the Seventh Schedule (Article 246(1))",
+  "comprising subjects of national importance (defence,",
+  "foreign affairs, banking, atomic energy, railways,",
+  "census; originally 97, currently 98 numbered/100",
+  "entries) on which Parliament has exclusive power to",
+  "legislate. Key constitutional, historical, or policy",
+  "significance of Union List (List I, Seventh Schedule) in",
+  "the Indian / Uttar Pradesh context Concise illustration",
+  "or example within the 25-word limit",
+  "29. List III of the Seventh Schedule (Article 246(2))",
+  "containing subjects of common Union-State interest",
+  "(education, forests, criminal law, marriage, weights &",
+  "measures; 52 entries, 42nd Amendment moved 5",
+  "subjects) where Union law prevails in case of conflict",
+  "(Art 254).",
+  "30. Remedial measures: POSHAN Abhiyaan (Mission",
+  "Saksham Anganwadi & Poshan 2.0), PM POSHAN",
+  "(Mid-Day Meal), ICDS, NFSA food fortification (fortified",
+  "rice), anemia control (Anemia Mukt Bharat), and",
+  "women's education",
+  "31. Commercial enterprises in which majority equity",
+  "(51% or more) is held by Central, State, or joint",
+  "governments (classified as Maharatna, Navratna,",
+  "Miniratna) operating in strategic and core economic",
+  "sectors. Key constitutional, historical, or policy",
+  "significance of Public Sector Enterprises (PSEs) in the",
+  "Indian / Uttar Pradesh context Concise illustration or",
+  "example within the 25-word limit",
+  "32. Government spending that creates productive",
+  "physical/financial assets (roads, railways, schools,",
+  "machinery, equity investments) or reduces financial",
+  "liabilities (loan repayment), yielding long-term",
+  "multiplier growth.",
+  "33. High availability of agricultural labour and road/rail",
+  "connectivity from farms to crushing units",
+  "34. Value-addition transformation of raw agricultural,",
+  "horticultural, dairy, or fishery produce into",
+  "shelf-stable, marketable food products (supported by",
+  "PMKSY, PMFME), reducing post-harvest wastage and",
+  "raising farm incomes. Key constitutional, historical, or",
+  "policy significance of Food Processing in the Indian /",
+  "Uttar Pradesh context Concise illustration or example",
+  "within the 25-word limit",
+  "35. Persistent land degradation in arid, semi-arid, and",
+  "dry sub-humid areas resulting from climatic variations",
+  "and human activities (overgrazing, deforestation,",
+  "unsustainable irrigation), reducing biological",
+  "productivity (UNCCD definition).",
+  "36. Expands rural non-farm employment, access to",
+  "credit/input centres, schools, and primary healthcare",
+  "37. Subfield of Artificial Intelligence where algorithms",
+  "learn statistical patterns from data to make",
+  "predictions or decisions without explicit rule-based",
+  "programming (via supervised, unsupervised, and",
+  "reinforcement learning). Key constitutional, historical,",
+  "or policy significance of Machine Learning in the Indian",
+  "/ Uttar Pradesh context Concise illustration or example",
+  "within the 25-word limit",
+  "38. Additive manufacturing process that constructs",
+  "three-dimensional physical objects layer-by-layer from",
+  "a digital CAD model using polymers, metals, or",
+  "bio-inks, enabling rapid prototyping, custom",
+  "prosthetics, and aerospace components.",
+  "39. Transition from pastoral semi-nomadic tribal polity",
+  "(Jana) to territorial agrarian states",
+  "(Janapada/Mahajanapada)",
+  "40. Structured student-centred pedagogical strategy",
+  "where small heterogeneous groups work together",
+  "toward shared learning goals through positive",
+  "interdependence, individual accountability, and peer",
+  "interaction. Key constitutional, historical, or policy",
+  "significance of Cooperative Learning in the Indian /",
+  "Uttar Pradesh context Concise illustration or example",
+  "within the 25-word limit"
+ ],
+ "pages": 13
+}
