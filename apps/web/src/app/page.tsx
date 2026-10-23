@@ -145,18 +145,39 @@ export default function AnswerCheckPage() {
       form.set("paper_id", paperId);
       form.set("question_id", questionId);
       form.set("file", file);
-      // Upload straight to the answer-check service with a short-lived token (the hosting platform
-      // limits request bodies to a few megabytes, too small for a multi-page sheet).
-      const tokRes = await fetch("/api/token", { cache: "no-store" });
-      if (!tokRes.ok) throw new Error("token");
-      const tok = (await tokRes.json()) as { url: string; token: string };
-      const res = await fetch(`${tok.url}/grade`, {
+      // The sheet goes straight to the answer-check service (the hosting platform limits request
+      // bodies to a few megabytes). The service grades in the background; we poll for the result.
+      // Each request uses a fresh short-lived token from this site's server.
+      async function auth(): Promise<{ url: string; token: string }> {
+        const r = await fetch("/api/token", { cache: "no-store" });
+        if (!r.ok) throw new Error("token");
+        return (await r.json()) as { url: string; token: string };
+      }
+      const first = await auth();
+      const started = await fetch(`${first.url}/grade-jobs`, {
         method: "POST",
         body: form,
-        headers: { "x-service-token": tok.token },
+        headers: { "x-service-token": first.token },
       });
-      if (!res.ok) throw new Error("check failed");
-      setResult((await res.json()) as GradeResult);
+      if (!started.ok) throw new Error("start failed");
+      const { job_id } = (await started.json()) as { job_id: string };
+
+      const deadline = Date.now() + 15 * 60 * 1000;
+      let finished = false;
+      while (Date.now() < deadline) {
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+        const { url, token } = await auth();
+        const r = await fetch(`${url}/grade-jobs/${job_id}`, { cache: "no-store", headers: { "x-service-token": token } });
+        if (!r.ok) throw new Error("poll failed");
+        const body = (await r.json()) as { status: string; result?: GradeResult; detail?: string };
+        if (body.status === "done" && body.result) {
+          setResult(body.result);
+          finished = true;
+          break;
+        }
+        if (body.status === "error") throw new Error(body.detail || "check failed");
+      }
+      if (!finished) throw new Error("timeout");
     } catch {
       setCheckError(true);
     } finally {

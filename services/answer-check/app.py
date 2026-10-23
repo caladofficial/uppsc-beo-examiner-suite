@@ -9,6 +9,9 @@ Flow: page image -> handwriting reader (CRNN-CTC, line level) -> split into answ
 number -> answer_check.check_answer per question -> report.
 """
 import importlib.util
+import threading
+import time
+import uuid
 import json
 import os
 import re
@@ -19,6 +22,7 @@ import cv2
 import numpy as np
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.concurrency import run_in_threadpool
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
@@ -433,16 +437,15 @@ def questions(paper_id: str):
     }
 
 
-@app.post("/grade")
-async def grade_one(paper_id: str = Form(...), question_id: str = Form(...),
-                    file: UploadFile = File(...), use_llm: bool = Form(True)):
+
+def _grade_bytes(paper_id: str, question_id: str, raw: bytes, filename: str, use_llm: bool) -> Dict[str, Any]:
+    """Grade one question from the uploaded bytes. Runs in a worker thread, never on the event loop."""
     paper = PAPERS.get(paper_id)
     if paper is None:
         raise HTTPException(status_code=404, detail="Paper not found.")
     q = next((x for x in paper["questions"] if x["question_id"] == question_id), None)
     if q is None:
         raise HTTPException(status_code=404, detail="Question not found.")
-    raw = await file.read()
     if not raw:
         raise HTTPException(status_code=400, detail="The file is empty.")
     if len(raw) > MAX_BYTES:
@@ -450,7 +453,7 @@ async def grade_one(paper_id: str = Form(...), question_id: str = Form(...),
     if raw[:5] != b"%PDF-" and raw[:3] != b"\xff\xd8\xff" and raw[:4] != b"\x89PNG":
         raise HTTPException(status_code=400, detail="Upload a PDF, PNG or JPG file.")
 
-    lines, reader_info = _read_lines(raw, file.filename or "")
+    lines, reader_info = _read_lines(raw, filename)
     blocks, _unmatched, guessed = _split_answers(lines, paper["questions"])
     key = (q["number"], q["letter"])
     text = " ".join(blocks.get(key, [])).strip()
@@ -478,3 +481,72 @@ async def grade_one(paper_id: str = Form(...), question_id: str = Form(...),
         "llm_marks": res["llm_marks"], "model_answer": model_text, "read_text": text,
         "word_count": kw["word_count"], "points_total": len(kw["points"]),
     }
+
+@app.post("/grade")
+async def grade_one(paper_id: str = Form(...), question_id: str = Form(...),
+                    file: UploadFile = File(...), use_llm: bool = Form(True)):
+    raw = await file.read()
+    return await run_in_threadpool(_grade_bytes, paper_id, question_id, raw, file.filename or "", use_llm)
+
+
+# Background grading jobs: the browser starts a job, then polls. Long runs never hold one HTTP request open.
+_JOBS: Dict[str, Dict[str, Any]] = {}
+_JOBS_LOCK = threading.Lock()
+
+
+def _prune_jobs() -> None:
+    cutoff = time.time() - 3600
+    with _JOBS_LOCK:
+        for jid in [k for k, v in _JOBS.items() if v.get("created", 0) < cutoff]:
+            _JOBS.pop(jid, None)
+
+
+@app.post("/grade-jobs")
+async def start_grade_job(paper_id: str = Form(...), question_id: str = Form(...),
+                          file: UploadFile = File(...), use_llm: bool = Form(True)):
+    paper = PAPERS.get(paper_id)
+    if paper is None:
+        raise HTTPException(status_code=404, detail="Paper not found.")
+    if not any(x["question_id"] == question_id for x in paper["questions"]):
+        raise HTTPException(status_code=404, detail="Question not found.")
+    raw = await file.read()
+    if not raw:
+        raise HTTPException(status_code=400, detail="The file is empty.")
+    if len(raw) > MAX_BYTES:
+        raise HTTPException(status_code=400, detail="The file is larger than 25 MB.")
+    if raw[:5] != b"%PDF-" and raw[:3] != b"\xff\xd8\xff" and raw[:4] != b"\x89PNG":
+        raise HTTPException(status_code=400, detail="Upload a PDF, PNG or JPG file.")
+    filename = file.filename or ""
+    job_id = uuid.uuid4().hex
+    _prune_jobs()
+    with _JOBS_LOCK:
+        _JOBS[job_id] = {"status": "running", "created": time.time()}
+
+    def run() -> None:
+        try:
+            state: Dict[str, Any] = {"status": "done", "result": _grade_bytes(paper_id, question_id, raw, filename, use_llm)}
+        except HTTPException as exc:
+            state = {"status": "error", "detail": str(exc.detail)}
+        except Exception as exc:  # the job must not hang; the cause goes to the service log
+            print(f"[grade-jobs] {type(exc).__name__}: {exc}", file=sys.stderr)
+            state = {"status": "error", "detail": "The answer could not be checked."}
+        with _JOBS_LOCK:
+            _JOBS[job_id].update(state)
+
+    threading.Thread(target=run, daemon=True).start()
+    return {"job_id": job_id}
+
+
+@app.get("/grade-jobs/{job_id}")
+def grade_job_status(job_id: str):
+    with _JOBS_LOCK:
+        job = _JOBS.get(job_id)
+        snapshot = dict(job) if job else None
+    if snapshot is None:
+        raise HTTPException(status_code=404, detail="Job not found.")
+    out: Dict[str, Any] = {"status": snapshot["status"]}
+    if snapshot["status"] == "done":
+        out["result"] = snapshot["result"]
+    if snapshot["status"] == "error":
+        out["detail"] = snapshot["detail"]
+    return out
