@@ -67,6 +67,9 @@ const en = {
   guide: "This result is an automatic guide. A teacher should confirm the marks before they are final.",
   checkAnother: "Check another question",
   startOver: "Start over",
+  accessLabel: "Access code",
+  accessHelp: "Enter the access code given by your coaching centre or examiner.",
+  accessWrong: "The access code is not correct. Please check it and try again.",
 };
 
 const hi: typeof en = {
@@ -131,6 +134,9 @@ const hi: typeof en = {
   guide: "यह परिणाम स्वचालित मार्गदर्शन है। अंक अंतिम होने से पहले शिक्षक को पुष्टि करनी चाहिए।",
   checkAnother: "दूसरा प्रश्न जाँचें",
   startOver: "फिर से शुरू करें",
+  accessLabel: "एक्सेस कोड",
+  accessHelp: "अपने कोचिंग केंद्र या परीक्षक से मिला एक्सेस कोड दर्ज करें।",
+  accessWrong: "एक्सेस कोड सही नहीं है। कृपया जाँचकर फिर प्रयास करें।",
 };
 
 export type Dict = typeof en;

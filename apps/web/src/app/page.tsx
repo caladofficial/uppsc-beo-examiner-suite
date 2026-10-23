@@ -41,6 +41,7 @@ type GradeResult = {
 };
 
 const MAX_BYTES = 25 * 1024 * 1024;
+const ACCESS_STORAGE_KEY = "uppsc-access-code";
 const ACCEPT = ".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg";
 
 const STATUS_STYLE: Record<GradeResult["status"], { key: Key; cls: string }> = {
@@ -69,6 +70,8 @@ export default function AnswerCheckPage() {
   const [checking, setChecking] = useState(false);
   const [checkError, setCheckError] = useState(false);
   const [result, setResult] = useState<GradeResult | null>(null);
+  const [accessCode, setAccessCode] = useState("");
+  const [accessWrong, setAccessWrong] = useState(false);
 
   const t = (key: Key, vars?: Record<string, string | number>) => translate(lang, key, vars);
 
@@ -77,10 +80,22 @@ export default function AnswerCheckPage() {
     try {
       const saved = window.localStorage.getItem(LANG_STORAGE_KEY);
       if (saved === "en" || saved === "hi") setLang(saved);
+      const code = window.sessionStorage.getItem(ACCESS_STORAGE_KEY);
+      if (code) setAccessCode(code);
     } catch {
       /* storage unavailable: keep English */
     }
   }, []);
+
+  function changeAccessCode(value: string) {
+    setAccessCode(value);
+    setAccessWrong(false);
+    try {
+      window.sessionStorage.setItem(ACCESS_STORAGE_KEY, value);
+    } catch {
+      /* storage unavailable: the code must be entered again on reload */
+    }
+  }
 
   useEffect(() => {
     document.documentElement.lang = lang === "hi" ? "hi" : "en";
@@ -149,7 +164,8 @@ export default function AnswerCheckPage() {
       // bodies to a few megabytes). The service grades in the background; we poll for the result.
       // Each request uses a fresh short-lived token from this site's server.
       async function auth(): Promise<{ url: string; token: string }> {
-        const r = await fetch("/api/token", { cache: "no-store" });
+        const r = await fetch("/api/token", { cache: "no-store", headers: { "x-access-code": accessCode.trim() } });
+        if (r.status === 401) throw new Error("access");
         if (!r.ok) throw new Error("token");
         return (await r.json()) as { url: string; token: string };
       }
@@ -178,8 +194,14 @@ export default function AnswerCheckPage() {
         if (body.status === "error") throw new Error(body.detail || "check failed");
       }
       if (!finished) throw new Error("timeout");
-    } catch {
-      setCheckError(true);
+    } catch (err) {
+      if (err instanceof Error && err.message === "access") {
+        // Wrong or missing access code: send the visitor back to the upload step with a message.
+        setAccessWrong(true);
+        setStep(2);
+      } else {
+        setCheckError(true);
+      }
     } finally {
       setChecking(false);
     }
@@ -377,6 +399,22 @@ export default function AnswerCheckPage() {
             />
           </label>
 
+          <div className="mt-6">
+            <label htmlFor="access-code" className="block text-sm font-semibold text-[#3A3C39]">
+              {t("accessLabel")}
+            </label>
+            <p className="mt-1 text-xs text-[#6B6D6A]">{t("accessHelp")}</p>
+            <input
+              id="access-code"
+              type="password"
+              autoComplete="off"
+              value={accessCode}
+              onChange={(e) => changeAccessCode(e.target.value)}
+              className="mt-2 w-full max-w-xs rounded-lg border border-[#D8C5BD] bg-white px-3 py-2 text-sm text-[#3A3C39] focus:border-[#C98B79] focus:outline-none"
+            />
+            {accessWrong && <p className="mt-2 text-sm text-[#8A3B2A]">{t("accessWrong")}</p>}
+          </div>
+
           {file && (
             <p className="mt-4 text-sm text-[#3A3C39]">
               {t("selectedFile")}: <span className="font-medium">{file.name}</span>
@@ -394,7 +432,7 @@ export default function AnswerCheckPage() {
             </button>
             <button
               type="button"
-              disabled={!file}
+              disabled={!file || !accessCode.trim()}
               onClick={start}
               className="rounded-full bg-[#484A47] px-6 py-2.5 text-sm font-medium text-white transition hover:bg-[#3A3C39] disabled:cursor-not-allowed disabled:opacity-40"
             >
