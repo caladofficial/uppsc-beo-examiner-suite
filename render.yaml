@@ -1,0 +1,22 @@
+# Render Blueprint for the answer-check service (grading API).
+# In Render: New > Blueprint > pick this repository. Then fill in the secret values when asked:
+#   GROQ_API_KEY  - your Groq key (rotate the one used during setup first)
+#   SERVICE_KEY   - a long random string; the website's server uses the same value as CHECK_SERVICE_KEY
+# Copy the service URL Render gives you into the website's CHECK_SERVICE_URL setting on Vercel.
+services:
+  - type: web
+    name: uppsc-answer-check
+    runtime: docker
+    dockerfilePath: ./services/answer-check/Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    plan: standard
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: SERVICE_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: openai/gpt-oss-120b
+      - key: VISION_MODEL
+        value: qwen/qwen3.8-27b
