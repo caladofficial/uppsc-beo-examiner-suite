@@ -2,13 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 
 // Answer-check service (Python). Only the server calls it; the browser uses this route.
 const SERVICE_URL = (process.env.CHECK_SERVICE_URL || "http://127.0.0.1:8001").replace(/\/$/, "");
+// Shared secret for the answer-check service (set CHECK_SERVICE_KEY on the host).
+const SERVICE_HEADERS: Record<string, string> = process.env.CHECK_SERVICE_KEY
+  ? { "x-service-key": process.env.CHECK_SERVICE_KEY }
+  : {};
 const MAX_BYTES = 25 * 1024 * 1024;
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const res = await fetch(`${SERVICE_URL}/papers`, { cache: "no-store" });
+    const res = await fetch(`${SERVICE_URL}/papers`, { cache: "no-store", headers: SERVICE_HEADERS });
     const body = await res.json();
     return NextResponse.json(body, { status: res.status });
   } catch {
@@ -36,7 +40,7 @@ export async function POST(req: NextRequest) {
   out.set("paper_id", paperId);
   out.set("file", file, file.name || "answer-sheet");
   try {
-    const res = await fetch(`${SERVICE_URL}/check`, { method: "POST", body: out, cache: "no-store" });
+    const res = await fetch(`${SERVICE_URL}/check`, { method: "POST", body: out, cache: "no-store", headers: SERVICE_HEADERS });
     const body = await res.json().catch(() => ({ error: "bad_response" }));
     return NextResponse.json(body, { status: res.status });
   } catch {

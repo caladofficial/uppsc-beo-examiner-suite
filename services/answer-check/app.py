@@ -45,6 +45,18 @@ HTR = _load("htr_pipeline", os.path.join(ADAPTERS, "htr_pipeline.py"))
 app = FastAPI(title="Answer check service", version="1.0.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
+# Shared secret: when SERVICE_KEY is set, every route except /health needs the matching X-Service-Key header.
+_SERVICE_KEY = os.environ.get("SERVICE_KEY", "").strip()
+
+
+@app.middleware("http")
+async def _require_key(request, call_next):
+    from fastapi.responses import JSONResponse
+    if _SERVICE_KEY and request.url.path != "/health" and request.method != "OPTIONS":
+        if request.headers.get("x-service-key", "") != _SERVICE_KEY:
+            return JSONResponse({"detail": "Not authorised."}, status_code=401)
+    return await call_next(request)
+
 # A line starts a new answer only if it begins with a question number, followed by a separator.
 HEADER = re.compile(
     r"^\s*(?:प्रश्न|प्र\.?|q\.?|question)?\s*(\d{1,2})\s*"

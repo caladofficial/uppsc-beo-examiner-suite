@@ -41,12 +41,20 @@ for root, dirs, files in os.walk("/home/user"):
         if f.startswith(".env") and f != ".env.example":
             continue
         fp = os.path.join(root, f)
+        # Read in chunks (with a small overlap) so large files do not exhaust memory.
         try:
-            data = open(fp, "rb").read().decode("utf-8", errors="ignore")
-            for s in secrets:
-                if s in data:
-                    print("BLOCKING COMMIT - SECRET DETECTED IN:", fp)
-                    leaks += 1
+            with open(fp, "rb") as fh:
+                tail = b""
+                while True:
+                    chunk = fh.read(8 << 20)
+                    if not chunk:
+                        break
+                    buf = tail + chunk
+                    for s in secrets:
+                        if s.encode() in buf:
+                            print("BLOCKING COMMIT - SECRET DETECTED IN:", fp)
+                            leaks += 1
+                    tail = buf[-512:]
         except Exception:
             pass
 
