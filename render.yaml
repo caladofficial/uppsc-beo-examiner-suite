@@ -1,9 +1,9 @@
 # Render Blueprint for the answer-check service (grading API). Free plan.
 # Setup in Render: New > Blueprint > choose this repository.
-# Render asks for two secret values:
+# Render asks for one secret value:
 #   GROQ_API_KEY  - your Groq key (use a new key, the old one was shared in chat)
-#   SERVICE_KEY   - a long random string. The website's server needs the same value (CHECK_SERVICE_KEY on Vercel).
-# When the service is live, Render shows its URL. Send that URL to set the website's CHECK_SERVICE_URL.
+# Render generates SERVICE_KEY itself. Copy it from the service's Environment page into the website's
+# CHECK_SERVICE_KEY setting on Vercel, and copy the service URL into CHECK_SERVICE_URL.
 # Free-plan notes: the service sleeps after about 15 minutes without traffic, so the first request after a
 # pause takes about a minute to wake it. It has no persistent disk, so the cached model answers are rebuilt
 # after a restart.
@@ -19,7 +19,7 @@ services:
       - key: GROQ_API_KEY
         sync: false
       - key: SERVICE_KEY
-        sync: false
+        generateValue: true
       - key: GROQ_MODEL
         value: openai/gpt-oss-120b
       - key: VISION_MODEL
